@@ -173,3 +173,5 @@ The look comes from the five reference shots, kept light enough for a budget And
 | Imagery | None in Stage 1: no photos, no 3D renders, no avatars. Real illustrations can come with the Figma designs | — |
 
 Nothing is copied from the references: no names, text or artwork. They only set the visual direction.
+
+**Photos (decided 2026-11-04):** no university photos. The Stage 1 universities are fictional, and university photos are copyrighted. In Phase 6, I may propose 6–8 freely licensed photos of the real sample cities for city and country headers. Each would show its source, license and size before download, be self-hosted as WebP, and be hidden in lite mode. With real data (Stage 2+), images come from university press kits or are sent by the universities, with credit.

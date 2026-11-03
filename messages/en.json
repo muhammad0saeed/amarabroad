@@ -1,0 +1,38 @@
+{
+  "meta": {
+    "description": "Find programs, universities and scholarships abroad, with eligibility checks made for Bangladeshi students."
+  },
+  "common": {
+    "sampleData": "Sample data",
+    "sampleNotice": "Preview on sample data. Every university, program, number and date is invented."
+  },
+  "header": {
+    "skipToContent": "Skip to content",
+    "home": "{name} home",
+    "switchLanguage": "বাংলা",
+    "switchLanguageLabel": "Switch to Bangla",
+    "theme": "Theme: {mode}",
+    "themeSystem": "System",
+    "themeLight": "Light",
+    "themeDark": "Dark"
+  },
+  "home": {
+    "eyebrow": "Study abroad, made for Bangladesh",
+    "title": "Find your program abroad",
+    "subtitle": "Search programs, check if you're eligible and see the full cost in taka. You decide.",
+    "matchCta": "Match me",
+    "setupTitle": "Setup check",
+    "setupBody": "Phase 2 is done when this page shows both fonts, switches language and switches theme. The real Home page arrives in Phase 5.",
+    "fontSample": "Fonts: Inter for English, Noto Sans Bengali for বাংলা and ৳"
+  },
+  "footer": {
+    "disclaimer": "Guidance only. No admission, scholarship or visa guarantee. Always confirm on the official university page and with the embassy.",
+    "disclaimerLink": "Disclaimer",
+    "privacyLink": "Privacy"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "body": "This page doesn't exist or has moved.",
+    "back": "Go to Home"
+  }
+}

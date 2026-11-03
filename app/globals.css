@@ -1,0 +1,172 @@
+@import "tailwindcss";
+
+/* Dark mode: data-theme="dark" on <html>, set by the theme script and toggle (an attribute React never rewrites). */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+/* Lite mode (slow data, budget phones): data-lite on <html>. */
+@custom-variant lite (&:where([data-lite], [data-lite] *));
+
+/* ------------------------------------------------------------------
+   Design tokens — the one place to change the look (Figma later).
+   Raw values per mode live on :root / .dark; @theme inline maps them
+   to Tailwind utilities (bg-canvas, text-ink, rounded-card, …).
+   ------------------------------------------------------------------ */
+
+:root {
+  --canvas: #f2f3f7;
+  --surface: #ffffff;
+  --surface-2: #f6f7fa;
+  --border: #e3e5ec;
+  --ink: #13141b;
+  --ink-muted: #565b6b;
+
+  --primary: #4741e0;
+  --primary-hover: #3a33c4;
+  --on-primary: #ffffff;
+  --primary-soft: #eceeff;
+  --primary-ink: #3a33c4;
+
+  --success: #11734b;
+  --success-soft: #e3f6ec;
+  --warning: #8a5300;
+  --warning-soft: #fff1d6;
+  --danger: #b42318;
+  --danger-soft: #fde8e6;
+
+  /* Pastel icon tiles (one per field / category). */
+  --tile-indigo: #e7e8ff;
+  --tile-blue: #e1efff;
+  --tile-green: #dff5e8;
+  --tile-pink: #fde6ef;
+  --tile-amber: #fff0d4;
+  --tile-teal: #dcf4f2;
+
+  --shadow-color: 16 18 27;
+}
+
+[data-theme="dark"] {
+  --canvas: #0d0e13;
+  --surface: #171922;
+  --surface-2: #1f2230;
+  --border: #2b2f3e;
+  --ink: #f2f3f8;
+  --ink-muted: #a6abbb;
+
+  --primary: #5b5bf0;
+  --primary-hover: #7072f5;
+  --on-primary: #ffffff;
+  --primary-soft: #23244a;
+  --primary-ink: #a9acff;
+
+  --success: #5ed4a0;
+  --success-soft: #12301f;
+  --warning: #f5c065;
+  --warning-soft: #33260f;
+  --danger: #ff8a80;
+  --danger-soft: #3a1714;
+
+  --tile-indigo: #262857;
+  --tile-blue: #172c46;
+  --tile-green: #15342a;
+  --tile-pink: #3d1c2b;
+  --tile-amber: #3a2c12;
+  --tile-teal: #133536;
+
+  --shadow-color: 0 0 0;
+}
+
+@theme inline {
+  --font-sans: var(--font-inter), var(--font-bengali), "Noto Sans Bengali", ui-sans-serif, system-ui, sans-serif;
+
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-border: var(--border);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-on-primary: var(--on-primary);
+  --color-primary-soft: var(--primary-soft);
+  --color-primary-ink: var(--primary-ink);
+
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+
+  --color-tile-indigo: var(--tile-indigo);
+  --color-tile-blue: var(--tile-blue);
+  --color-tile-green: var(--tile-green);
+  --color-tile-pink: var(--tile-pink);
+  --color-tile-amber: var(--tile-amber);
+  --color-tile-teal: var(--tile-teal);
+
+  --shadow-card: 0 1px 2px rgb(var(--shadow-color) / 0.04), 0 8px 24px rgb(var(--shadow-color) / 0.06);
+  --shadow-float: 0 8px 32px rgb(var(--shadow-color) / 0.14);
+}
+
+@theme {
+  /* Radius: cards, inner tiles; pills use rounded-full. */
+  --radius-card: 1.5rem;
+  --radius-tile: 1rem;
+
+  /* Minimum tap target (44px): h-tap, min-h-tap, size-tap. */
+  --spacing-tap: 2.75rem;
+  /* Mobile-first base width the layout is designed at. */
+  --breakpoint-xs: 22.5rem;
+
+  /* Type scale: big, tight headings over small muted text. */
+  --text-display: 2rem;
+  --text-display--line-height: 1.1;
+  --text-display--letter-spacing: -0.02em;
+  --text-title: 1.5rem;
+  --text-title--line-height: 1.2;
+  --text-title--letter-spacing: -0.015em;
+  --text-heading: 1.125rem;
+  --text-heading--line-height: 1.35;
+  --text-body: 0.9375rem;
+  --text-body--line-height: 1.55;
+  --text-meta: 0.8125rem;
+  --text-meta--line-height: 1.45;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    color-scheme: light;
+  }
+  html[data-theme="dark"] {
+    color-scheme: dark;
+  }
+  body {
+    @apply bg-canvas text-ink font-sans text-body antialiased;
+  }
+  /* Bangla glyphs sit taller; give them a little more room. */
+  :lang(bn) body {
+    line-height: 1.7;
+  }
+  :focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+}
+
+/* Lite mode and reduced motion: no animations or transitions. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+[data-lite] *,
+[data-lite] *::before,
+[data-lite] *::after {
+  animation: none !important;
+  transition: none !important;
+}
