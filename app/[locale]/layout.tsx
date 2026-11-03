@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { hasLocale, NextIntlClientProvider } from "next-intl";
+import { hasLocale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { inter, notoBengali } from "../fonts";
 import { CompareTray } from "@/components/compare/CompareTray";
+import { ClientMessages } from "@/components/layout/ClientMessages";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
@@ -51,7 +52,8 @@ export default async function LocaleLayout({ children, params }: Props) {
         >
           {t("skipToContent")}
         </a>
-        <NextIntlClientProvider>
+        {/* Shell text only; each route's layout adds the text its own client components need. */}
+        <ClientMessages namespaces={[]}>
           <div className="mx-auto flex min-h-dvh w-full max-w-5xl flex-col">
             <Header />
             <main id="main" className="flex-1 px-4">
@@ -61,7 +63,7 @@ export default async function LocaleLayout({ children, params }: Props) {
           </div>
           <CompareTray />
           <BottomNav />
-        </NextIntlClientProvider>
+        </ClientMessages>
       </body>
     </html>
   );

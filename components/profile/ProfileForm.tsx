@@ -195,7 +195,7 @@ export function ProfileForm({
               <SelectField id="pf-years" label={t("years")} hint={t("yearsHint")} value={d.years} onChange={set("years")} options={["3", "4", "5"].map((y) => ({ value: y, label: t("yearsValue", { years: localizeDigits(y, locale) }) }))} />
               <SelectField id="pf-unitype" label={t("universityType")} value={d.universityType} onChange={(v) => set("universityType")(v as Draft["universityType"])} options={(["public", "private", "nu"] as const).map((v) => ({ value: v, label: labels(`universityType.${v}`) }))} />
               <TextField id="pf-cgpa" inputMode="decimal" label={t("cgpa")} value={d.cgpa} onChange={set("cgpa")} error={errors.cgpa} placeholder="3.50" />
-              <SelectField id="pf-cgpaScale" label={t("cgpaScale")} value={d.cgpaScale} onChange={set("cgpaScale")} options={[{ value: "4", label: "4.00" }, { value: "5", label: "5.00" }]} />
+              <SelectField id="pf-cgpaScale" label={t("cgpaScale")} value={d.cgpaScale} onChange={set("cgpaScale")} options={[{ value: "4", label: localizeDigits("4.00", locale) }, { value: "5", label: localizeDigits("5.00", locale) }]} />
             </>
           )}
           <TextField id="pf-ssc" inputMode="decimal" label={t("ssc")} value={d.ssc} onChange={set("ssc")} error={errors.ssc} placeholder="5.00" />

@@ -24,13 +24,13 @@ export default async function ProgramsPage({ params }: LocaleParams) {
   return (
     <>
       <PageHeader eyebrow={<SampleBadge />} title={t("title")} subtitle={t("subtitle")} />
-      {/* The static HTML shows every program; filters apply once the page loads. */}
+      {/* The static HTML shows the first programs right away; the full, filterable list takes over once the page loads. */}
       <Suspense
         fallback={
           <ul className="grid gap-3 md:grid-cols-2">
-            {programs.map((p) => (
+            {programs.slice(0, 12).map((p) => (
               <li key={p.slug}>
-                <ProgramCard program={p} field={fields[p.field]} />
+                <ProgramCard program={p} field={fields[p.field]} headingLevel="h2" />
               </li>
             ))}
           </ul>

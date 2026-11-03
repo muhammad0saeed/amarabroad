@@ -149,12 +149,13 @@ export function FitScoreCard({
     </section>
   );
 
-  if (!hydrated) return shell(<p className="mt-2 text-meta text-ink-muted">{t("loading")}</p>);
-  if (!isProfileComplete(profile)) {
+  // The static HTML already shows the intro text (so the page paints it right away); the button
+  // stays invisible until we know there's no saved profile, then the score replaces both if there is.
+  if (!hydrated || !isProfileComplete(profile)) {
     return shell(
       <>
         <p className="mt-2 text-ink-muted">{t("noProfile")}</p>
-        <ButtonLink href="/match" className="mt-4" full>
+        <ButtonLink href="/match" className={`mt-4 ${hydrated ? "" : "invisible"}`} full>
           {t("cta")} <Icon name="arrowRight" className="size-4" />
         </ButtonLink>
       </>,

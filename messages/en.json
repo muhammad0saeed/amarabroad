@@ -181,7 +181,6 @@
   },
   "fit": {
     "title": "Your Fit Score",
-    "loading": "Loading your profile…",
     "noProfile": "See how your profile matches this program's published requirements.",
     "cta": "Get your Fit Score",
     "notEligible": "Not eligible",

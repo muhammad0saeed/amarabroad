@@ -112,6 +112,7 @@ function MatchResults({ profile, programs, fields, fitContext, onEdit }: { profi
               <ProgramCard
                 program={program}
                 field={fields[program.field]}
+                headingLevel="h2"
                 fit={
                   <span className="flex items-center gap-1.5">
                     <span className="text-meta font-semibold text-ink-muted">#{localizeDigits(String(i + 1), locale)}</span>

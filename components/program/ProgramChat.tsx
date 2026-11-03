@@ -112,7 +112,7 @@ export function ProgramChat({ ctx, cost, scholarshipNames }: { ctx: ProgramConte
           </ul>
         );
       case "grade":
-        return t("a.grade", { value: num(p.min_gpa_requirement.value), scale: num(p.min_gpa_requirement.scale) }) + (p.min_gpa_requirement.local_note_en ? ` (${p.min_gpa_requirement.local_note_en})` : "");
+        return t("a.grade", { value: num(p.min_gpa_requirement.value), scale: num(p.min_gpa_requirement.scale) }) + (p.min_gpa_requirement.local_note_en ? ` (${(locale === "bn" && p.min_gpa_requirement.local_note_bn) || p.min_gpa_requirement.local_note_en})` : "");
       case "language":
         return t("a.language", { language: labels(`lang.${p.language}`) }) + (p.language_requirement_en ? ` ${(locale === "bn" && p.language_requirement_bn) || p.language_requirement_en}.` : "");
       case "scholarships":

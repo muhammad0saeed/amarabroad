@@ -461,7 +461,7 @@
       "chemistry",
       "business"
     ],
-    "overview_en": "M.Sc. Fashion and Textile Technology at Sample Milan Institute of Design and Technology is a 18-month master's program taught in English. Core courses cover fibre science, sustainable textiles, garment technology and supply chains. It includes a company project with a textile brand.",
+    "overview_en": "M.Sc. Fashion and Textile Technology at Sample Milan Institute of Design and Technology is an 18-month master's program taught in English. Core courses cover fibre science, sustainable textiles, garment technology and supply chains. It includes a company project with a textile brand.",
     "career_paths_en": [
       "Textile technologist",
       "Sourcing manager",
@@ -1021,7 +1021,7 @@
       "data-science",
       "cse"
     ],
-    "overview_en": "M.Sc. Finance and Fintech at Sample Emilia Business School is a 18-month master's program taught in English. Core courses cover corporate finance, financial markets, risk management and fintech. Courses include Python for finance and a trading lab.",
+    "overview_en": "M.Sc. Finance and Fintech at Sample Emilia Business School is an 18-month master's program taught in English. Core courses cover corporate finance, financial markets, risk management and fintech. Courses include Python for finance and a trading lab.",
     "career_paths_en": [
       "Financial analyst",
       "Risk analyst",
@@ -1140,7 +1140,8 @@
     "min_gpa_requirement": {
       "value": 3.2,
       "scale": 4,
-      "local_note_en": "German grade 2.3 or better"
+      "local_note_en": "German grade 2.3 or better",
+      "local_note_bn": "জার্মান গ্রেড ২.৩ বা তার চেয়ে ভালো"
     },
     "accepts_3yr_bachelor": false,
     "accepts_moi": false,
@@ -1213,7 +1214,8 @@
     "min_gpa_requirement": {
       "value": 3,
       "scale": 4,
-      "local_note_en": "German grade 2.5 or better"
+      "local_note_en": "German grade 2.5 or better",
+      "local_note_bn": "জার্মান গ্রেড ২.৫ বা তার চেয়ে ভালো"
     },
     "accepts_3yr_bachelor": false,
     "accepts_moi": false,
@@ -1287,7 +1289,8 @@
     "min_gpa_requirement": {
       "value": 3,
       "scale": 4,
-      "local_note_en": "German grade 2.5 or better"
+      "local_note_en": "German grade 2.5 or better",
+      "local_note_bn": "জার্মান গ্রেড ২.৫ বা তার চেয়ে ভালো"
     },
     "accepts_3yr_bachelor": false,
     "accepts_moi": false,
@@ -1349,7 +1352,8 @@
     "min_gpa_requirement": {
       "value": 3,
       "scale": 4,
-      "local_note_en": "German grade 2.5 or better"
+      "local_note_en": "German grade 2.5 or better",
+      "local_note_bn": "জার্মান গ্রেড ২.৫ বা তার চেয়ে ভালো"
     },
     "accepts_3yr_bachelor": false,
     "accepts_moi": false,
@@ -1420,7 +1424,8 @@
     "min_gpa_requirement": {
       "value": 2.8,
       "scale": 4,
-      "local_note_en": "German grade 2.7 or better"
+      "local_note_en": "German grade 2.7 or better",
+      "local_note_bn": "জার্মান গ্রেড ২.৭ বা তার চেয়ে ভালো"
     },
     "accepts_3yr_bachelor": false,
     "accepts_moi": false,
@@ -1450,7 +1455,7 @@
       "civil",
       "math-physics"
     ],
-    "overview_en": "M.Eng. Renewable Energy Systems at Sample Berlin University of Applied Sciences is a 18-month tuition-free master's program taught in English. Core courses cover power systems, control, embedded electronics and signal processing. The third semester is an internship with an energy company.",
+    "overview_en": "M.Eng. Renewable Energy Systems at Sample Berlin University of Applied Sciences is an 18-month tuition-free master's program taught in English. Core courses cover power systems, control, embedded electronics and signal processing. The third semester is an internship with an energy company.",
     "career_paths_en": [
       "Power systems engineer",
       "Embedded systems engineer",
@@ -1536,7 +1541,7 @@
       "cse",
       "general-business"
     ],
-    "overview_en": "M.A. Digital Business Management at Sample Berlin University of Applied Sciences is a 18-month tuition-free master's program taught in English. Core courses cover strategy, marketing, operations, leadership and entrepreneurship. At least 12 months of work experience are required.",
+    "overview_en": "M.A. Digital Business Management at Sample Berlin University of Applied Sciences is an 18-month tuition-free master's program taught in English. Core courses cover strategy, marketing, operations, leadership and entrepreneurship. At least 12 months of work experience are required.",
     "career_paths_en": [
       "Business analyst",
       "Marketing manager",
@@ -1648,7 +1653,8 @@
     "min_gpa_requirement": {
       "value": 3.2,
       "scale": 4,
-      "local_note_en": "German grade 2.3 or better"
+      "local_note_en": "German grade 2.3 or better",
+      "local_note_bn": "জার্মান গ্রেড ২.৩ বা তার চেয়ে ভালো"
     },
     "accepts_3yr_bachelor": false,
     "accepts_moi": false,
@@ -1721,7 +1727,8 @@
     "min_gpa_requirement": {
       "value": 3,
       "scale": 4,
-      "local_note_en": "German grade 2.5 or better"
+      "local_note_en": "German grade 2.5 or better",
+      "local_note_bn": "জার্মান গ্রেড ২.৫ বা তার চেয়ে ভালো"
     },
     "accepts_3yr_bachelor": false,
     "accepts_moi": false,
@@ -1792,7 +1799,8 @@
     "min_gpa_requirement": {
       "value": 3.1,
       "scale": 4,
-      "local_note_en": "German grade 2.4 or better"
+      "local_note_en": "German grade 2.4 or better",
+      "local_note_bn": "জার্মান গ্রেড ২.৪ বা তার চেয়ে ভালো"
     },
     "accepts_3yr_bachelor": false,
     "accepts_moi": false,
@@ -1862,7 +1870,8 @@
     "min_gpa_requirement": {
       "value": 2.8,
       "scale": 4,
-      "local_note_en": "German grade 2.5 or better"
+      "local_note_en": "German grade 2.5 or better",
+      "local_note_bn": "জার্মান গ্রেড ২.৫ বা তার চেয়ে ভালো"
     },
     "accepts_3yr_bachelor": false,
     "accepts_moi": true,
@@ -1987,7 +1996,7 @@
       "social-sciences",
       "data-science"
     ],
-    "overview_en": "MBA General Management at Sample Munich International Business School is a 18-month master's program taught in English. Core courses cover strategy, marketing, operations, leadership and entrepreneurship. At least 3 years of work experience are expected.",
+    "overview_en": "MBA General Management at Sample Munich International Business School is an 18-month master's program taught in English. Core courses cover strategy, marketing, operations, leadership and entrepreneurship. At least 3 years of work experience are expected.",
     "career_paths_en": [
       "Business analyst",
       "Marketing manager",
@@ -2073,7 +2082,7 @@
       "finance",
       "general-business"
     ],
-    "overview_en": "M.Sc. Marketing Analytics at Sample Munich International Business School is a 18-month master's program taught in English. Core courses cover strategy, marketing, operations, leadership and entrepreneurship. Projects use real campaign data from partner companies.",
+    "overview_en": "M.Sc. Marketing Analytics at Sample Munich International Business School is an 18-month master's program taught in English. Core courses cover strategy, marketing, operations, leadership and entrepreneurship. Projects use real campaign data from partner companies.",
     "career_paths_en": [
       "Business analyst",
       "Marketing manager",
@@ -3074,7 +3083,7 @@
       "social-sciences",
       "biotechnology"
     ],
-    "overview_en": "M.Sc. Public Health at Sample Debrecen College of Health Sciences is a 18-month master's program taught in English. Core courses cover epidemiology, biostatistics, health policy and global health. A field project with a regional health office is part of the final semester.",
+    "overview_en": "M.Sc. Public Health at Sample Debrecen College of Health Sciences is an 18-month master's program taught in English. Core courses cover epidemiology, biostatistics, health policy and global health. A field project with a regional health office is part of the final semester.",
     "overview_bn": "এটি ১৮ মাসের জনস্বাস্থ্য মাস্টার্স, ইংরেজিতে পড়ানো হয়। মূল কোর্সে এপিডেমিওলজি, বায়োস্ট্যাটিস্টিক্স, স্বাস্থ্যনীতি ও বৈশ্বিক স্বাস্থ্য আছে। শেষ সেমিস্টারে একটি আঞ্চলিক স্বাস্থ্য অফিসের সাথে ফিল্ড প্রজেক্ট করতে হয়।",
     "career_paths_en": [
       "Epidemiologist",

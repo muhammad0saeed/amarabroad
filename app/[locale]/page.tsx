@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { Icon } from "@/components/icons";
+import { ClientMessages } from "@/components/layout/ClientMessages";
 import { CountryCard } from "@/components/place/CountryCard";
 import { ClosingSoon } from "@/components/scholarship/ClosingSoon";
 import { Badge, ButtonLink, Section } from "@/components/ui/primitives";
@@ -29,6 +30,7 @@ export default async function HomePage({ params }: LocaleParams) {
   const n = (v: number) => localizeDigits(String(v), locale);
 
   return (
+    <ClientMessages namespaces={["home", "labels", "common"]}>
     <div className="space-y-8 pt-2 pb-4">
       <section>
         <SampleBadge />
@@ -91,9 +93,9 @@ export default async function HomePage({ params }: LocaleParams) {
       </section>
 
       <section className="rounded-card bg-primary p-5 text-on-primary shadow-card">
-        <span className="inline-flex rounded-full bg-on-primary/15 px-2.5 py-1 text-meta font-semibold">{t("matchEyebrow")}</span>
+        <span className="inline-flex rounded-full bg-surface px-2.5 py-1 text-meta font-semibold text-primary-ink">{t("matchEyebrow")}</span>
         <h2 className="mt-3 text-title font-bold">{t("matchTitle")}</h2>
-        <p className="mt-1 text-on-primary/85">{t("matchBody")}</p>
+        <p className="mt-1">{t("matchBody")}</p>
         <Link href="/match" className="mt-5 inline-flex min-h-tap w-full items-center justify-center gap-2 rounded-full bg-surface px-5 font-semibold text-primary-ink">
           {t("matchCta")} <Icon name="arrowRight" className="size-4" />
         </Link>
@@ -155,5 +157,6 @@ export default async function HomePage({ params }: LocaleParams) {
         </ButtonLink>
       </div>
     </div>
+    </ClientMessages>
   );
 }

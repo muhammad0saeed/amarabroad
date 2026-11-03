@@ -116,6 +116,7 @@ export interface GradeRequirement {
   value: number;
   scale: number;
   local_note_en?: string;
+  local_note_bn?: string;
 }
 
 export type DocumentKey =

@@ -155,7 +155,7 @@ export default async function ProgramPage({ params }: Props) {
             <h3 className="font-semibold">{t(p.degree_level === "bachelor" ? "minHsc" : "minCgpa")}</h3>
             <p className="mt-1">
               {num(p.min_gpa_requirement.value)} / {num(p.min_gpa_requirement.scale)}
-              {p.min_gpa_requirement.local_note_en && <span className="text-ink-muted"> · {p.min_gpa_requirement.local_note_en}</span>}
+              {p.min_gpa_requirement.local_note_en && <span className="text-ink-muted"> · {(L === "bn" && p.min_gpa_requirement.local_note_bn) || p.min_gpa_requirement.local_note_en}</span>}
             </p>
           </div>
           <div>

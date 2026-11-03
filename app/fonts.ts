@@ -18,11 +18,15 @@ export const inter = localFont({
 });
 
 // Also carries ৳ (U+09F3), so English pages showing taka use it too.
+// Not preloaded: unicode-range makes the browser fetch it as soon as Bangla text or ৳ appears,
+// without making English pages download 108 KB before anything else. Android ships its own
+// Noto Sans Bengali, so the swap is barely visible.
 export const notoBengali = localFont({
   src: "./fonts/noto-sans-bengali-var.woff2",
   weight: "100 900",
   variable: "--font-bengali",
   display: "swap",
+  preload: false,
   declarations: [
     {
       prop: "unicode-range",

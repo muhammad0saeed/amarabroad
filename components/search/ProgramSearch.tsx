@@ -228,7 +228,7 @@ export function ProgramSearch({ programs, fields, countries, fitContext }: Props
         <ul className="grid gap-3 md:grid-cols-2">
           {results.map((p) => (
             <li key={p.slug}>
-              <ProgramCard program={p} field={fields[p.field]} fit={<FitBadge program={p} ctx={fitContext} />} />
+              <ProgramCard program={p} field={fields[p.field]} fit={<FitBadge program={p} ctx={fitContext} />} headingLevel="h2" />
             </li>
           ))}
         </ul>
