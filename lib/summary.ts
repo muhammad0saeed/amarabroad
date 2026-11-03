@@ -14,7 +14,10 @@ export interface ProgramSummary {
   degree_level: DegreeLevel;
   field: string;
   language: TeachingLanguage;
+  language_requirement_en?: string;
+  language_requirement_bn?: string;
   duration_months: number;
+  ects_credits: number;
   currency: ProgramContext["program"]["currency"];
   tuition_per_year: number;
   tuition_per_year_bdt: number;
@@ -28,6 +31,7 @@ export interface ProgramSummary {
   accepts_moi: boolean;
   accepts_provisional: boolean;
   open_to_bd_citizens: boolean;
+  related_bachelor_fields: string[];
   last_verified: ISODate;
   is_sample: boolean;
 }
@@ -44,7 +48,11 @@ export function summarizeProgram(ctx: ProgramContext, rates: RateTable): Program
     degree_level: p.degree_level,
     field: p.field,
     language: p.language,
+    ...(p.language_requirement_en
+      ? { language_requirement_en: p.language_requirement_en, language_requirement_bn: p.language_requirement_bn }
+      : {}),
     duration_months: p.duration_months,
+    ects_credits: p.ects_credits,
     currency: p.currency,
     tuition_per_year: p.tuition_per_year,
     tuition_per_year_bdt: cost.bdt.tuitionPerYear,
@@ -58,6 +66,7 @@ export function summarizeProgram(ctx: ProgramContext, rates: RateTable): Program
     accepts_moi: p.accepts_moi,
     accepts_provisional: p.accepts_provisional,
     open_to_bd_citizens: p.open_to_bd_citizens,
+    related_bachelor_fields: p.related_bachelor_fields,
     last_verified: p.last_verified,
     is_sample: p.is_sample,
   };

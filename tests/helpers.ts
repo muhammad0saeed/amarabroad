@@ -23,6 +23,7 @@ export function profile(overrides: Partial<StudentProfile> = {}): StudentProfile
     has_moi: false,
     budget_bdt_total: null,
     target_countries: [],
+    target_fields: [],
     experience_months: 12,
     research: false,
     extracurriculars: [],

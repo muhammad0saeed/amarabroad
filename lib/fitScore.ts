@@ -16,6 +16,22 @@ import type {
 } from "@/types";
 import { toFourPoint } from "./grades";
 
+/** The program fields the Fit Score reads (full programs and ProgramSummary both qualify). */
+export type FitProgram = Pick<
+  Program,
+  | "slug"
+  | "degree_level"
+  | "field"
+  | "language"
+  | "language_requirement_en"
+  | "english_tests"
+  | "accepts_moi"
+  | "accepts_3yr_bachelor"
+  | "open_to_bd_citizens"
+  | "related_bachelor_fields"
+  | "min_gpa_requirement"
+>;
+
 export const FIT_CONFIG = {
   academics: {
     max: 40,
@@ -117,7 +133,7 @@ type EnglishStatus =
   | { status: "not_accepted"; test: EnglishTest; accepted: EnglishTest[] }
   | { status: "not_applicable" };
 
-function englishStatus(profile: StudentProfile, program: Program): EnglishStatus {
+function englishStatus(profile: StudentProfile, program: FitProgram): EnglishStatus {
   if (program.english_tests.length === 0) return { status: "not_applicable" };
   const moi = profile.has_moi && program.accepts_moi;
   const { english_test: test, english_score: score } = profile;
@@ -139,7 +155,7 @@ function englishStatus(profile: StudentProfile, program: Program): EnglishStatus
 const onlyHsc = (profile: StudentProfile) => profile.field.startsWith("hsc-");
 
 /** The profile's relevant grade and the program's minimum, both on a 4.0 scale. */
-function gradesOnFourPoint(profile: StudentProfile, program: Program): { yours: number | null; minimum: number } {
+function gradesOnFourPoint(profile: StudentProfile, program: FitProgram): { yours: number | null; minimum: number } {
   const { value, scale } = program.min_gpa_requirement;
   const yours =
     program.degree_level === "bachelor"
@@ -154,7 +170,7 @@ function gradesOnFourPoint(profile: StudentProfile, program: Program): { yours: 
 
 // ---------------------------------------------------------------- 1. eligibility gate
 
-export function eligibilityGate(profile: StudentProfile, program: Program): GateReason[] {
+export function eligibilityGate(profile: StudentProfile, program: FitProgram): GateReason[] {
   const reasons: GateReason[] = [];
   const master = program.degree_level === "master";
 
@@ -198,7 +214,7 @@ function isRelevant(item: ProfileItem, group: FieldGroup | undefined): boolean {
   return item.group === "general" || item.group === group;
 }
 
-function scoreParts(profile: StudentProfile, program: Program, ctx: FitContext): FitPart[] {
+function scoreParts(profile: StudentProfile, program: FitProgram, ctx: FitContext): FitPart[] {
   const C = FIT_CONFIG;
   const programGroup = ctx.fieldGroups[program.field];
 
@@ -259,7 +275,7 @@ export function bandFor(score: number): Band {
   return FIT_CONFIG.bands.find((b) => score >= b.min)!.band;
 }
 
-export function computeFit(profile: StudentProfile, program: Program, ctx: FitContext): FitResult {
+export function computeFit(profile: StudentProfile, program: FitProgram, ctx: FitContext): FitResult {
   const notes: FitNote[] = [];
   if (program.language !== "en" && program.language_requirement_en) {
     notes.push({ code: "language_requirement", requirement: program.language_requirement_en });
@@ -284,7 +300,7 @@ export type FitTip =
   | { kind: "experience"; fromMonths: number; toMonths: number; gain: number };
 
 /** Recalculates with one change at a time and returns the biggest gains (top 3, gains > 0). */
-export function improvementTips(profile: StudentProfile, program: Program, ctx: FitContext): FitTip[] {
+export function improvementTips(profile: StudentProfile, program: FitProgram, ctx: FitContext): FitTip[] {
   const base = computeFit(profile, program, ctx);
   if (!base.eligible) return [];
   const scoreWith = (changed: StudentProfile) => {
@@ -344,7 +360,7 @@ export type ScholarshipFit =
 export function scholarshipFit(
   profile: StudentProfile,
   scholarship: Scholarship,
-  program: Program,
+  program: FitProgram,
   ctx: FitContext,
 ): ScholarshipFit {
   if (scholarship.type === "need") return { kind: "need_based" };

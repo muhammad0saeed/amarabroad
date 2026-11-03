@@ -16,7 +16,8 @@ function flatten(messages: Messages, prefix = ""): Record<string, string> {
 
 const flatEn = flatten(en);
 const flatBn = flatten(bn);
-const placeholders = (text: string) => [...text.matchAll(/\{(\w+)/g)].map((m) => m[1]).sort();
+// Argument names only: "{name}" or "{count, plural, …}", not plural branch text like "{No programs}".
+const placeholders = (text: string) => [...new Set([...text.matchAll(/\{\s*(\w+)\s*[,}]/g)].map((m) => m[1]))].sort();
 
 describe("UI strings", () => {
   it("has the same keys in English and Bangla", () => {

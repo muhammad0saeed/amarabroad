@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { inter, notoBengali } from "../fonts";
+import { CompareTray } from "@/components/compare/CompareTray";
+import { BottomNav } from "@/components/layout/BottomNav";
 import { Footer } from "@/components/layout/Footer";
 import { Header } from "@/components/layout/Header";
 import { routing } from "@/i18n/routing";
@@ -52,11 +54,13 @@ export default async function LocaleLayout({ children, params }: Props) {
         <NextIntlClientProvider>
           <div className="mx-auto flex min-h-dvh w-full max-w-5xl flex-col">
             <Header />
-            <main id="main" className="flex-1 px-4 pb-8">
+            <main id="main" className="flex-1 px-4">
               {children}
             </main>
             <Footer />
           </div>
+          <CompareTray />
+          <BottomNav />
         </NextIntlClientProvider>
       </body>
     </html>

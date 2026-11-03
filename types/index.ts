@@ -282,6 +282,8 @@ export interface StudentProfile {
   has_moi: boolean;
   budget_bdt_total: number | null;
   target_countries: string[];
+  /** Program fields the student is interested in (match quiz "field and goals"). */
+  target_fields: string[];
   experience_months: number;
   research: boolean;
   extracurriculars: ProfileItem[];
