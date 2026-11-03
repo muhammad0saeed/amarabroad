@@ -1,0 +1,292 @@
+[
+  {
+    "slug": "milan",
+    "name_en": "Milan",
+    "name_bn": "মিলান",
+    "country": "italy",
+    "overview_en": "Italy's business and design capital, with big universities, a busy job market and the highest rents in the country.",
+    "overview_bn": "ইতালির ব্যবসা ও ডিজাইনের কেন্দ্র; বড় বিশ্ববিদ্যালয়, ব্যস্ত চাকরির বাজার আর দেশের সবচেয়ে বেশি বাসাভাড়া।",
+    "population_students": 210000,
+    "local_language_needed_for_jobs": "essential",
+    "local_language_note_en": "Most part-time jobs need basic Italian; English-only jobs are rare outside tech.",
+    "local_language_note_bn": "বেশিরভাগ পার্টটাইম কাজে প্রাথমিক ইতালিয়ান লাগে; টেক ছাড়া শুধু ইংরেজিতে কাজ কম।",
+    "bd_community_note_en": "A large Bangladeshi community, with grocery shops and student groups that help newcomers find rooms.",
+    "bd_community_note_bn": "বড় বাংলাদেশি কমিউনিটি; দেশি মুদি দোকান আর শিক্ষার্থী গ্রুপ নতুনদের রুম খুঁজতে সাহায্য করে।",
+    "cost_rent_shared": 600,
+    "cost_rent_studio": 1100,
+    "cost_food": 280,
+    "cost_transport": 30,
+    "cost_phone": 12,
+    "cost_insurance": 15,
+    "common_student_jobs": [
+      {
+        "en": "Restaurant and café staff",
+        "bn": "রেস্টুরেন্ট ও ক্যাফে কর্মী"
+      },
+      {
+        "en": "Food delivery",
+        "bn": "খাবার ডেলিভারি"
+      },
+      {
+        "en": "Retail assistant",
+        "bn": "দোকানের সহকারী"
+      },
+      {
+        "en": "University help desk",
+        "bn": "বিশ্ববিদ্যালয়ের হেল্প ডেস্ক"
+      }
+    ],
+    "job_search_links": [
+      {
+        "label": "Sample job board",
+        "url": "https://example.org/sample/jobs/milan"
+      },
+      {
+        "label": "Sample student jobs",
+        "url": "https://example.org/sample/student-jobs/milan"
+      }
+    ],
+    "source_url": "https://example.org/sample/cities/milan",
+    "last_verified": "2026-08-24",
+    "is_sample": true
+  },
+  {
+    "slug": "bologna",
+    "name_en": "Bologna",
+    "name_bn": "বোলোনিয়া",
+    "country": "italy",
+    "overview_en": "A historic university city where students make up a large share of residents; cheaper than Milan but rooms go fast.",
+    "overview_bn": "ঐতিহাসিক বিশ্ববিদ্যালয় শহর, যেখানে বাসিন্দাদের বড় অংশই শিক্ষার্থী; মিলানের চেয়ে সস্তা, তবে রুম দ্রুত ফুরিয়ে যায়।",
+    "population_students": 90000,
+    "local_language_needed_for_jobs": "essential",
+    "local_language_note_en": "Italian is needed for almost all local jobs.",
+    "local_language_note_bn": "প্রায় সব স্থানীয় কাজে ইতালিয়ান লাগে।",
+    "bd_community_note_en": "A small but active Bangladeshi student group; the nearest large community is in other cities in the region.",
+    "bd_community_note_bn": "ছোট কিন্তু সক্রিয় বাংলাদেশি শিক্ষার্থী গ্রুপ; বড় কমিউনিটি অঞ্চলের অন্য শহরে।",
+    "cost_rent_shared": 450,
+    "cost_rent_studio": 800,
+    "cost_food": 250,
+    "cost_transport": 25,
+    "cost_phone": 12,
+    "cost_insurance": 15,
+    "common_student_jobs": [
+      {
+        "en": "Restaurant and café staff",
+        "bn": "রেস্টুরেন্ট ও ক্যাফে কর্মী"
+      },
+      {
+        "en": "Food delivery",
+        "bn": "খাবার ডেলিভারি"
+      },
+      {
+        "en": "Library assistant",
+        "bn": "লাইব্রেরি সহকারী"
+      }
+    ],
+    "job_search_links": [
+      {
+        "label": "Sample job board",
+        "url": "https://example.org/sample/jobs/bologna"
+      },
+      {
+        "label": "Sample student jobs",
+        "url": "https://example.org/sample/student-jobs/bologna"
+      }
+    ],
+    "source_url": "https://example.org/sample/cities/bologna",
+    "last_verified": "2026-10-28",
+    "is_sample": true
+  },
+  {
+    "slug": "berlin",
+    "name_en": "Berlin",
+    "name_bn": "বার্লিন",
+    "country": "germany",
+    "overview_en": "Germany's capital and start-up hub, with many English-speaking workplaces and a tight housing market.",
+    "overview_bn": "জার্মানির রাজধানী ও স্টার্টআপ কেন্দ্র; ইংরেজিতে কাজের সুযোগ অনেক, তবে বাসা পাওয়া কঠিন।",
+    "population_students": 200000,
+    "local_language_needed_for_jobs": "helpful",
+    "local_language_note_en": "English works in tech and start-ups; German opens most other part-time jobs.",
+    "local_language_note_bn": "টেক ও স্টার্টআপে ইংরেজিতে চলে; অন্যান্য বেশিরভাগ পার্টটাইম কাজে জার্মান লাগে।",
+    "bd_community_note_en": "A growing Bangladeshi community, with student associations and community events.",
+    "bd_community_note_bn": "বাড়তে থাকা বাংলাদেশি কমিউনিটি; শিক্ষার্থী সংগঠন ও কমিউনিটি অনুষ্ঠান আছে।",
+    "cost_rent_shared": 550,
+    "cost_rent_studio": 900,
+    "cost_food": 250,
+    "cost_transport": 29,
+    "cost_phone": 15,
+    "cost_insurance": 125,
+    "common_student_jobs": [
+      {
+        "en": "Working student in tech",
+        "bn": "টেক কোম্পানিতে ওয়ার্কিং স্টুডেন্ট"
+      },
+      {
+        "en": "Café and restaurant staff",
+        "bn": "ক্যাফে ও রেস্টুরেন্ট কর্মী"
+      },
+      {
+        "en": "Delivery rider",
+        "bn": "ডেলিভারি রাইডার"
+      },
+      {
+        "en": "Research assistant",
+        "bn": "রিসার্চ অ্যাসিস্ট্যান্ট"
+      }
+    ],
+    "job_search_links": [
+      {
+        "label": "Sample job board",
+        "url": "https://example.org/sample/jobs/berlin"
+      },
+      {
+        "label": "Sample student jobs",
+        "url": "https://example.org/sample/student-jobs/berlin"
+      }
+    ],
+    "source_url": "https://example.org/sample/cities/berlin",
+    "last_verified": "2026-10-12",
+    "is_sample": true
+  },
+  {
+    "slug": "munich",
+    "name_en": "Munich",
+    "name_bn": "মিউনিখ",
+    "country": "germany",
+    "overview_en": "A wealthy city with strong engineering, automotive and finance employers, and the most expensive rents in Germany.",
+    "overview_bn": "ইঞ্জিনিয়ারিং, গাড়ি শিল্প ও ফিন্যান্সের বড় প্রতিষ্ঠানে ভরা ধনী শহর; জার্মানির সবচেয়ে বেশি বাসাভাড়া।",
+    "population_students": 130000,
+    "local_language_needed_for_jobs": "helpful",
+    "local_language_note_en": "Large companies hire English speakers as working students; shops and services expect German.",
+    "local_language_note_bn": "বড় কোম্পানি ইংরেজিভাষী ওয়ার্কিং স্টুডেন্ট নেয়; দোকান ও সেবাখাতে জার্মান লাগে।",
+    "bd_community_note_en": "A smaller Bangladeshi community, mostly students and engineers.",
+    "bd_community_note_bn": "ছোট বাংলাদেশি কমিউনিটি, বেশিরভাগই শিক্ষার্থী ও ইঞ্জিনিয়ার।",
+    "cost_rent_shared": 700,
+    "cost_rent_studio": 1200,
+    "cost_food": 280,
+    "cost_transport": 29,
+    "cost_phone": 15,
+    "cost_insurance": 125,
+    "common_student_jobs": [
+      {
+        "en": "Working student in engineering",
+        "bn": "ইঞ্জিনিয়ারিংয়ে ওয়ার্কিং স্টুডেন্ট"
+      },
+      {
+        "en": "Event staff",
+        "bn": "ইভেন্ট কর্মী"
+      },
+      {
+        "en": "Warehouse and logistics",
+        "bn": "গুদাম ও লজিস্টিকস"
+      }
+    ],
+    "job_search_links": [
+      {
+        "label": "Sample job board",
+        "url": "https://example.org/sample/jobs/munich"
+      },
+      {
+        "label": "Sample student jobs",
+        "url": "https://example.org/sample/student-jobs/munich"
+      }
+    ],
+    "source_url": "https://example.org/sample/cities/munich",
+    "last_verified": "2026-09-20",
+    "is_sample": true
+  },
+  {
+    "slug": "budapest",
+    "name_en": "Budapest",
+    "name_bn": "বুদাপেস্ট",
+    "country": "hungary",
+    "overview_en": "Hungary's capital, with many international students, good public transport and living costs well below Western Europe.",
+    "overview_bn": "হাঙ্গেরির রাজধানী; অনেক আন্তর্জাতিক শিক্ষার্থী, ভালো গণপরিবহন আর পশ্চিম ইউরোপের চেয়ে অনেক কম খরচ।",
+    "population_students": 150000,
+    "local_language_needed_for_jobs": "helpful",
+    "local_language_note_en": "Service centres and some start-ups hire in English; most local jobs need Hungarian.",
+    "local_language_note_bn": "সার্ভিস সেন্টার ও কিছু স্টার্টআপ ইংরেজিতে নিয়োগ দেয়; বেশিরভাগ স্থানীয় কাজে হাঙ্গেরিয়ান লাগে।",
+    "bd_community_note_en": "A mid-sized Bangladeshi student community, many on government scholarships.",
+    "bd_community_note_bn": "মাঝারি আকারের বাংলাদেশি শিক্ষার্থী কমিউনিটি, অনেকে সরকারি স্কলারশিপে পড়েন।",
+    "cost_rent_shared": 160000,
+    "cost_rent_studio": 260000,
+    "cost_food": 90000,
+    "cost_transport": 3500,
+    "cost_phone": 5000,
+    "cost_insurance": 15000,
+    "common_student_jobs": [
+      {
+        "en": "Customer service in English",
+        "bn": "ইংরেজিতে কাস্টমার সার্ভিস"
+      },
+      {
+        "en": "Food delivery",
+        "bn": "খাবার ডেলিভারি"
+      },
+      {
+        "en": "Hostel reception",
+        "bn": "হোস্টেল রিসেপশন"
+      }
+    ],
+    "job_search_links": [
+      {
+        "label": "Sample job board",
+        "url": "https://example.org/sample/jobs/budapest"
+      },
+      {
+        "label": "Sample student jobs",
+        "url": "https://example.org/sample/student-jobs/budapest"
+      }
+    ],
+    "source_url": "https://example.org/sample/cities/budapest",
+    "last_verified": "2026-08-24",
+    "is_sample": true
+  },
+  {
+    "slug": "debrecen",
+    "name_en": "Debrecen",
+    "name_bn": "ডেব্রেচেন",
+    "country": "hungary",
+    "overview_en": "Hungary's second-largest city, a calm and cheap university town known for medical and health programs.",
+    "overview_bn": "হাঙ্গেরির দ্বিতীয় বৃহত্তম শহর; শান্ত, সস্তা বিশ্ববিদ্যালয় শহর, চিকিৎসা ও স্বাস্থ্য প্রোগ্রামের জন্য পরিচিত।",
+    "population_students": 30000,
+    "local_language_needed_for_jobs": "essential",
+    "local_language_note_en": "Part-time jobs in English are scarce; plan your budget without them.",
+    "local_language_note_bn": "ইংরেজিতে পার্টটাইম কাজ খুব কম; এসব কাজ ধরে না নিয়েই বাজেট করুন।",
+    "bd_community_note_en": "A small Bangladeshi student community.",
+    "bd_community_note_bn": "ছোট বাংলাদেশি শিক্ষার্থী কমিউনিটি।",
+    "cost_rent_shared": 110000,
+    "cost_rent_studio": 180000,
+    "cost_food": 80000,
+    "cost_transport": 3000,
+    "cost_phone": 5000,
+    "cost_insurance": 15000,
+    "common_student_jobs": [
+      {
+        "en": "Campus jobs",
+        "bn": "ক্যাম্পাসে কাজ"
+      },
+      {
+        "en": "Tutoring",
+        "bn": "টিউশন"
+      },
+      {
+        "en": "Food delivery",
+        "bn": "খাবার ডেলিভারি"
+      }
+    ],
+    "job_search_links": [
+      {
+        "label": "Sample job board",
+        "url": "https://example.org/sample/jobs/debrecen"
+      },
+      {
+        "label": "Sample student jobs",
+        "url": "https://example.org/sample/student-jobs/debrecen"
+      }
+    ],
+    "source_url": "https://example.org/sample/cities/debrecen",
+    "last_verified": "2026-10-28",
+    "is_sample": true
+  }
+]

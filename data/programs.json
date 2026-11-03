@@ -1,0 +1,3245 @@
+[
+  {
+    "slug": "sum-msc-computer-science",
+    "title": "M.Sc. Computer Science",
+    "university": "sample-university-of-milan",
+    "degree_level": "master",
+    "field": "cse",
+    "language": "en",
+    "duration_months": 24,
+    "ects_credits": 120,
+    "currency": "EUR",
+    "tuition_per_year": 2800,
+    "other_fees_per_year": 0,
+    "application_fee": 30,
+    "intakes": [
+      {
+        "month": 9,
+        "year": 2027,
+        "deadline": "2027-03-31"
+      }
+    ],
+    "seats_total": 120,
+    "seats_non_eu": 40,
+    "min_gpa_requirement": {
+      "value": 3,
+      "scale": 4
+    },
+    "accepts_3yr_bachelor": true,
+    "accepts_moi": true,
+    "accepts_provisional": true,
+    "open_to_bd_citizens": true,
+    "english_tests": [
+      {
+        "test": "ielts",
+        "min_score": 6
+      },
+      {
+        "test": "toefl_ibt",
+        "min_score": 80
+      },
+      {
+        "test": "pte",
+        "min_score": 50
+      },
+      {
+        "test": "duolingo",
+        "min_score": 105
+      }
+    ],
+    "required_documents": [
+      "passport",
+      "transcript",
+      "degree_certificate",
+      "cv",
+      "motivation_letter",
+      "english_certificate",
+      "moi_letter"
+    ],
+    "related_bachelor_fields": [
+      "cse",
+      "data-science",
+      "eee",
+      "math-physics"
+    ],
+    "overview_en": "M.Sc. Computer Science at Sample University of Milan is a 2-year master's program taught in English. Core courses cover algorithms, distributed systems, machine learning and software engineering. It ends with a master's thesis, and a 3-month internship is optional.",
+    "overview_bn": "এটি ২৪ মাসের কম্পিউটার সায়েন্স মাস্টার্স, ইংরেজিতে পড়ানো হয়। মূল কোর্সে অ্যালগরিদম, ডিস্ট্রিবিউটেড সিস্টেম, মেশিন লার্নিং ও সফটওয়্যার ইঞ্জিনিয়ারিং আছে। শেষে থিসিস, আর ৩ মাসের ইন্টার্নশিপ ঐচ্ছিক।",
+    "career_paths_en": [
+      "Software engineer",
+      "Machine learning engineer",
+      "Cloud engineer"
+    ],
+    "career_paths_bn": [
+      "সফটওয়্যার ইঞ্জিনিয়ার",
+      "মেশিন লার্নিং ইঞ্জিনিয়ার",
+      "ক্লাউড ইঞ্জিনিয়ার"
+    ],
+    "official_url": "https://example.org/sample/programs/sum-msc-computer-science",
+    "source_url": "https://example.org/sample/programs/sum-msc-computer-science",
+    "last_verified": "2026-10-12",
+    "is_sample": true
+  },
+  {
+    "slug": "sum-msc-data-science-and-economics",
+    "title": "M.Sc. Data Science and Economics",
+    "university": "sample-university-of-milan",
+    "degree_level": "master",
+    "field": "data-science",
+    "language": "en",
+    "duration_months": 24,
+    "ects_credits": 120,
+    "currency": "EUR",
+    "tuition_per_year": 2800,
+    "other_fees_per_year": 0,
+    "application_fee": 30,
+    "intakes": [
+      {
+        "month": 2,
+        "year": 2027,
+        "deadline": "2026-10-15"
+      },
+      {
+        "month": 9,
+        "year": 2027,
+        "deadline": "2027-02-28"
+      }
+    ],
+    "seats_total": 60,
+    "seats_non_eu": null,
+    "min_gpa_requirement": {
+      "value": 3,
+      "scale": 4
+    },
+    "accepts_3yr_bachelor": true,
+    "accepts_moi": true,
+    "accepts_provisional": false,
+    "open_to_bd_citizens": true,
+    "english_tests": [
+      {
+        "test": "ielts",
+        "min_score": 6
+      },
+      {
+        "test": "toefl_ibt",
+        "min_score": 80
+      },
+      {
+        "test": "pte",
+        "min_score": 50
+      },
+      {
+        "test": "duolingo",
+        "min_score": 105
+      }
+    ],
+    "required_documents": [
+      "passport",
+      "transcript",
+      "degree_certificate",
+      "cv",
+      "motivation_letter",
+      "english_certificate",
+      "moi_letter"
+    ],
+    "related_bachelor_fields": [
+      "data-science",
+      "cse",
+      "economics",
+      "math-physics",
+      "finance"
+    ],
+    "overview_en": "M.Sc. Data Science and Economics at Sample University of Milan is a 2-year master's program taught in English. Core courses cover statistics, machine learning, data engineering and data ethics. Students can take a part-time track over three years.",
+    "career_paths_en": [
+      "Data scientist",
+      "Data analyst",
+      "Data engineer"
+    ],
+    "career_paths_bn": [
+      "ডেটা সায়েন্টিস্ট",
+      "ডেটা অ্যানালিস্ট",
+      "ডেটা ইঞ্জিনিয়ার"
+    ],
+    "official_url": "https://example.org/sample/programs/sum-msc-data-science-and-economics",
+    "source_url": "https://example.org/sample/programs/sum-msc-data-science-and-economics",
+    "last_verified": "2026-09-20",
+    "is_sample": true
+  },
+  {
+    "slug": "sum-msc-global-public-health",
+    "title": "M.Sc. Global Public Health",
+    "university": "sample-university-of-milan",
+    "degree_level": "master",
+    "field": "public-health",
+    "language": "en",
+    "duration_months": 24,
+    "ects_credits": 120,
+    "currency": "EUR",
+    "tuition_per_year": 2800,
+    "other_fees_per_year": 0,
+    "application_fee": 30,
+    "intakes": [
+      {
+        "month": 9,
+        "year": 2027,
+        "deadline": "2027-04-30"
+      }
+    ],
+    "seats_total": 40,
+    "seats_non_eu": 15,
+    "min_gpa_requirement": {
+      "value": 2.8,
+      "scale": 4
+    },
+    "accepts_3yr_bachelor": true,
+    "accepts_moi": false,
+    "accepts_provisional": false,
+    "open_to_bd_citizens": true,
+    "english_tests": [
+      {
+        "test": "ielts",
+        "min_score": 6.5
+      },
+      {
+        "test": "toefl_ibt",
+        "min_score": 90
+      },
+      {
+        "test": "pte",
+        "min_score": 58
+      },
+      {
+        "test": "duolingo",
+        "min_score": 110
+      }
+    ],
+    "required_documents": [
+      "passport",
+      "transcript",
+      "degree_certificate",
+      "cv",
+      "motivation_letter",
+      "english_certificate"
+    ],
+    "related_bachelor_fields": [
+      "public-health",
+      "medicine",
+      "pharmacy",
+      "microbiology",
+      "social-sciences"
+    ],
+    "overview_en": "M.Sc. Global Public Health at Sample University of Milan is a 2-year master's program taught in English. Core courses cover epidemiology, biostatistics, health policy and global health. A 2-month field placement with a health organisation is required.",
+    "career_paths_en": [
+      "Epidemiologist",
+      "Health programme officer",
+      "Health data analyst"
+    ],
+    "career_paths_bn": [
+      "এপিডেমিওলজিস্ট",
+      "হেলথ প্রোগ্রাম অফিসার",
+      "হেলথ ডেটা অ্যানালিস্ট"
+    ],
+    "official_url": "https://example.org/sample/programs/sum-msc-global-public-health",
+    "source_url": "https://example.org/sample/programs/sum-msc-global-public-health",
+    "last_verified": "2026-08-24",
+    "is_sample": true
+  },
+  {
+    "slug": "sum-bsc-international-economics",
+    "title": "B.Sc. International Economics",
+    "university": "sample-university-of-milan",
+    "degree_level": "bachelor",
+    "field": "economics",
+    "language": "en",
+    "duration_months": 36,
+    "ects_credits": 180,
+    "currency": "EUR",
+    "tuition_per_year": 2800,
+    "other_fees_per_year": 0,
+    "application_fee": 30,
+    "intakes": [
+      {
+        "month": 9,
+        "year": 2027,
+        "deadline": "2027-04-15"
+      }
+    ],
+    "seats_total": 150,
+    "seats_non_eu": 30,
+    "min_gpa_requirement": {
+      "value": 4,
+      "scale": 5
+    },
+    "accepts_3yr_bachelor": true,
+    "accepts_moi": true,
+    "accepts_provisional": true,
+    "open_to_bd_citizens": true,
+    "english_tests": [
+      {
+        "test": "ielts",
+        "min_score": 6
+      },
+      {
+        "test": "toefl_ibt",
+        "min_score": 80
+      },
+      {
+        "test": "duolingo",
+        "min_score": 105
+      }
+    ],
+    "required_documents": [
+      "passport",
+      "hsc_certificate",
+      "transcript",
+      "motivation_letter",
+      "english_certificate",
+      "moi_letter"
+    ],
+    "related_bachelor_fields": [
+      "hsc-science",
+      "hsc-business"
+    ],
+    "overview_en": "B.Sc. International Economics at Sample University of Milan is a 3-year bachelor's program taught in English. Core courses cover microeconomics, macroeconomics, econometrics and development economics. The first year includes a maths refresher for students from business backgrounds.",
+    "career_paths_en": [
+      "Economist",
+      "Policy analyst",
+      "Market researcher"
+    ],
+    "career_paths_bn": [
+      "অর্থনীতিবিদ",
+      "পলিসি অ্যানালিস্ট",
+      "মার্কেট রিসার্চার"
+    ],
+    "official_url": "https://example.org/sample/programs/sum-bsc-international-economics",
+    "source_url": "https://example.org/sample/programs/sum-bsc-international-economics",
+    "last_verified": "2026-10-28",
+    "is_sample": true
+  },
+  {
+    "slug": "midt-msc-sustainable-architecture",
+    "title": "M.Sc. Sustainable Architecture and Urban Design",
+    "university": "sample-milan-institute-of-design-and-technology",
+    "degree_level": "master",
+    "field": "architecture",
+    "language": "en",
+    "duration_months": 24,
+    "ects_credits": 120,
+    "currency": "EUR",
+    "tuition_per_year": 14500,
+    "other_fees_per_year": 0,
+    "application_fee": 100,
+    "intakes": [
+      {
+        "month": 9,
+        "year": 2027,
+        "deadline": "2027-05-31"
+      }
+    ],
+    "seats_total": 35,
+    "seats_non_eu": null,
+    "min_gpa_requirement": {
+      "value": 2.7,
+      "scale": 4
+    },
+    "accepts_3yr_bachelor": true,
+    "accepts_moi": true,
+    "accepts_provisional": false,
+    "open_to_bd_citizens": true,
+    "english_tests": [
+      {
+        "test": "ielts",
+        "min_score": 6
+      },
+      {
+        "test": "toefl_ibt",
+        "min_score": 80
+      },
+      {
+        "test": "pte",
+        "min_score": 50
+      },
+      {
+        "test": "duolingo",
+        "min_score": 105
+      }
+    ],
+    "required_documents": [
+      "passport",
+      "transcript",
+      "degree_certificate",
+      "cv",
+      "motivation_letter",
+      "english_certificate",
+      "moi_letter",
+      "portfolio"
+    ],
+    "related_bachelor_fields": [
+      "architecture",
+      "civil"
+    ],
+    "overview_en": "M.Sc. Sustainable Architecture and Urban Design at Sample Milan Institute of Design and Technology is a 2-year master's program taught in English. Studio projects cover sustainable buildings, urban design and digital modelling. Applicants send a portfolio of 3–5 projects.",
+    "career_paths_en": [
+      "Architect",
+      "Urban designer",
+      "BIM specialist"
+    ],
+    "career_paths_bn": [
+      "স্থপতি",
+      "আরবান ডিজাইনার",
+      "বিআইএম বিশেষজ্ঞ"
+    ],
+    "official_url": "https://example.org/sample/programs/midt-msc-sustainable-architecture",
+    "source_url": "https://example.org/sample/programs/midt-msc-sustainable-architecture",
+    "last_verified": "2026-10-12",
+    "is_sample": true
+  },
+  {
+    "slug": "midt-msc-fashion-and-textile-technology",
+    "title": "M.Sc. Fashion and Textile Technology",
+    "university": "sample-milan-institute-of-design-and-technology",
+    "degree_level": "master",
+    "field": "textile",
+    "language": "en",
+    "duration_months": 18,
+    "ects_credits": 90,
+    "currency": "EUR",
+    "tuition_per_year": 13000,
+    "other_fees_per_year": 0,
+    "application_fee": 100,
+    "intakes": [
+      {
+        "month": 2,
+        "year": 2027,
+        "deadline": "2026-12-15"
+      },
+      {
+        "month": 9,
+        "year": 2027,
+        "deadline": "2027-05-31"
+      }
+    ],
+    "seats_total": 30,
+    "seats_non_eu": 12,
+    "min_gpa_requirement": {
+      "value": 2.6,
+      "scale": 4
+    },
+    "accepts_3yr_bachelor": true,
+    "accepts_moi": true,
+    "accepts_provisional": true,
+    "open_to_bd_citizens": true,
+    "english_tests": [
+      {
+        "test": "ielts",
+        "min_score": 6
+      },
+      {
+        "test": "toefl_ibt",
+        "min_score": 80
+      },
+      {
+        "test": "pte",
+        "min_score": 50
+      },
+      {
+        "test": "duolingo",
+        "min_score": 105
+      }
+    ],
+    "required_documents": [
+      "passport",
+      "transcript",
+      "degree_certificate",
+      "cv",
+      "motivation_letter",
+      "english_certificate",
+      "moi_letter"
+    ],
+    "related_bachelor_fields": [
+      "textile",
+      "mechanical",
+      "chemistry",
+      "business"
+    ],
+    "overview_en": "M.Sc. Fashion and Textile Technology at Sample Milan Institute of Design and Technology is a 18-month master's program taught in English. Core courses cover fibre science, sustainable textiles, garment technology and supply chains. It includes a company project with a textile brand.",
+    "career_paths_en": [
+      "Textile technologist",
+      "Sourcing manager",
+      "Sustainability analyst"
+    ],
+    "career_paths_bn": [
+      "টেক্সটাইল টেকনোলজিস্ট",
+      "সোর্সিং ম্যানেজার",
+      "সাসটেইনেবিলিটি অ্যানালিস্ট"
+    ],
+    "official_url": "https://example.org/sample/programs/midt-msc-fashion-and-textile-technology",
+    "source_url": "https://example.org/sample/programs/midt-msc-fashion-and-textile-technology",
+    "last_verified": "2026-09-20",
+    "is_sample": true
+  },
+  {
+    "slug": "midt-beng-computer-engineering",
+    "title": "B.Eng. Computer Engineering",
+    "university": "sample-milan-institute-of-design-and-technology",
+    "degree_level": "bachelor",
+    "field": "cse",
+    "language": "en",
+    "duration_months": 36,
+    "ects_credits": 180,
+    "currency": "EUR",
+    "tuition_per_year": 12000,
+    "other_fees_per_year": 0,
+    "application_fee": 100,
+    "intakes": [
+      {
+        "month": 9,
+        "year": 2027,
+        "deadline": "2027-06-30"
+      }
+    ],
+    "seats_total": 80,
+    "seats_non_eu": 25,
+    "min_gpa_requirement": {
+      "value": 4,
+      "scale": 5
+    },
+    "accepts_3yr_bachelor": true,
+    "accepts_moi": true,
+    "accepts_provisional": true,
+    "open_to_bd_citizens": true,
+    "english_tests": [
+      {
+        "test": "ielts",
+        "min_score": 6
+      },
+      {
+        "test": "toefl_ibt",
+        "min_score": 80
+      },
+      {
+        "test": "duolingo",
+        "min_score": 105
+      }
+    ],
+    "required_documents": [
+      "passport",
+      "hsc_certificate",
+      "transcript",
+      "motivation_letter",
+      "english_certificate",
+      "moi_letter"
+    ],
+    "related_bachelor_fields": [
+      "hsc-science"
+    ],
+    "overview_en": "B.Eng. Computer Engineering at Sample Milan Institute of Design and Technology is a 3-year bachelor's program taught in English. Core courses cover algorithms, distributed systems, machine learning and software engineering. The last semester is an industry internship.",
+    "career_paths_en": [
+      "Software engineer",
+      "Machine learning engineer",
+      "Cloud engineer"
+    ],
+    "career_paths_bn": [
+      "সফটওয়্যার ইঞ্জিনিয়ার",
+      "মেশিন লার্নিং ইঞ্জিনিয়ার",
+      "ক্লাউড ইঞ্জিনিয়ার"
+    ],
+    "official_url": "https://example.org/sample/programs/midt-beng-computer-engineering",
+    "source_url": "https://example.org/sample/programs/midt-beng-computer-engineering",
+    "last_verified": "2026-08-24",
+    "is_sample": true
+  },
+  {
+    "slug": "sub-msc-pharmaceutical-biotechnology",
+    "title": "M.Sc. Pharmaceutical Biotechnology",
+    "university": "sample-university-of-bologna",
+    "degree_level": "master",
+    "field": "biotechnology",
+    "language": "en",
+    "duration_months": 24,
+    "ects_credits": 120,
+    "currency": "EUR",
+    "tuition_per_year": 2400,
+    "other_fees_per_year": 0,
+    "application_fee": 30,
+    "intakes": [
+      {
+        "month": 9,
+        "year": 2027,
+        "deadline": "2027-03-15"
+      }
+    ],
+    "seats_total": 50,
+    "seats_non_eu": 20,
+    "min_gpa_requirement": {
+      "value": 3,
+      "scale": 4
+    },
+    "accepts_3yr_bachelor": true,
+    "accepts_moi": true,
+    "accepts_provisional": true,
+    "open_to_bd_citizens": true,
+    "english_tests": [
+      {
+        "test": "ielts",
+        "min_score": 6
+      },
+      {
+        "test": "toefl_ibt",
+        "min_score": 80
+      },
+      {
+        "test": "pte",
+        "min_score": 50
+      },
+      {
+        "test": "duolingo",
+        "min_score": 105
+      }
+    ],
+    "required_documents": [
+      "passport",
+      "transcript",
+      "degree_certificate",
+      "cv",
+      "motivation_letter",
+      "english_certificate",
+      "moi_letter"
+    ],
+    "related_bachelor_fields": [
+      "biotechnology",
+      "microbiology",
+      "pharmacy",
+      "chemistry"
+    ],
+    "overview_en": "M.Sc. Pharmaceutical Biotechnology at Sample University of Bologna is a 2-year master's program taught in English. Core courses cover genetic engineering, bioprocesses, bioinformatics and laboratory work. The second year is mostly laboratory research for the thesis.",
+    "career_paths_en": [
+      "Biotech researcher",
+      "Bioprocess engineer",
+      "Bioinformatics analyst"
+    ],
+    "career_paths_bn": [
+      "বায়োটেক গবেষক",
+      "বায়োপ্রসেস ইঞ্জিনিয়ার",
+      "বায়োইনফরমেটিক্স অ্যানালিস্ট"
+    ],
+    "official_url": "https://example.org/sample/programs/sub-msc-pharmaceutical-biotechnology",
+    "source_url": "https://example.org/sample/programs/sub-msc-pharmaceutical-biotechnology",
+    "last_verified": "2026-10-28",
+    "is_sample": true
+  },
+  {
+    "slug": "sub-msc-sustainable-agriculture",
+    "title": "M.Sc. Sustainable Agriculture",
+    "university": "sample-university-of-bologna",
+    "degree_level": "master",
+    "field": "agriculture",
+    "language": "en",
+    "duration_months": 24,
+    "ects_credits": 120,
+    "currency": "EUR",
+    "tuition_per_year": 2400,
+    "other_fees_per_year": 0,
+    "application_fee": 30,
+    "intakes": [
+      {
+        "month": 9,
+        "year": 2027,
+        "deadline": "2027-04-30"
+      }
+    ],
+    "seats_total": 40,
+    "seats_non_eu": null,
+    "min_gpa_requirement": {
+      "value": 2.6,
+      "scale": 4
+    },
+    "accepts_3yr_bachelor": true,
+    "accepts_moi": true,
+    "accepts_provisional": true,
+    "open_to_bd_citizens": true,
+    "english_tests": [
+      {
+        "test": "ielts",
+        "min_score": 6
+      },
+      {
+        "test": "toefl_ibt",
+        "min_score": 80
+      },
+      {
+        "test": "pte",
+        "min_score": 50
+      },
+      {
+        "test": "duolingo",
+        "min_score": 105
+      }
+    ],
+    "required_documents": [
+      "passport",
+      "transcript",
+      "degree_certificate",
+      "cv",
+      "motivation_letter",
+      "english_certificate",
+      "moi_letter"
+    ],
+    "related_bachelor_fields": [
+      "agriculture",
+      "biotechnology",
+      "microbiology",
+      "general-science"
+    ],
+    "overview_en": "M.Sc. Sustainable Agriculture at Sample University of Bologna is a 2-year master's program taught in English. Core courses cover crop science, soil management, agri-food systems and climate adaptation. Field trips to farms in the region are part of the first year.",
+    "career_paths_en": [
+      "Agronomist",
+      "Agri-food consultant",
+      "Sustainability officer"
+    ],
+    "career_paths_bn": [
+      "কৃষিবিদ",
+      "কৃষি-খাদ্য কনসালট্যান্ট",
+      "সাসটেইনেবিলিটি অফিসার"
+    ],
+    "official_url": "https://example.org/sample/programs/sub-msc-sustainable-agriculture",
+    "source_url": "https://example.org/sample/programs/sub-msc-sustainable-agriculture",
+    "last_verified": "2026-10-12",
+    "is_sample": true
+  },
+  {
+    "slug": "sub-msc-civil-engineering",
+    "title": "M.Sc. Civil Engineering",
+    "university": "sample-university-of-bologna",
+    "degree_level": "master",
+    "field": "civil",
+    "language": "en",
+    "duration_months": 24,
+    "ects_credits": 120,
+    "currency": "EUR",
+    "tuition_per_year": 2400,
+    "other_fees_per_year": 0,
+    "application_fee": 30,
+    "intakes": [
+      {
+        "month": 9,
+        "year": 2027,
+        "deadline": "2027-03-31"
+      }
+    ],
+    "seats_total": 60,
+    "seats_non_eu": 20,
+    "min_gpa_requirement": {
+      "value": 2.8,
+      "scale": 4
+    },
+    "accepts_3yr_bachelor": true,
+    "accepts_moi": true,
+    "accepts_provisional": false,
+    "open_to_bd_citizens": true,
+    "english_tests": [
+      {
+        "test": "ielts",
+        "min_score": 6
+      },
+      {
+        "test": "toefl_ibt",
+        "min_score": 80
+      },
+      {
+        "test": "pte",
+        "min_score": 50
+      },
+      {
+        "test": "duolingo",
+        "min_score": 105
+      }
+    ],
+    "required_documents": [
+      "passport",
+      "transcript",
+      "degree_certificate",
+      "cv",
+      "motivation_letter",
+      "english_certificate",
+      "moi_letter"
+    ],
+    "related_bachelor_fields": [
+      "civil",
+      "architecture",
+      "mechanical"
+    ],
+    "overview_en": "M.Sc. Civil Engineering at Sample University of Bologna is a 2-year master's program taught in English. Core courses cover structural analysis, geotechnics, water engineering and construction management. Students choose a structures, water or transport track.",
+    "career_paths_en": [
+      "Structural engineer",
+      "Site engineer",
+      "Project planner"
+    ],
+    "career_paths_bn": [
+      "স্ট্রাকচারাল ইঞ্জিনিয়ার",
+      "সাইট ইঞ্জিনিয়ার",
+      "প্রজেক্ট প্ল্যানার"
+    ],
+    "official_url": "https://example.org/sample/programs/sub-msc-civil-engineering",
+    "source_url": "https://example.org/sample/programs/sub-msc-civil-engineering",
+    "last_verified": "2026-09-20",
+    "is_sample": true
+  },
+  {
+    "slug": "sub-ma-international-relations",
+    "title": "M.A. International Relations",
+    "university": "sample-university-of-bologna",
+    "degree_level": "master",
+    "field": "social-sciences",
+    "language": "en",
+    "duration_months": 24,
+    "ects_credits": 120,
+    "currency": "EUR",
+    "tuition_per_year": 2400,
+    "other_fees_per_year": 0,
+    "application_fee": 30,
+    "intakes": [
+      {
+        "month": 9,
+        "year": 2027,
+        "deadline": "2027-03-31"
+      }
+    ],
+    "seats_total": 70,
+    "seats_non_eu": 25,
+    "min_gpa_requirement": {
+      "value": 2.7,
+      "scale": 4
+    },
+    "accepts_3yr_bachelor": true,
+    "accepts_moi": true,
+    "accepts_provisional": true,
+    "open_to_bd_citizens": true,
+    "english_tests": [
+      {
+        "test": "ielts",
+        "min_score": 6.5
+      },
+      {
+        "test": "toefl_ibt",
+        "min_score": 90
+      },
+      {
+        "test": "pte",
+        "min_score": 58
+      },
+      {
+        "test": "duolingo",
+        "min_score": 110
+      }
+    ],
+    "required_documents": [
+      "passport",
+      "transcript",
+      "degree_certificate",
+      "cv",
+      "motivation_letter",
+      "english_certificate",
+      "moi_letter"
+    ],
+    "related_bachelor_fields": [
+      "social-sciences",
+      "economics",
+      "english-humanities",
+      "general-arts"
+    ],
+    "overview_en": "M.A. International Relations at Sample University of Bologna is a 2-year master's program taught in English. Core courses cover research methods, policy analysis and international institutions. An exchange semester abroad is available in the second year.",
+    "overview_bn": "এটি ২৪ মাসের আন্তর্জাতিক সম্পর্ক মাস্টার্স, ইংরেজিতে পড়ানো হয়। মূল কোর্সে গবেষণা পদ্ধতি, নীতি বিশ্লেষণ ও আন্তর্জাতিক প্রতিষ্ঠান আছে। দ্বিতীয় বছরে বিদেশে এক সেমিস্টার এক্সচেঞ্জের সুযোগ আছে।",
+    "career_paths_en": [
+      "Policy officer",
+      "NGO programme manager",
+      "Researcher"
+    ],
+    "career_paths_bn": [
+      "পলিসি অফিসার",
+      "এনজিও প্রোগ্রাম ম্যানেজার",
+      "গবেষক"
+    ],
+    "official_url": "https://example.org/sample/programs/sub-ma-international-relations",
+    "source_url": "https://example.org/sample/programs/sub-ma-international-relations",
+    "last_verified": "2026-08-24",
+    "is_sample": true
+  },
+  {
+    "slug": "ebs-mba-international-business",
+    "title": "MBA International Business",
+    "university": "sample-emilia-business-school",
+    "degree_level": "master",
+    "field": "business",
+    "language": "en",
+    "duration_months": 12,
+    "ects_credits": 60,
+    "currency": "EUR",
+    "tuition_per_year": 16000,
+    "other_fees_per_year": 0,
+    "application_fee": 120,
+    "intakes": [
+      {
+        "month": 1,
+        "year": 2027,
+        "deadline": "2026-11-30"
+      },
+      {
+        "month": 9,
+        "year": 2027,
+        "deadline": "2027-06-30"
+      }
+    ],
+    "seats_total": 45,
+    "seats_non_eu": null,
+    "min_gpa_requirement": {
+      "value": 2.5,
+      "scale": 4
+    },
+    "accepts_3yr_bachelor": true,
+    "accepts_moi": true,
+    "accepts_provisional": true,
+    "open_to_bd_citizens": true,
+    "english_tests": [
+      {
+        "test": "ielts",
+        "min_score": 6.5
+      },
+      {
+        "test": "toefl_ibt",
+        "min_score": 90
+      },
+      {
+        "test": "pte",
+        "min_score": 58
+      },
+      {
+        "test": "duolingo",
+        "min_score": 110
+      }
+    ],
+    "required_documents": [
+      "passport",
+      "transcript",
+      "degree_certificate",
+      "cv",
+      "motivation_letter",
+      "english_certificate",
+      "moi_letter",
+      "work_certificate"
+    ],
+    "related_bachelor_fields": [
+      "business",
+      "finance",
+      "economics",
+      "general-business",
+      "cse",
+      "eee",
+      "civil",
+      "mechanical",
+      "textile",
+      "social-sciences",
+      "data-science"
+    ],
+    "overview_en": "MBA International Business at Sample Emilia Business School is a 1-year master's program taught in English. Core courses cover strategy, marketing, operations, leadership and entrepreneurship. At least 2 years of work experience are expected.",
+    "career_paths_en": [
+      "Business analyst",
+      "Marketing manager",
+      "Operations manager"
+    ],
+    "career_paths_bn": [
+      "বিজনেস অ্যানালিস্ট",
+      "মার্কেটিং ম্যানেজার",
+      "অপারেশনস ম্যানেজার"
+    ],
+    "official_url": "https://example.org/sample/programs/ebs-mba-international-business",
+    "source_url": "https://example.org/sample/programs/ebs-mba-international-business",
+    "last_verified": "2026-10-28",
+    "is_sample": true
+  },
+  {
+    "slug": "ebs-msc-finance-and-fintech",
+    "title": "M.Sc. Finance and Fintech",
+    "university": "sample-emilia-business-school",
+    "degree_level": "master",
+    "field": "finance",
+    "language": "en",
+    "duration_months": 18,
+    "ects_credits": 90,
+    "currency": "EUR",
+    "tuition_per_year": 15000,
+    "other_fees_per_year": 0,
+    "application_fee": 120,
+    "intakes": [
+      {
+        "month": 9,
+        "year": 2027,
+        "deadline": "2027-05-31"
+      }
+    ],
+    "seats_total": 40,
+    "seats_non_eu": 15,
+    "min_gpa_requirement": {
+      "value": 2.8,
+      "scale": 4
+    },
+    "accepts_3yr_bachelor": true,
+    "accepts_moi": false,
+    "accepts_provisional": false,
+    "open_to_bd_citizens": true,
+    "english_tests": [
+      {
+        "test": "ielts",
+        "min_score": 6.5
+      },
+      {
+        "test": "toefl_ibt",
+        "min_score": 90
+      },
+      {
+        "test": "pte",
+        "min_score": 58
+      },
+      {
+        "test": "duolingo",
+        "min_score": 110
+      }
+    ],
+    "required_documents": [
+      "passport",
+      "transcript",
+      "degree_certificate",
+      "cv",
+      "motivation_letter",
+      "english_certificate"
+    ],
+    "related_bachelor_fields": [
+      "finance",
+      "business",
+      "economics",
+      "math-physics",
+      "general-business",
+      "data-science",
+      "cse"
+    ],
+    "overview_en": "M.Sc. Finance and Fintech at Sample Emilia Business School is a 18-month master's program taught in English. Core courses cover corporate finance, financial markets, risk management and fintech. Courses include Python for finance and a trading lab.",
+    "career_paths_en": [
+      "Financial analyst",
+      "Risk analyst",
+      "Fintech product manager"
+    ],
+    "career_paths_bn": [
+      "ফিন্যান্সিয়াল অ্যানালিস্ট",
+      "রিস্ক অ্যানালিস্ট",
+      "ফিনটেক প্রোডাক্ট ম্যানেজার"
+    ],
+    "official_url": "https://example.org/sample/programs/ebs-msc-finance-and-fintech",
+    "source_url": "https://example.org/sample/programs/ebs-msc-finance-and-fintech",
+    "last_verified": "2026-10-12",
+    "is_sample": true
+  },
+  {
+    "slug": "ebs-bba-business-management",
+    "title": "BBA Business Management",
+    "university": "sample-emilia-business-school",
+    "degree_level": "bachelor",
+    "field": "business",
+    "language": "en",
+    "duration_months": 36,
+    "ects_credits": 180,
+    "currency": "EUR",
+    "tuition_per_year": 11000,
+    "other_fees_per_year": 0,
+    "application_fee": 120,
+    "intakes": [
+      {
+        "month": 9,
+        "year": 2027,
+        "deadline": "2027-06-30"
+      }
+    ],
+    "seats_total": 120,
+    "seats_non_eu": 40,
+    "min_gpa_requirement": {
+      "value": 3.5,
+      "scale": 5
+    },
+    "accepts_3yr_bachelor": true,
+    "accepts_moi": true,
+    "accepts_provisional": true,
+    "open_to_bd_citizens": true,
+    "english_tests": [
+      {
+        "test": "ielts",
+        "min_score": 6
+      },
+      {
+        "test": "toefl_ibt",
+        "min_score": 80
+      },
+      {
+        "test": "duolingo",
+        "min_score": 105
+      }
+    ],
+    "required_documents": [
+      "passport",
+      "hsc_certificate",
+      "transcript",
+      "motivation_letter",
+      "english_certificate",
+      "moi_letter"
+    ],
+    "related_bachelor_fields": [
+      "hsc-science",
+      "hsc-business",
+      "hsc-humanities"
+    ],
+    "overview_en": "BBA Business Management at Sample Emilia Business School is a 3-year bachelor's program taught in English. Core courses cover strategy, marketing, operations, leadership and entrepreneurship. Students do a 3-month internship in the third year.",
+    "career_paths_en": [
+      "Business analyst",
+      "Marketing manager",
+      "Operations manager"
+    ],
+    "career_paths_bn": [
+      "বিজনেস অ্যানালিস্ট",
+      "মার্কেটিং ম্যানেজার",
+      "অপারেশনস ম্যানেজার"
+    ],
+    "official_url": "https://example.org/sample/programs/ebs-bba-business-management",
+    "source_url": "https://example.org/sample/programs/ebs-bba-business-management",
+    "last_verified": "2026-09-20",
+    "is_sample": true
+  },
+  {
+    "slug": "stub-msc-computer-science",
+    "title": "M.Sc. Computer Science",
+    "university": "sample-technical-university-of-berlin",
+    "degree_level": "master",
+    "field": "cse",
+    "language": "en",
+    "duration_months": 24,
+    "ects_credits": 120,
+    "currency": "EUR",
+    "tuition_per_year": 0,
+    "other_fees_per_year": 650,
+    "application_fee": 75,
+    "intakes": [
+      {
+        "month": 4,
+        "year": 2027,
+        "deadline": "2027-01-15"
+      },
+      {
+        "month": 10,
+        "year": 2027,
+        "deadline": "2027-05-31"
+      }
+    ],
+    "seats_total": 90,
+    "seats_non_eu": 30,
+    "min_gpa_requirement": {
+      "value": 3.2,
+      "scale": 4,
+      "local_note_en": "German grade 2.3 or better"
+    },
+    "accepts_3yr_bachelor": false,
+    "accepts_moi": false,
+    "accepts_provisional": false,
+    "open_to_bd_citizens": true,
+    "english_tests": [
+      {
+        "test": "ielts",
+        "min_score": 6.5
+      },
+      {
+        "test": "toefl_ibt",
+        "min_score": 88
+      }
+    ],
+    "required_documents": [
+      "passport",
+      "transcript",
+      "degree_certificate",
+      "cv",
+      "motivation_letter",
+      "english_certificate",
+      "recommendation_letters",
+      "course_descriptions"
+    ],
+    "related_bachelor_fields": [
+      "cse",
+      "data-science",
+      "math-physics"
+    ],
+    "overview_en": "M.Sc. Computer Science at Sample Technical University of Berlin is a 2-year tuition-free master's program taught in English. Core courses cover algorithms, distributed systems, machine learning and software engineering. Students write a research thesis, often with a lab or company partner.",
+    "overview_bn": "এটি ২৪ মাসের টিউশন-ফ্রি কম্পিউটার সায়েন্স মাস্টার্স, ইংরেজিতে পড়ানো হয়। মূল কোর্সে অ্যালগরিদম, ডিস্ট্রিবিউটেড সিস্টেম, মেশিন লার্নিং ও সফটওয়্যার ইঞ্জিনিয়ারিং আছে। ৩ বছরের ব্যাচেলর গ্রহণ করা হয় না।",
+    "career_paths_en": [
+      "Software engineer",
+      "Machine learning engineer",
+      "Cloud engineer"
+    ],
+    "career_paths_bn": [
+      "সফটওয়্যার ইঞ্জিনিয়ার",
+      "মেশিন লার্নিং ইঞ্জিনিয়ার",
+      "ক্লাউড ইঞ্জিনিয়ার"
+    ],
+    "official_url": "https://example.org/sample/programs/stub-msc-computer-science",
+    "source_url": "https://example.org/sample/programs/stub-msc-computer-science",
+    "last_verified": "2026-08-24",
+    "is_sample": true
+  },
+  {
+    "slug": "stub-msc-electrical-engineering",
+    "title": "M.Sc. Electrical Engineering and Information Technology",
+    "university": "sample-technical-university-of-berlin",
+    "degree_level": "master",
+    "field": "eee",
+    "language": "en",
+    "duration_months": 24,
+    "ects_credits": 120,
+    "currency": "EUR",
+    "tuition_per_year": 0,
+    "other_fees_per_year": 650,
+    "application_fee": 75,
+    "intakes": [
+      {
+        "month": 10,
+        "year": 2027,
+        "deadline": "2027-05-31"
+      }
+    ],
+    "seats_total": 70,
+    "seats_non_eu": null,
+    "min_gpa_requirement": {
+      "value": 3,
+      "scale": 4,
+      "local_note_en": "German grade 2.5 or better"
+    },
+    "accepts_3yr_bachelor": false,
+    "accepts_moi": false,
+    "accepts_provisional": false,
+    "open_to_bd_citizens": true,
+    "english_tests": [
+      {
+        "test": "ielts",
+        "min_score": 6.5
+      },
+      {
+        "test": "toefl_ibt",
+        "min_score": 88
+      }
+    ],
+    "required_documents": [
+      "passport",
+      "transcript",
+      "degree_certificate",
+      "cv",
+      "motivation_letter",
+      "english_certificate",
+      "course_descriptions"
+    ],
+    "related_bachelor_fields": [
+      "eee",
+      "cse",
+      "mechanical",
+      "math-physics"
+    ],
+    "overview_en": "M.Sc. Electrical Engineering and Information Technology at Sample Technical University of Berlin is a 2-year tuition-free master's program taught in English. Core courses cover power systems, control, embedded electronics and signal processing. Labs use the university's own power-grid test centre.",
+    "career_paths_en": [
+      "Power systems engineer",
+      "Embedded systems engineer",
+      "Energy consultant"
+    ],
+    "career_paths_bn": [
+      "পাওয়ার সিস্টেম ইঞ্জিনিয়ার",
+      "এমবেডেড সিস্টেম ইঞ্জিনিয়ার",
+      "এনার্জি কনসালট্যান্ট"
+    ],
+    "official_url": "https://example.org/sample/programs/stub-msc-electrical-engineering",
+    "source_url": "https://example.org/sample/programs/stub-msc-electrical-engineering",
+    "last_verified": "2026-10-28",
+    "is_sample": true
+  },
+  {
+    "slug": "stub-msc-mechanical-engineering-german",
+    "title": "M.Sc. Mechanical Engineering (taught in German)",
+    "university": "sample-technical-university-of-berlin",
+    "degree_level": "master",
+    "field": "mechanical",
+    "language": "de",
+    "language_requirement_en": "German at C1 level",
+    "language_requirement_bn": "জার্মান ভাষায় C1 লেভেল",
+    "duration_months": 24,
+    "ects_credits": 120,
+    "currency": "EUR",
+    "tuition_per_year": 0,
+    "other_fees_per_year": 650,
+    "application_fee": 75,
+    "intakes": [
+      {
+        "month": 10,
+        "year": 2027,
+        "deadline": "2027-05-31"
+      }
+    ],
+    "seats_total": 100,
+    "seats_non_eu": 20,
+    "min_gpa_requirement": {
+      "value": 3,
+      "scale": 4,
+      "local_note_en": "German grade 2.5 or better"
+    },
+    "accepts_3yr_bachelor": false,
+    "accepts_moi": false,
+    "accepts_provisional": false,
+    "open_to_bd_citizens": true,
+    "english_tests": [],
+    "required_documents": [
+      "passport",
+      "transcript",
+      "degree_certificate",
+      "cv",
+      "motivation_letter",
+      "course_descriptions"
+    ],
+    "related_bachelor_fields": [
+      "mechanical",
+      "eee",
+      "civil",
+      "textile"
+    ],
+    "overview_en": "M.Sc. Mechanical Engineering (taught in German) at Sample Technical University of Berlin is a 2-year tuition-free master's program taught in German. Core courses cover thermodynamics, mechanics, manufacturing and design with CAD. All teaching and exams are in German.",
+    "career_paths_en": [
+      "Design engineer",
+      "Production engineer",
+      "Automation engineer"
+    ],
+    "career_paths_bn": [
+      "ডিজাইন ইঞ্জিনিয়ার",
+      "প্রোডাকশন ইঞ্জিনিয়ার",
+      "অটোমেশন ইঞ্জিনিয়ার"
+    ],
+    "official_url": "https://example.org/sample/programs/stub-msc-mechanical-engineering-german",
+    "source_url": "https://example.org/sample/programs/stub-msc-mechanical-engineering-german",
+    "last_verified": "2026-10-12",
+    "is_sample": true
+  },
+  {
+    "slug": "stub-msc-data-science",
+    "title": "M.Sc. Data Science",
+    "university": "sample-technical-university-of-berlin",
+    "degree_level": "master",
+    "field": "data-science",
+    "language": "en",
+    "duration_months": 24,
+    "ects_credits": 120,
+    "currency": "EUR",
+    "tuition_per_year": 0,
+    "other_fees_per_year": 650,
+    "application_fee": 75,
+    "intakes": [
+      {
+        "month": 10,
+        "year": 2027,
+        "deadline": "2027-05-31"
+      }
+    ],
+    "seats_total": 50,
+    "seats_non_eu": 18,
+    "min_gpa_requirement": {
+      "value": 3,
+      "scale": 4,
+      "local_note_en": "German grade 2.5 or better"
+    },
+    "accepts_3yr_bachelor": false,
+    "accepts_moi": false,
+    "accepts_provisional": false,
+    "open_to_bd_citizens": true,
+    "english_tests": [
+      {
+        "test": "ielts",
+        "min_score": 6.5
+      },
+      {
+        "test": "toefl_ibt",
+        "min_score": 88
+      }
+    ],
+    "required_documents": [
+      "passport",
+      "transcript",
+      "degree_certificate",
+      "cv",
+      "motivation_letter",
+      "english_certificate"
+    ],
+    "related_bachelor_fields": [
+      "data-science",
+      "cse",
+      "math-physics",
+      "eee"
+    ],
+    "overview_en": "M.Sc. Data Science at Sample Technical University of Berlin is a 2-year tuition-free master's program taught in English. Core courses cover statistics, machine learning, data engineering and data ethics. A programming test may be part of selection.",
+    "career_paths_en": [
+      "Data scientist",
+      "Data analyst",
+      "Data engineer"
+    ],
+    "career_paths_bn": [
+      "ডেটা সায়েন্টিস্ট",
+      "ডেটা অ্যানালিস্ট",
+      "ডেটা ইঞ্জিনিয়ার"
+    ],
+    "official_url": "https://example.org/sample/programs/stub-msc-data-science",
+    "source_url": "https://example.org/sample/programs/stub-msc-data-science",
+    "last_verified": "2026-09-20",
+    "is_sample": true
+  },
+  {
+    "slug": "buas-meng-renewable-energy-systems",
+    "title": "M.Eng. Renewable Energy Systems",
+    "university": "sample-berlin-university-of-applied-sciences",
+    "degree_level": "master",
+    "field": "eee",
+    "language": "en",
+    "duration_months": 18,
+    "ects_credits": 90,
+    "currency": "EUR",
+    "tuition_per_year": 0,
+    "other_fees_per_year": 600,
+    "application_fee": 75,
+    "intakes": [
+      {
+        "month": 10,
+        "year": 2027,
+        "deadline": "2027-06-15"
+      }
+    ],
+    "seats_total": 40,
+    "seats_non_eu": 15,
+    "min_gpa_requirement": {
+      "value": 2.8,
+      "scale": 4,
+      "local_note_en": "German grade 2.7 or better"
+    },
+    "accepts_3yr_bachelor": false,
+    "accepts_moi": false,
+    "accepts_provisional": false,
+    "open_to_bd_citizens": true,
+    "english_tests": [
+      {
+        "test": "ielts",
+        "min_score": 6.5
+      },
+      {
+        "test": "toefl_ibt",
+        "min_score": 85
+      }
+    ],
+    "required_documents": [
+      "passport",
+      "transcript",
+      "degree_certificate",
+      "cv",
+      "motivation_letter",
+      "english_certificate"
+    ],
+    "related_bachelor_fields": [
+      "eee",
+      "mechanical",
+      "civil",
+      "math-physics"
+    ],
+    "overview_en": "M.Eng. Renewable Energy Systems at Sample Berlin University of Applied Sciences is a 18-month tuition-free master's program taught in English. Core courses cover power systems, control, embedded electronics and signal processing. The third semester is an internship with an energy company.",
+    "career_paths_en": [
+      "Power systems engineer",
+      "Embedded systems engineer",
+      "Energy consultant"
+    ],
+    "career_paths_bn": [
+      "পাওয়ার সিস্টেম ইঞ্জিনিয়ার",
+      "এমবেডেড সিস্টেম ইঞ্জিনিয়ার",
+      "এনার্জি কনসালট্যান্ট"
+    ],
+    "official_url": "https://example.org/sample/programs/buas-meng-renewable-energy-systems",
+    "source_url": "https://example.org/sample/programs/buas-meng-renewable-energy-systems",
+    "last_verified": "2026-08-24",
+    "is_sample": true
+  },
+  {
+    "slug": "buas-ma-digital-business-management",
+    "title": "M.A. Digital Business Management",
+    "university": "sample-berlin-university-of-applied-sciences",
+    "degree_level": "master",
+    "field": "business",
+    "language": "en",
+    "duration_months": 18,
+    "ects_credits": 90,
+    "currency": "EUR",
+    "tuition_per_year": 0,
+    "other_fees_per_year": 600,
+    "application_fee": 75,
+    "intakes": [
+      {
+        "month": 4,
+        "year": 2027,
+        "deadline": "2027-01-15"
+      },
+      {
+        "month": 10,
+        "year": 2027,
+        "deadline": "2027-06-15"
+      }
+    ],
+    "seats_total": 35,
+    "seats_non_eu": null,
+    "min_gpa_requirement": {
+      "value": 2.6,
+      "scale": 4
+    },
+    "accepts_3yr_bachelor": true,
+    "accepts_moi": true,
+    "accepts_provisional": true,
+    "open_to_bd_citizens": true,
+    "english_tests": [
+      {
+        "test": "ielts",
+        "min_score": 6.5
+      },
+      {
+        "test": "toefl_ibt",
+        "min_score": 90
+      },
+      {
+        "test": "pte",
+        "min_score": 58
+      },
+      {
+        "test": "duolingo",
+        "min_score": 110
+      }
+    ],
+    "required_documents": [
+      "passport",
+      "transcript",
+      "degree_certificate",
+      "cv",
+      "motivation_letter",
+      "english_certificate",
+      "moi_letter",
+      "work_certificate"
+    ],
+    "related_bachelor_fields": [
+      "business",
+      "finance",
+      "economics",
+      "cse",
+      "general-business"
+    ],
+    "overview_en": "M.A. Digital Business Management at Sample Berlin University of Applied Sciences is a 18-month tuition-free master's program taught in English. Core courses cover strategy, marketing, operations, leadership and entrepreneurship. At least 12 months of work experience are required.",
+    "career_paths_en": [
+      "Business analyst",
+      "Marketing manager",
+      "Operations manager"
+    ],
+    "career_paths_bn": [
+      "বিজনেস অ্যানালিস্ট",
+      "মার্কেটিং ম্যানেজার",
+      "অপারেশনস ম্যানেজার"
+    ],
+    "official_url": "https://example.org/sample/programs/buas-ma-digital-business-management",
+    "source_url": "https://example.org/sample/programs/buas-ma-digital-business-management",
+    "last_verified": "2026-10-28",
+    "is_sample": true
+  },
+  {
+    "slug": "buas-beng-mechatronics",
+    "title": "B.Eng. Mechatronics",
+    "university": "sample-berlin-university-of-applied-sciences",
+    "degree_level": "bachelor",
+    "field": "mechanical",
+    "language": "en",
+    "duration_months": 42,
+    "ects_credits": 210,
+    "currency": "EUR",
+    "tuition_per_year": 0,
+    "other_fees_per_year": 600,
+    "application_fee": 75,
+    "intakes": [
+      {
+        "month": 10,
+        "year": 2027,
+        "deadline": "2027-07-15"
+      }
+    ],
+    "seats_total": 60,
+    "seats_non_eu": 10,
+    "min_gpa_requirement": {
+      "value": 4.5,
+      "scale": 5
+    },
+    "accepts_3yr_bachelor": true,
+    "accepts_moi": true,
+    "accepts_provisional": false,
+    "open_to_bd_citizens": true,
+    "english_tests": [
+      {
+        "test": "ielts",
+        "min_score": 6
+      },
+      {
+        "test": "toefl_ibt",
+        "min_score": 80
+      },
+      {
+        "test": "duolingo",
+        "min_score": 105
+      }
+    ],
+    "required_documents": [
+      "passport",
+      "hsc_certificate",
+      "transcript",
+      "motivation_letter",
+      "english_certificate",
+      "moi_letter"
+    ],
+    "related_bachelor_fields": [
+      "hsc-science"
+    ],
+    "overview_en": "B.Eng. Mechatronics at Sample Berlin University of Applied Sciences is a 42-month tuition-free bachelor's program taught in English. Core courses cover thermodynamics, mechanics, manufacturing and design with CAD. The sixth semester is a practical placement in industry.",
+    "career_paths_en": [
+      "Design engineer",
+      "Production engineer",
+      "Automation engineer"
+    ],
+    "career_paths_bn": [
+      "ডিজাইন ইঞ্জিনিয়ার",
+      "প্রোডাকশন ইঞ্জিনিয়ার",
+      "অটোমেশন ইঞ্জিনিয়ার"
+    ],
+    "official_url": "https://example.org/sample/programs/buas-beng-mechatronics",
+    "source_url": "https://example.org/sample/programs/buas-beng-mechatronics",
+    "last_verified": "2026-10-12",
+    "is_sample": true
+  },
+  {
+    "slug": "sumu-msc-molecular-biosciences",
+    "title": "M.Sc. Molecular Biosciences",
+    "university": "sample-university-of-munich",
+    "degree_level": "master",
+    "field": "microbiology",
+    "language": "en",
+    "duration_months": 24,
+    "ects_credits": 120,
+    "currency": "EUR",
+    "tuition_per_year": 0,
+    "other_fees_per_year": 300,
+    "application_fee": 75,
+    "intakes": [
+      {
+        "month": 10,
+        "year": 2027,
+        "deadline": "2027-03-31"
+      }
+    ],
+    "seats_total": 30,
+    "seats_non_eu": null,
+    "min_gpa_requirement": {
+      "value": 3.2,
+      "scale": 4,
+      "local_note_en": "German grade 2.3 or better"
+    },
+    "accepts_3yr_bachelor": false,
+    "accepts_moi": false,
+    "accepts_provisional": false,
+    "open_to_bd_citizens": true,
+    "english_tests": [
+      {
+        "test": "ielts",
+        "min_score": 6.5
+      },
+      {
+        "test": "toefl_ibt",
+        "min_score": 90
+      }
+    ],
+    "required_documents": [
+      "passport",
+      "transcript",
+      "degree_certificate",
+      "cv",
+      "motivation_letter",
+      "english_certificate",
+      "recommendation_letters"
+    ],
+    "related_bachelor_fields": [
+      "microbiology",
+      "biotechnology",
+      "pharmacy",
+      "chemistry",
+      "medicine"
+    ],
+    "overview_en": "M.Sc. Molecular Biosciences at Sample University of Munich is a 2-year tuition-free master's program taught in English. Core courses cover molecular biology, microbiology, immunology and laboratory methods. Students rotate through three research labs before the thesis.",
+    "career_paths_en": [
+      "Laboratory scientist",
+      "Research assistant",
+      "Quality control analyst"
+    ],
+    "career_paths_bn": [
+      "ল্যাবরেটরি সায়েন্টিস্ট",
+      "রিসার্চ অ্যাসিস্ট্যান্ট",
+      "কোয়ালিটি কন্ট্রোল অ্যানালিস্ট"
+    ],
+    "official_url": "https://example.org/sample/programs/sumu-msc-molecular-biosciences",
+    "source_url": "https://example.org/sample/programs/sumu-msc-molecular-biosciences",
+    "last_verified": "2026-09-20",
+    "is_sample": true
+  },
+  {
+    "slug": "sumu-msc-economics",
+    "title": "M.Sc. Economics",
+    "university": "sample-university-of-munich",
+    "degree_level": "master",
+    "field": "economics",
+    "language": "en",
+    "duration_months": 24,
+    "ects_credits": 120,
+    "currency": "EUR",
+    "tuition_per_year": 0,
+    "other_fees_per_year": 300,
+    "application_fee": 75,
+    "intakes": [
+      {
+        "month": 10,
+        "year": 2027,
+        "deadline": "2027-05-15"
+      }
+    ],
+    "seats_total": 60,
+    "seats_non_eu": 20,
+    "min_gpa_requirement": {
+      "value": 3,
+      "scale": 4,
+      "local_note_en": "German grade 2.5 or better"
+    },
+    "accepts_3yr_bachelor": false,
+    "accepts_moi": false,
+    "accepts_provisional": false,
+    "open_to_bd_citizens": true,
+    "english_tests": [
+      {
+        "test": "ielts",
+        "min_score": 7
+      },
+      {
+        "test": "toefl_ibt",
+        "min_score": 95
+      }
+    ],
+    "required_documents": [
+      "passport",
+      "transcript",
+      "degree_certificate",
+      "cv",
+      "motivation_letter",
+      "english_certificate"
+    ],
+    "related_bachelor_fields": [
+      "economics",
+      "finance",
+      "math-physics",
+      "business"
+    ],
+    "overview_en": "M.Sc. Economics at Sample University of Munich is a 2-year tuition-free master's program taught in English. Core courses cover microeconomics, macroeconomics, econometrics and development economics. The first semester is quantitative: maths, statistics and econometrics.",
+    "career_paths_en": [
+      "Economist",
+      "Policy analyst",
+      "Market researcher"
+    ],
+    "career_paths_bn": [
+      "অর্থনীতিবিদ",
+      "পলিসি অ্যানালিস্ট",
+      "মার্কেট রিসার্চার"
+    ],
+    "official_url": "https://example.org/sample/programs/sumu-msc-economics",
+    "source_url": "https://example.org/sample/programs/sumu-msc-economics",
+    "last_verified": "2026-08-24",
+    "is_sample": true
+  },
+  {
+    "slug": "sumu-msc-pharmaceutical-sciences",
+    "title": "M.Sc. Pharmaceutical Sciences",
+    "university": "sample-university-of-munich",
+    "degree_level": "master",
+    "field": "pharmacy",
+    "language": "en",
+    "duration_months": 24,
+    "ects_credits": 120,
+    "currency": "EUR",
+    "tuition_per_year": 0,
+    "other_fees_per_year": 300,
+    "application_fee": 75,
+    "intakes": [
+      {
+        "month": 10,
+        "year": 2027,
+        "deadline": "2027-04-30"
+      }
+    ],
+    "seats_total": 25,
+    "seats_non_eu": 8,
+    "min_gpa_requirement": {
+      "value": 3.1,
+      "scale": 4,
+      "local_note_en": "German grade 2.4 or better"
+    },
+    "accepts_3yr_bachelor": false,
+    "accepts_moi": false,
+    "accepts_provisional": false,
+    "open_to_bd_citizens": true,
+    "english_tests": [
+      {
+        "test": "ielts",
+        "min_score": 6.5
+      },
+      {
+        "test": "toefl_ibt",
+        "min_score": 90
+      }
+    ],
+    "required_documents": [
+      "passport",
+      "transcript",
+      "degree_certificate",
+      "cv",
+      "motivation_letter",
+      "english_certificate"
+    ],
+    "related_bachelor_fields": [
+      "pharmacy",
+      "chemistry",
+      "biotechnology"
+    ],
+    "overview_en": "M.Sc. Pharmaceutical Sciences at Sample University of Munich is a 2-year tuition-free master's program taught in English. Core courses cover drug design, pharmacology, pharmaceutical technology and regulation. Small cohort with a research internship in the second year.",
+    "career_paths_en": [
+      "Pharmaceutical scientist",
+      "Regulatory affairs officer",
+      "Quality assurance specialist"
+    ],
+    "career_paths_bn": [
+      "ফার্মাসিউটিক্যাল সায়েন্টিস্ট",
+      "রেগুলেটরি অ্যাফেয়ার্স অফিসার",
+      "কোয়ালিটি অ্যাসুরেন্স বিশেষজ্ঞ"
+    ],
+    "official_url": "https://example.org/sample/programs/sumu-msc-pharmaceutical-sciences",
+    "source_url": "https://example.org/sample/programs/sumu-msc-pharmaceutical-sciences",
+    "last_verified": "2026-10-28",
+    "is_sample": true
+  },
+  {
+    "slug": "sumu-ma-english-and-american-studies",
+    "title": "M.A. English and American Studies",
+    "university": "sample-university-of-munich",
+    "degree_level": "master",
+    "field": "english-humanities",
+    "language": "en",
+    "duration_months": 24,
+    "ects_credits": 120,
+    "currency": "EUR",
+    "tuition_per_year": 0,
+    "other_fees_per_year": 300,
+    "application_fee": 75,
+    "intakes": [
+      {
+        "month": 10,
+        "year": 2027,
+        "deadline": "2027-05-31"
+      }
+    ],
+    "seats_total": 40,
+    "seats_non_eu": 10,
+    "min_gpa_requirement": {
+      "value": 2.8,
+      "scale": 4,
+      "local_note_en": "German grade 2.5 or better"
+    },
+    "accepts_3yr_bachelor": false,
+    "accepts_moi": true,
+    "accepts_provisional": false,
+    "open_to_bd_citizens": false,
+    "english_tests": [
+      {
+        "test": "ielts",
+        "min_score": 6.5
+      },
+      {
+        "test": "toefl_ibt",
+        "min_score": 90
+      },
+      {
+        "test": "pte",
+        "min_score": 58
+      },
+      {
+        "test": "duolingo",
+        "min_score": 110
+      }
+    ],
+    "required_documents": [
+      "passport",
+      "transcript",
+      "degree_certificate",
+      "cv",
+      "motivation_letter",
+      "english_certificate",
+      "moi_letter"
+    ],
+    "related_bachelor_fields": [
+      "english-humanities",
+      "general-arts",
+      "social-sciences"
+    ],
+    "overview_en": "M.A. English and American Studies at Sample University of Munich is a 2-year tuition-free master's program taught in English. Core courses cover literature, cultural studies, linguistics and academic writing. Places are reserved for partner universities in the EU/EEA.",
+    "career_paths_en": [
+      "Editor",
+      "Communications officer",
+      "Teacher"
+    ],
+    "career_paths_bn": [
+      "সম্পাদক",
+      "কমিউনিকেশনস অফিসার",
+      "শিক্ষক"
+    ],
+    "official_url": "https://example.org/sample/programs/sumu-ma-english-and-american-studies",
+    "source_url": "https://example.org/sample/programs/sumu-ma-english-and-american-studies",
+    "last_verified": "2026-10-12",
+    "is_sample": true
+  },
+  {
+    "slug": "mibs-mba-general-management",
+    "title": "MBA General Management",
+    "university": "sample-munich-international-business-school",
+    "degree_level": "master",
+    "field": "business",
+    "language": "en",
+    "duration_months": 18,
+    "ects_credits": 90,
+    "currency": "EUR",
+    "tuition_per_year": 19000,
+    "other_fees_per_year": 0,
+    "application_fee": 150,
+    "intakes": [
+      {
+        "month": 10,
+        "year": 2027,
+        "deadline": "2027-07-31"
+      }
+    ],
+    "seats_total": 40,
+    "seats_non_eu": null,
+    "min_gpa_requirement": {
+      "value": 2.5,
+      "scale": 4
+    },
+    "accepts_3yr_bachelor": true,
+    "accepts_moi": true,
+    "accepts_provisional": true,
+    "open_to_bd_citizens": true,
+    "english_tests": [
+      {
+        "test": "ielts",
+        "min_score": 6.5
+      },
+      {
+        "test": "toefl_ibt",
+        "min_score": 90
+      },
+      {
+        "test": "pte",
+        "min_score": 58
+      },
+      {
+        "test": "duolingo",
+        "min_score": 110
+      }
+    ],
+    "required_documents": [
+      "passport",
+      "transcript",
+      "degree_certificate",
+      "cv",
+      "motivation_letter",
+      "english_certificate",
+      "moi_letter",
+      "work_certificate"
+    ],
+    "related_bachelor_fields": [
+      "business",
+      "finance",
+      "economics",
+      "general-business",
+      "cse",
+      "eee",
+      "civil",
+      "mechanical",
+      "textile",
+      "social-sciences",
+      "data-science"
+    ],
+    "overview_en": "MBA General Management at Sample Munich International Business School is a 18-month master's program taught in English. Core courses cover strategy, marketing, operations, leadership and entrepreneurship. At least 3 years of work experience are expected.",
+    "career_paths_en": [
+      "Business analyst",
+      "Marketing manager",
+      "Operations manager"
+    ],
+    "career_paths_bn": [
+      "বিজনেস অ্যানালিস্ট",
+      "মার্কেটিং ম্যানেজার",
+      "অপারেশনস ম্যানেজার"
+    ],
+    "official_url": "https://example.org/sample/programs/mibs-mba-general-management",
+    "source_url": "https://example.org/sample/programs/mibs-mba-general-management",
+    "last_verified": "2026-09-20",
+    "is_sample": true
+  },
+  {
+    "slug": "mibs-msc-marketing-analytics",
+    "title": "M.Sc. Marketing Analytics",
+    "university": "sample-munich-international-business-school",
+    "degree_level": "master",
+    "field": "business",
+    "language": "en",
+    "duration_months": 18,
+    "ects_credits": 90,
+    "currency": "EUR",
+    "tuition_per_year": 15500,
+    "other_fees_per_year": 0,
+    "application_fee": 150,
+    "intakes": [
+      {
+        "month": 3,
+        "year": 2027,
+        "deadline": "2026-12-01"
+      },
+      {
+        "month": 10,
+        "year": 2027,
+        "deadline": "2027-07-15"
+      }
+    ],
+    "seats_total": 35,
+    "seats_non_eu": 15,
+    "min_gpa_requirement": {
+      "value": 2.7,
+      "scale": 4
+    },
+    "accepts_3yr_bachelor": true,
+    "accepts_moi": true,
+    "accepts_provisional": true,
+    "open_to_bd_citizens": true,
+    "english_tests": [
+      {
+        "test": "ielts",
+        "min_score": 6.5
+      },
+      {
+        "test": "toefl_ibt",
+        "min_score": 90
+      },
+      {
+        "test": "pte",
+        "min_score": 58
+      },
+      {
+        "test": "duolingo",
+        "min_score": 110
+      }
+    ],
+    "required_documents": [
+      "passport",
+      "transcript",
+      "degree_certificate",
+      "cv",
+      "motivation_letter",
+      "english_certificate",
+      "moi_letter"
+    ],
+    "related_bachelor_fields": [
+      "business",
+      "economics",
+      "data-science",
+      "cse",
+      "finance",
+      "general-business"
+    ],
+    "overview_en": "M.Sc. Marketing Analytics at Sample Munich International Business School is a 18-month master's program taught in English. Core courses cover strategy, marketing, operations, leadership and entrepreneurship. Projects use real campaign data from partner companies.",
+    "career_paths_en": [
+      "Business analyst",
+      "Marketing manager",
+      "Operations manager"
+    ],
+    "career_paths_bn": [
+      "বিজনেস অ্যানালিস্ট",
+      "মার্কেটিং ম্যানেজার",
+      "অপারেশনস ম্যানেজার"
+    ],
+    "official_url": "https://example.org/sample/programs/mibs-msc-marketing-analytics",
+    "source_url": "https://example.org/sample/programs/mibs-msc-marketing-analytics",
+    "last_verified": "2026-08-24",
+    "is_sample": true
+  },
+  {
+    "slug": "mibs-bsc-international-management",
+    "title": "B.Sc. International Management",
+    "university": "sample-munich-international-business-school",
+    "degree_level": "bachelor",
+    "field": "business",
+    "language": "en",
+    "duration_months": 42,
+    "ects_credits": 210,
+    "currency": "EUR",
+    "tuition_per_year": 13500,
+    "other_fees_per_year": 0,
+    "application_fee": 150,
+    "intakes": [
+      {
+        "month": 10,
+        "year": 2027,
+        "deadline": "2027-07-31"
+      }
+    ],
+    "seats_total": 100,
+    "seats_non_eu": null,
+    "min_gpa_requirement": {
+      "value": 3.5,
+      "scale": 5
+    },
+    "accepts_3yr_bachelor": true,
+    "accepts_moi": true,
+    "accepts_provisional": true,
+    "open_to_bd_citizens": true,
+    "english_tests": [
+      {
+        "test": "ielts",
+        "min_score": 6
+      },
+      {
+        "test": "toefl_ibt",
+        "min_score": 80
+      },
+      {
+        "test": "duolingo",
+        "min_score": 105
+      }
+    ],
+    "required_documents": [
+      "passport",
+      "hsc_certificate",
+      "transcript",
+      "motivation_letter",
+      "english_certificate",
+      "moi_letter"
+    ],
+    "related_bachelor_fields": [
+      "hsc-science",
+      "hsc-business",
+      "hsc-humanities"
+    ],
+    "overview_en": "B.Sc. International Management at Sample Munich International Business School is a 42-month bachelor's program taught in English. Core courses cover strategy, marketing, operations, leadership and entrepreneurship. A semester abroad at a partner school is part of the program.",
+    "career_paths_en": [
+      "Business analyst",
+      "Marketing manager",
+      "Operations manager"
+    ],
+    "career_paths_bn": [
+      "বিজনেস অ্যানালিস্ট",
+      "মার্কেটিং ম্যানেজার",
+      "অপারেশনস ম্যানেজার"
+    ],
+    "official_url": "https://example.org/sample/programs/mibs-bsc-international-management",
+    "source_url": "https://example.org/sample/programs/mibs-bsc-international-management",
+    "last_verified": "2026-10-28",
+    "is_sample": true
+  },
+  {
+    "slug": "subp-msc-computer-science-engineering",
+    "title": "M.Sc. Computer Science Engineering",
+    "university": "sample-university-of-budapest",
+    "degree_level": "master",
+    "field": "cse",
+    "language": "en",
+    "duration_months": 24,
+    "ects_credits": 120,
+    "currency": "EUR",
+    "tuition_per_year": 6000,
+    "other_fees_per_year": 0,
+    "application_fee": 150,
+    "intakes": [
+      {
+        "month": 2,
+        "year": 2027,
+        "deadline": "2026-11-30"
+      },
+      {
+        "month": 9,
+        "year": 2027,
+        "deadline": "2027-04-30"
+      }
+    ],
+    "seats_total": 60,
+    "seats_non_eu": 40,
+    "min_gpa_requirement": {
+      "value": 2.5,
+      "scale": 4
+    },
+    "accepts_3yr_bachelor": true,
+    "accepts_moi": true,
+    "accepts_provisional": true,
+    "open_to_bd_citizens": true,
+    "english_tests": [
+      {
+        "test": "ielts",
+        "min_score": 6
+      },
+      {
+        "test": "toefl_ibt",
+        "min_score": 80
+      },
+      {
+        "test": "pte",
+        "min_score": 50
+      },
+      {
+        "test": "duolingo",
+        "min_score": 105
+      }
+    ],
+    "required_documents": [
+      "passport",
+      "transcript",
+      "degree_certificate",
+      "cv",
+      "motivation_letter",
+      "english_certificate",
+      "moi_letter"
+    ],
+    "related_bachelor_fields": [
+      "cse",
+      "eee",
+      "data-science",
+      "math-physics"
+    ],
+    "overview_en": "M.Sc. Computer Science Engineering at Sample University of Budapest is a 2-year master's program taught in English. Core courses cover algorithms, distributed systems, machine learning and software engineering. An entrance interview is held online.",
+    "overview_bn": "এটি ২৪ মাসের কম্পিউটার সায়েন্স ইঞ্জিনিয়ারিং মাস্টার্স, ইংরেজিতে পড়ানো হয়। মূল কোর্সে অ্যালগরিদম, ডিস্ট্রিবিউটেড সিস্টেম, মেশিন লার্নিং ও সফটওয়্যার ইঞ্জিনিয়ারিং আছে। অনলাইনে ভর্তি ইন্টারভিউ হয়।",
+    "career_paths_en": [
+      "Software engineer",
+      "Machine learning engineer",
+      "Cloud engineer"
+    ],
+    "career_paths_bn": [
+      "সফটওয়্যার ইঞ্জিনিয়ার",
+      "মেশিন লার্নিং ইঞ্জিনিয়ার",
+      "ক্লাউড ইঞ্জিনিয়ার"
+    ],
+    "official_url": "https://example.org/sample/programs/subp-msc-computer-science-engineering",
+    "source_url": "https://example.org/sample/programs/subp-msc-computer-science-engineering",
+    "last_verified": "2026-10-12",
+    "is_sample": true
+  },
+  {
+    "slug": "subp-msc-international-economics-and-business",
+    "title": "M.Sc. International Economics and Business",
+    "university": "sample-university-of-budapest",
+    "degree_level": "master",
+    "field": "economics",
+    "language": "en",
+    "duration_months": 24,
+    "ects_credits": 120,
+    "currency": "EUR",
+    "tuition_per_year": 5000,
+    "other_fees_per_year": 0,
+    "application_fee": 150,
+    "intakes": [
+      {
+        "month": 9,
+        "year": 2027,
+        "deadline": "2027-04-30"
+      }
+    ],
+    "seats_total": 50,
+    "seats_non_eu": 30,
+    "min_gpa_requirement": {
+      "value": 2.5,
+      "scale": 4
+    },
+    "accepts_3yr_bachelor": true,
+    "accepts_moi": true,
+    "accepts_provisional": true,
+    "open_to_bd_citizens": true,
+    "english_tests": [
+      {
+        "test": "ielts",
+        "min_score": 6
+      },
+      {
+        "test": "toefl_ibt",
+        "min_score": 80
+      },
+      {
+        "test": "pte",
+        "min_score": 50
+      },
+      {
+        "test": "duolingo",
+        "min_score": 105
+      }
+    ],
+    "required_documents": [
+      "passport",
+      "transcript",
+      "degree_certificate",
+      "cv",
+      "motivation_letter",
+      "english_certificate",
+      "moi_letter"
+    ],
+    "related_bachelor_fields": [
+      "economics",
+      "business",
+      "finance",
+      "general-business",
+      "social-sciences"
+    ],
+    "overview_en": "M.Sc. International Economics and Business at Sample University of Budapest is a 2-year master's program taught in English. Core courses cover microeconomics, macroeconomics, econometrics and development economics. Students can add a specialisation in EU trade.",
+    "career_paths_en": [
+      "Economist",
+      "Policy analyst",
+      "Market researcher"
+    ],
+    "career_paths_bn": [
+      "অর্থনীতিবিদ",
+      "পলিসি অ্যানালিস্ট",
+      "মার্কেট রিসার্চার"
+    ],
+    "official_url": "https://example.org/sample/programs/subp-msc-international-economics-and-business",
+    "source_url": "https://example.org/sample/programs/subp-msc-international-economics-and-business",
+    "last_verified": "2026-09-20",
+    "is_sample": true
+  },
+  {
+    "slug": "subp-ma-social-policy",
+    "title": "M.A. Social Policy",
+    "university": "sample-university-of-budapest",
+    "degree_level": "master",
+    "field": "social-sciences",
+    "language": "en",
+    "duration_months": 24,
+    "ects_credits": 120,
+    "currency": "EUR",
+    "tuition_per_year": 4200,
+    "other_fees_per_year": 0,
+    "application_fee": 150,
+    "intakes": [
+      {
+        "month": 9,
+        "year": 2027,
+        "deadline": "2027-04-30"
+      }
+    ],
+    "seats_total": 30,
+    "seats_non_eu": null,
+    "min_gpa_requirement": {
+      "value": 2.5,
+      "scale": 4
+    },
+    "accepts_3yr_bachelor": true,
+    "accepts_moi": true,
+    "accepts_provisional": true,
+    "open_to_bd_citizens": true,
+    "english_tests": [
+      {
+        "test": "ielts",
+        "min_score": 6
+      },
+      {
+        "test": "toefl_ibt",
+        "min_score": 80
+      },
+      {
+        "test": "pte",
+        "min_score": 50
+      },
+      {
+        "test": "duolingo",
+        "min_score": 105
+      }
+    ],
+    "required_documents": [
+      "passport",
+      "transcript",
+      "degree_certificate",
+      "cv",
+      "motivation_letter",
+      "english_certificate",
+      "moi_letter"
+    ],
+    "related_bachelor_fields": [
+      "social-sciences",
+      "economics",
+      "english-humanities",
+      "general-arts",
+      "public-health"
+    ],
+    "overview_en": "M.A. Social Policy at Sample University of Budapest is a 2-year master's program taught in English. Core courses cover research methods, policy analysis and international institutions. Includes a placement with an NGO or public agency.",
+    "career_paths_en": [
+      "Policy officer",
+      "NGO programme manager",
+      "Researcher"
+    ],
+    "career_paths_bn": [
+      "পলিসি অফিসার",
+      "এনজিও প্রোগ্রাম ম্যানেজার",
+      "গবেষক"
+    ],
+    "official_url": "https://example.org/sample/programs/subp-ma-social-policy",
+    "source_url": "https://example.org/sample/programs/subp-ma-social-policy",
+    "last_verified": "2026-08-24",
+    "is_sample": true
+  },
+  {
+    "slug": "subp-bsc-business-administration",
+    "title": "B.Sc. Business Administration and Management",
+    "university": "sample-university-of-budapest",
+    "degree_level": "bachelor",
+    "field": "business",
+    "language": "en",
+    "duration_months": 42,
+    "ects_credits": 210,
+    "currency": "EUR",
+    "tuition_per_year": 4800,
+    "other_fees_per_year": 0,
+    "application_fee": 150,
+    "intakes": [
+      {
+        "month": 9,
+        "year": 2027,
+        "deadline": "2027-05-31"
+      }
+    ],
+    "seats_total": 120,
+    "seats_non_eu": 50,
+    "min_gpa_requirement": {
+      "value": 3,
+      "scale": 5
+    },
+    "accepts_3yr_bachelor": true,
+    "accepts_moi": true,
+    "accepts_provisional": true,
+    "open_to_bd_citizens": true,
+    "english_tests": [
+      {
+        "test": "ielts",
+        "min_score": 6
+      },
+      {
+        "test": "toefl_ibt",
+        "min_score": 80
+      },
+      {
+        "test": "duolingo",
+        "min_score": 105
+      }
+    ],
+    "required_documents": [
+      "passport",
+      "hsc_certificate",
+      "transcript",
+      "motivation_letter",
+      "english_certificate",
+      "moi_letter"
+    ],
+    "related_bachelor_fields": [
+      "hsc-science",
+      "hsc-business",
+      "hsc-humanities"
+    ],
+    "overview_en": "B.Sc. Business Administration and Management at Sample University of Budapest is a 42-month bachelor's program taught in English. Core courses cover strategy, marketing, operations, leadership and entrepreneurship. The seventh semester is a professional internship.",
+    "career_paths_en": [
+      "Business analyst",
+      "Marketing manager",
+      "Operations manager"
+    ],
+    "career_paths_bn": [
+      "বিজনেস অ্যানালিস্ট",
+      "মার্কেটিং ম্যানেজার",
+      "অপারেশনস ম্যানেজার"
+    ],
+    "official_url": "https://example.org/sample/programs/subp-bsc-business-administration",
+    "source_url": "https://example.org/sample/programs/subp-bsc-business-administration",
+    "last_verified": "2026-10-28",
+    "is_sample": true
+  },
+  {
+    "slug": "dtu-msc-structural-engineering",
+    "title": "M.Sc. Structural Engineering",
+    "university": "sample-danube-technical-university",
+    "degree_level": "master",
+    "field": "civil",
+    "language": "en",
+    "duration_months": 24,
+    "ects_credits": 120,
+    "currency": "EUR",
+    "tuition_per_year": 5500,
+    "other_fees_per_year": 0,
+    "application_fee": 150,
+    "intakes": [
+      {
+        "month": 9,
+        "year": 2027,
+        "deadline": "2027-05-15"
+      }
+    ],
+    "seats_total": 40,
+    "seats_non_eu": 25,
+    "min_gpa_requirement": {
+      "value": 2.5,
+      "scale": 4
+    },
+    "accepts_3yr_bachelor": true,
+    "accepts_moi": true,
+    "accepts_provisional": true,
+    "open_to_bd_citizens": true,
+    "english_tests": [
+      {
+        "test": "ielts",
+        "min_score": 6
+      },
+      {
+        "test": "toefl_ibt",
+        "min_score": 80
+      },
+      {
+        "test": "pte",
+        "min_score": 50
+      },
+      {
+        "test": "duolingo",
+        "min_score": 105
+      }
+    ],
+    "required_documents": [
+      "passport",
+      "transcript",
+      "degree_certificate",
+      "cv",
+      "motivation_letter",
+      "english_certificate",
+      "moi_letter"
+    ],
+    "related_bachelor_fields": [
+      "civil",
+      "architecture"
+    ],
+    "overview_en": "M.Sc. Structural Engineering at Sample Danube Technical University is a 2-year master's program taught in English. Core courses cover structural analysis, geotechnics, water engineering and construction management. Lab work uses a large structural testing hall.",
+    "career_paths_en": [
+      "Structural engineer",
+      "Site engineer",
+      "Project planner"
+    ],
+    "career_paths_bn": [
+      "স্ট্রাকচারাল ইঞ্জিনিয়ার",
+      "সাইট ইঞ্জিনিয়ার",
+      "প্রজেক্ট প্ল্যানার"
+    ],
+    "official_url": "https://example.org/sample/programs/dtu-msc-structural-engineering",
+    "source_url": "https://example.org/sample/programs/dtu-msc-structural-engineering",
+    "last_verified": "2026-10-12",
+    "is_sample": true
+  },
+  {
+    "slug": "dtu-msc-electrical-engineering",
+    "title": "M.Sc. Electrical Engineering",
+    "university": "sample-danube-technical-university",
+    "degree_level": "master",
+    "field": "eee",
+    "language": "en",
+    "duration_months": 24,
+    "ects_credits": 120,
+    "currency": "EUR",
+    "tuition_per_year": 5500,
+    "other_fees_per_year": 0,
+    "application_fee": 150,
+    "intakes": [
+      {
+        "month": 9,
+        "year": 2027,
+        "deadline": "2027-05-15"
+      }
+    ],
+    "seats_total": 45,
+    "seats_non_eu": null,
+    "min_gpa_requirement": {
+      "value": 2.5,
+      "scale": 4
+    },
+    "accepts_3yr_bachelor": true,
+    "accepts_moi": true,
+    "accepts_provisional": true,
+    "open_to_bd_citizens": true,
+    "english_tests": [
+      {
+        "test": "ielts",
+        "min_score": 6
+      },
+      {
+        "test": "toefl_ibt",
+        "min_score": 80
+      },
+      {
+        "test": "pte",
+        "min_score": 50
+      },
+      {
+        "test": "duolingo",
+        "min_score": 105
+      }
+    ],
+    "required_documents": [
+      "passport",
+      "transcript",
+      "degree_certificate",
+      "cv",
+      "motivation_letter",
+      "english_certificate",
+      "moi_letter"
+    ],
+    "related_bachelor_fields": [
+      "eee",
+      "cse",
+      "mechanical"
+    ],
+    "overview_en": "M.Sc. Electrical Engineering at Sample Danube Technical University is a 2-year master's program taught in English. Core courses cover power systems, control, embedded electronics and signal processing. Specialisations: power, telecom or embedded systems.",
+    "career_paths_en": [
+      "Power systems engineer",
+      "Embedded systems engineer",
+      "Energy consultant"
+    ],
+    "career_paths_bn": [
+      "পাওয়ার সিস্টেম ইঞ্জিনিয়ার",
+      "এমবেডেড সিস্টেম ইঞ্জিনিয়ার",
+      "এনার্জি কনসালট্যান্ট"
+    ],
+    "official_url": "https://example.org/sample/programs/dtu-msc-electrical-engineering",
+    "source_url": "https://example.org/sample/programs/dtu-msc-electrical-engineering",
+    "last_verified": "2026-09-20",
+    "is_sample": true
+  },
+  {
+    "slug": "dtu-bsc-mechanical-engineering",
+    "title": "B.Sc. Mechanical Engineering",
+    "university": "sample-danube-technical-university",
+    "degree_level": "bachelor",
+    "field": "mechanical",
+    "language": "en",
+    "duration_months": 42,
+    "ects_credits": 210,
+    "currency": "EUR",
+    "tuition_per_year": 5000,
+    "other_fees_per_year": 0,
+    "application_fee": 150,
+    "intakes": [
+      {
+        "month": 2,
+        "year": 2027,
+        "deadline": "2026-11-30"
+      },
+      {
+        "month": 9,
+        "year": 2027,
+        "deadline": "2027-05-15"
+      }
+    ],
+    "seats_total": 80,
+    "seats_non_eu": 40,
+    "min_gpa_requirement": {
+      "value": 3.5,
+      "scale": 5
+    },
+    "accepts_3yr_bachelor": true,
+    "accepts_moi": true,
+    "accepts_provisional": true,
+    "open_to_bd_citizens": true,
+    "english_tests": [
+      {
+        "test": "ielts",
+        "min_score": 6
+      },
+      {
+        "test": "toefl_ibt",
+        "min_score": 80
+      },
+      {
+        "test": "duolingo",
+        "min_score": 105
+      }
+    ],
+    "required_documents": [
+      "passport",
+      "hsc_certificate",
+      "transcript",
+      "motivation_letter",
+      "english_certificate",
+      "moi_letter"
+    ],
+    "related_bachelor_fields": [
+      "hsc-science"
+    ],
+    "overview_en": "B.Sc. Mechanical Engineering at Sample Danube Technical University is a 42-month bachelor's program taught in English. Core courses cover thermodynamics, mechanics, manufacturing and design with CAD. An optional foundation semester covers maths and physics.",
+    "career_paths_en": [
+      "Design engineer",
+      "Production engineer",
+      "Automation engineer"
+    ],
+    "career_paths_bn": [
+      "ডিজাইন ইঞ্জিনিয়ার",
+      "প্রোডাকশন ইঞ্জিনিয়ার",
+      "অটোমেশন ইঞ্জিনিয়ার"
+    ],
+    "official_url": "https://example.org/sample/programs/dtu-bsc-mechanical-engineering",
+    "source_url": "https://example.org/sample/programs/dtu-bsc-mechanical-engineering",
+    "last_verified": "2026-08-24",
+    "is_sample": true
+  },
+  {
+    "slug": "sud-msc-computer-science",
+    "title": "M.Sc. Computer Science",
+    "university": "sample-university-of-debrecen",
+    "degree_level": "master",
+    "field": "cse",
+    "language": "en",
+    "duration_months": 24,
+    "ects_credits": 120,
+    "currency": "EUR",
+    "tuition_per_year": 4200,
+    "other_fees_per_year": 0,
+    "application_fee": 100,
+    "intakes": [
+      {
+        "month": 9,
+        "year": 2027,
+        "deadline": "2027-05-31"
+      }
+    ],
+    "seats_total": 40,
+    "seats_non_eu": 30,
+    "min_gpa_requirement": {
+      "value": 2.5,
+      "scale": 4
+    },
+    "accepts_3yr_bachelor": true,
+    "accepts_moi": true,
+    "accepts_provisional": true,
+    "open_to_bd_citizens": true,
+    "english_tests": [
+      {
+        "test": "ielts",
+        "min_score": 5.5
+      },
+      {
+        "test": "toefl_ibt",
+        "min_score": 72
+      },
+      {
+        "test": "duolingo",
+        "min_score": 95
+      }
+    ],
+    "required_documents": [
+      "passport",
+      "transcript",
+      "degree_certificate",
+      "cv",
+      "motivation_letter",
+      "english_certificate",
+      "moi_letter"
+    ],
+    "related_bachelor_fields": [
+      "cse",
+      "eee",
+      "data-science",
+      "math-physics",
+      "general-science"
+    ],
+    "overview_en": "M.Sc. Computer Science at Sample University of Debrecen is a 2-year master's program taught in English. Core courses cover algorithms, distributed systems, machine learning and software engineering. Classes are small, and a thesis is written with a faculty supervisor.",
+    "career_paths_en": [
+      "Software engineer",
+      "Machine learning engineer",
+      "Cloud engineer"
+    ],
+    "career_paths_bn": [
+      "সফটওয়্যার ইঞ্জিনিয়ার",
+      "মেশিন লার্নিং ইঞ্জিনিয়ার",
+      "ক্লাউড ইঞ্জিনিয়ার"
+    ],
+    "official_url": "https://example.org/sample/programs/sud-msc-computer-science",
+    "source_url": "https://example.org/sample/programs/sud-msc-computer-science",
+    "last_verified": "2026-10-28",
+    "is_sample": true
+  },
+  {
+    "slug": "sud-msc-agricultural-biotechnology",
+    "title": "M.Sc. Agricultural Biotechnology",
+    "university": "sample-university-of-debrecen",
+    "degree_level": "master",
+    "field": "biotechnology",
+    "language": "en",
+    "duration_months": 24,
+    "ects_credits": 120,
+    "currency": "EUR",
+    "tuition_per_year": 3800,
+    "other_fees_per_year": 0,
+    "application_fee": 100,
+    "intakes": [
+      {
+        "month": 9,
+        "year": 2027,
+        "deadline": "2027-05-31"
+      }
+    ],
+    "seats_total": 25,
+    "seats_non_eu": 15,
+    "min_gpa_requirement": {
+      "value": 2.5,
+      "scale": 4
+    },
+    "accepts_3yr_bachelor": true,
+    "accepts_moi": true,
+    "accepts_provisional": true,
+    "open_to_bd_citizens": true,
+    "english_tests": [
+      {
+        "test": "ielts",
+        "min_score": 5.5
+      },
+      {
+        "test": "toefl_ibt",
+        "min_score": 72
+      },
+      {
+        "test": "duolingo",
+        "min_score": 95
+      }
+    ],
+    "required_documents": [
+      "passport",
+      "transcript",
+      "degree_certificate",
+      "cv",
+      "motivation_letter",
+      "english_certificate",
+      "moi_letter"
+    ],
+    "related_bachelor_fields": [
+      "biotechnology",
+      "agriculture",
+      "microbiology",
+      "chemistry",
+      "general-science"
+    ],
+    "overview_en": "M.Sc. Agricultural Biotechnology at Sample University of Debrecen is a 2-year master's program taught in English. Core courses cover genetic engineering, bioprocesses, bioinformatics and laboratory work. Research projects run at the university's experimental farm.",
+    "career_paths_en": [
+      "Biotech researcher",
+      "Bioprocess engineer",
+      "Bioinformatics analyst"
+    ],
+    "career_paths_bn": [
+      "বায়োটেক গবেষক",
+      "বায়োপ্রসেস ইঞ্জিনিয়ার",
+      "বায়োইনফরমেটিক্স অ্যানালিস্ট"
+    ],
+    "official_url": "https://example.org/sample/programs/sud-msc-agricultural-biotechnology",
+    "source_url": "https://example.org/sample/programs/sud-msc-agricultural-biotechnology",
+    "last_verified": "2026-10-12",
+    "is_sample": true
+  },
+  {
+    "slug": "sud-msc-chemistry",
+    "title": "M.Sc. Chemistry",
+    "university": "sample-university-of-debrecen",
+    "degree_level": "master",
+    "field": "chemistry",
+    "language": "en",
+    "duration_months": 24,
+    "ects_credits": 120,
+    "currency": "EUR",
+    "tuition_per_year": 3900,
+    "other_fees_per_year": 0,
+    "application_fee": 100,
+    "intakes": [
+      {
+        "month": 9,
+        "year": 2027,
+        "deadline": "2027-05-31"
+      }
+    ],
+    "seats_total": 25,
+    "seats_non_eu": null,
+    "min_gpa_requirement": {
+      "value": 2.5,
+      "scale": 4
+    },
+    "accepts_3yr_bachelor": true,
+    "accepts_moi": true,
+    "accepts_provisional": true,
+    "open_to_bd_citizens": true,
+    "english_tests": [
+      {
+        "test": "ielts",
+        "min_score": 5.5
+      },
+      {
+        "test": "toefl_ibt",
+        "min_score": 72
+      },
+      {
+        "test": "duolingo",
+        "min_score": 95
+      }
+    ],
+    "required_documents": [
+      "passport",
+      "transcript",
+      "degree_certificate",
+      "cv",
+      "motivation_letter",
+      "english_certificate",
+      "moi_letter"
+    ],
+    "related_bachelor_fields": [
+      "chemistry",
+      "pharmacy",
+      "biotechnology",
+      "general-science"
+    ],
+    "overview_en": "M.Sc. Chemistry at Sample University of Debrecen is a 2-year master's program taught in English. Core courses cover analytical, organic and physical chemistry with laboratory work. Students choose an analytical or synthetic chemistry track.",
+    "career_paths_en": [
+      "Analytical chemist",
+      "Process chemist",
+      "Laboratory manager"
+    ],
+    "career_paths_bn": [
+      "অ্যানালিটিক্যাল কেমিস্ট",
+      "প্রসেস কেমিস্ট",
+      "ল্যাবরেটরি ম্যানেজার"
+    ],
+    "official_url": "https://example.org/sample/programs/sud-msc-chemistry",
+    "source_url": "https://example.org/sample/programs/sud-msc-chemistry",
+    "last_verified": "2026-09-20",
+    "is_sample": true
+  },
+  {
+    "slug": "sud-bsc-computer-science",
+    "title": "B.Sc. Computer Science",
+    "university": "sample-university-of-debrecen",
+    "degree_level": "bachelor",
+    "field": "cse",
+    "language": "en",
+    "duration_months": 36,
+    "ects_credits": 180,
+    "currency": "EUR",
+    "tuition_per_year": 4000,
+    "other_fees_per_year": 0,
+    "application_fee": 100,
+    "intakes": [
+      {
+        "month": 9,
+        "year": 2027,
+        "deadline": "2027-06-15"
+      }
+    ],
+    "seats_total": 60,
+    "seats_non_eu": 40,
+    "min_gpa_requirement": {
+      "value": 3,
+      "scale": 5
+    },
+    "accepts_3yr_bachelor": true,
+    "accepts_moi": true,
+    "accepts_provisional": true,
+    "open_to_bd_citizens": true,
+    "english_tests": [
+      {
+        "test": "ielts",
+        "min_score": 6
+      },
+      {
+        "test": "toefl_ibt",
+        "min_score": 80
+      },
+      {
+        "test": "duolingo",
+        "min_score": 105
+      }
+    ],
+    "required_documents": [
+      "passport",
+      "hsc_certificate",
+      "transcript",
+      "motivation_letter",
+      "english_certificate",
+      "moi_letter"
+    ],
+    "related_bachelor_fields": [
+      "hsc-science"
+    ],
+    "overview_en": "B.Sc. Computer Science at Sample University of Debrecen is a 3-year bachelor's program taught in English. Core courses cover algorithms, distributed systems, machine learning and software engineering. Students build a software project with a local company in the final year.",
+    "career_paths_en": [
+      "Software engineer",
+      "Machine learning engineer",
+      "Cloud engineer"
+    ],
+    "career_paths_bn": [
+      "সফটওয়্যার ইঞ্জিনিয়ার",
+      "মেশিন লার্নিং ইঞ্জিনিয়ার",
+      "ক্লাউড ইঞ্জিনিয়ার"
+    ],
+    "official_url": "https://example.org/sample/programs/sud-bsc-computer-science",
+    "source_url": "https://example.org/sample/programs/sud-bsc-computer-science",
+    "last_verified": "2026-08-24",
+    "is_sample": true
+  },
+  {
+    "slug": "dchs-msc-public-health",
+    "title": "M.Sc. Public Health",
+    "university": "sample-debrecen-college-of-health-sciences",
+    "degree_level": "master",
+    "field": "public-health",
+    "language": "en",
+    "duration_months": 18,
+    "ects_credits": 90,
+    "currency": "EUR",
+    "tuition_per_year": 4500,
+    "other_fees_per_year": 0,
+    "application_fee": 100,
+    "intakes": [
+      {
+        "month": 9,
+        "year": 2027,
+        "deadline": "2027-04-30"
+      }
+    ],
+    "seats_total": 30,
+    "seats_non_eu": 20,
+    "min_gpa_requirement": {
+      "value": 2.5,
+      "scale": 4
+    },
+    "accepts_3yr_bachelor": true,
+    "accepts_moi": true,
+    "accepts_provisional": true,
+    "open_to_bd_citizens": true,
+    "english_tests": [
+      {
+        "test": "ielts",
+        "min_score": 6
+      },
+      {
+        "test": "toefl_ibt",
+        "min_score": 80
+      },
+      {
+        "test": "pte",
+        "min_score": 50
+      },
+      {
+        "test": "duolingo",
+        "min_score": 105
+      }
+    ],
+    "required_documents": [
+      "passport",
+      "transcript",
+      "degree_certificate",
+      "cv",
+      "motivation_letter",
+      "english_certificate",
+      "moi_letter"
+    ],
+    "related_bachelor_fields": [
+      "public-health",
+      "medicine",
+      "pharmacy",
+      "microbiology",
+      "social-sciences",
+      "biotechnology"
+    ],
+    "overview_en": "M.Sc. Public Health at Sample Debrecen College of Health Sciences is a 18-month master's program taught in English. Core courses cover epidemiology, biostatistics, health policy and global health. A field project with a regional health office is part of the final semester.",
+    "overview_bn": "এটি ১৮ মাসের জনস্বাস্থ্য মাস্টার্স, ইংরেজিতে পড়ানো হয়। মূল কোর্সে এপিডেমিওলজি, বায়োস্ট্যাটিস্টিক্স, স্বাস্থ্যনীতি ও বৈশ্বিক স্বাস্থ্য আছে। শেষ সেমিস্টারে একটি আঞ্চলিক স্বাস্থ্য অফিসের সাথে ফিল্ড প্রজেক্ট করতে হয়।",
+    "career_paths_en": [
+      "Epidemiologist",
+      "Health programme officer",
+      "Health data analyst"
+    ],
+    "career_paths_bn": [
+      "এপিডেমিওলজিস্ট",
+      "হেলথ প্রোগ্রাম অফিসার",
+      "হেলথ ডেটা অ্যানালিস্ট"
+    ],
+    "official_url": "https://example.org/sample/programs/dchs-msc-public-health",
+    "source_url": "https://example.org/sample/programs/dchs-msc-public-health",
+    "last_verified": "2026-10-28",
+    "is_sample": true
+  },
+  {
+    "slug": "dchs-msc-health-care-management",
+    "title": "M.Sc. Health Care Management",
+    "university": "sample-debrecen-college-of-health-sciences",
+    "degree_level": "master",
+    "field": "public-health",
+    "language": "en",
+    "duration_months": 24,
+    "ects_credits": 120,
+    "currency": "EUR",
+    "tuition_per_year": 4200,
+    "other_fees_per_year": 0,
+    "application_fee": 100,
+    "intakes": [
+      {
+        "month": 9,
+        "year": 2027,
+        "deadline": "2027-04-30"
+      }
+    ],
+    "seats_total": 30,
+    "seats_non_eu": null,
+    "min_gpa_requirement": {
+      "value": 2.5,
+      "scale": 4
+    },
+    "accepts_3yr_bachelor": true,
+    "accepts_moi": true,
+    "accepts_provisional": true,
+    "open_to_bd_citizens": true,
+    "english_tests": [
+      {
+        "test": "ielts",
+        "min_score": 6
+      },
+      {
+        "test": "toefl_ibt",
+        "min_score": 80
+      },
+      {
+        "test": "pte",
+        "min_score": 50
+      },
+      {
+        "test": "duolingo",
+        "min_score": 105
+      }
+    ],
+    "required_documents": [
+      "passport",
+      "transcript",
+      "degree_certificate",
+      "cv",
+      "motivation_letter",
+      "english_certificate",
+      "moi_letter"
+    ],
+    "related_bachelor_fields": [
+      "public-health",
+      "medicine",
+      "pharmacy",
+      "business",
+      "social-sciences"
+    ],
+    "overview_en": "M.Sc. Health Care Management at Sample Debrecen College of Health Sciences is a 2-year master's program taught in English. Core courses cover epidemiology, biostatistics, health policy and global health. Courses mix hospital management, health economics and leadership.",
+    "career_paths_en": [
+      "Epidemiologist",
+      "Health programme officer",
+      "Health data analyst"
+    ],
+    "career_paths_bn": [
+      "এপিডেমিওলজিস্ট",
+      "হেলথ প্রোগ্রাম অফিসার",
+      "হেলথ ডেটা অ্যানালিস্ট"
+    ],
+    "official_url": "https://example.org/sample/programs/dchs-msc-health-care-management",
+    "source_url": "https://example.org/sample/programs/dchs-msc-health-care-management",
+    "last_verified": "2026-10-12",
+    "is_sample": true
+  },
+  {
+    "slug": "dchs-bsc-biomedical-laboratory-science",
+    "title": "B.Sc. Biomedical Laboratory Science",
+    "university": "sample-debrecen-college-of-health-sciences",
+    "degree_level": "bachelor",
+    "field": "microbiology",
+    "language": "en",
+    "duration_months": 42,
+    "ects_credits": 210,
+    "currency": "EUR",
+    "tuition_per_year": 4300,
+    "other_fees_per_year": 0,
+    "application_fee": 100,
+    "intakes": [
+      {
+        "month": 9,
+        "year": 2027,
+        "deadline": "2027-05-31"
+      }
+    ],
+    "seats_total": 40,
+    "seats_non_eu": 20,
+    "min_gpa_requirement": {
+      "value": 3.5,
+      "scale": 5
+    },
+    "accepts_3yr_bachelor": true,
+    "accepts_moi": true,
+    "accepts_provisional": true,
+    "open_to_bd_citizens": true,
+    "english_tests": [
+      {
+        "test": "ielts",
+        "min_score": 6
+      },
+      {
+        "test": "toefl_ibt",
+        "min_score": 80
+      },
+      {
+        "test": "duolingo",
+        "min_score": 105
+      }
+    ],
+    "required_documents": [
+      "passport",
+      "hsc_certificate",
+      "transcript",
+      "motivation_letter",
+      "english_certificate",
+      "moi_letter"
+    ],
+    "related_bachelor_fields": [
+      "hsc-science"
+    ],
+    "overview_en": "B.Sc. Biomedical Laboratory Science at Sample Debrecen College of Health Sciences is a 42-month bachelor's program taught in English. Core courses cover molecular biology, microbiology, immunology and laboratory methods. Clinical lab practice takes place in a teaching hospital.",
+    "career_paths_en": [
+      "Laboratory scientist",
+      "Research assistant",
+      "Quality control analyst"
+    ],
+    "career_paths_bn": [
+      "ল্যাবরেটরি সায়েন্টিস্ট",
+      "রিসার্চ অ্যাসিস্ট্যান্ট",
+      "কোয়ালিটি কন্ট্রোল অ্যানালিস্ট"
+    ],
+    "official_url": "https://example.org/sample/programs/dchs-bsc-biomedical-laboratory-science",
+    "source_url": "https://example.org/sample/programs/dchs-bsc-biomedical-laboratory-science",
+    "last_verified": "2026-09-20",
+    "is_sample": true
+  }
+]

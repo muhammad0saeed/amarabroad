@@ -1,0 +1,18 @@
+[
+  {
+    "currency": "EUR",
+    "bdt_per_unit": 140,
+    "updated_on": "2026-11-01",
+    "source_url": "https://example.org/sample/exchange-rates/eur",
+    "last_verified": "2026-10-12",
+    "is_sample": true
+  },
+  {
+    "currency": "HUF",
+    "bdt_per_unit": 0.35,
+    "updated_on": "2026-11-01",
+    "source_url": "https://example.org/sample/exchange-rates/huf",
+    "last_verified": "2026-09-20",
+    "is_sample": true
+  }
+]

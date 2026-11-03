@@ -1,0 +1,213 @@
+[
+  {
+    "slug": "sample-italy-regional-study-grant",
+    "name": "Sample Regional Right-to-Study Grant",
+    "provider": "Sample Regional Study Agency",
+    "type": "need",
+    "bd_eligible": true,
+    "levels": [
+      "bachelor",
+      "master"
+    ],
+    "coverage": {
+      "tuition": "full",
+      "stipend": {
+        "amount": 5200,
+        "currency": "EUR",
+        "per": "year"
+      },
+      "summary_en": "Tuition waiver, a yearly cash grant and a subsidised canteen meal per day.",
+      "summary_bn": "টিউশন মওকুফ, বছরে নগদ অনুদান আর প্রতিদিন একবেলা ভর্তুকির খাবার।"
+    },
+    "deadline": "2027-03-31",
+    "eligibility_summary_en": "Based on family income and assets, checked with translated and attested documents from Bangladesh.",
+    "eligibility_summary_bn": "পরিবারের আয় ও সম্পদের ভিত্তিতে; বাংলাদেশ থেকে অনূদিত ও সত্যায়িত কাগজপত্র দিয়ে যাচাই করা হয়।",
+    "evaluates": [],
+    "countries": [
+      "italy"
+    ],
+    "universities": [],
+    "programs": [],
+    "official_url": "https://example.org/sample/scholarships/sample-italy-regional-study-grant",
+    "source_url": "https://example.org/sample/scholarships/sample-italy-regional-study-grant",
+    "last_verified": "2026-08-24",
+    "is_sample": true
+  },
+  {
+    "slug": "sample-milan-excellence-scholarship",
+    "name": "Sample Milan Excellence Scholarship",
+    "provider": "Sample University of Milan",
+    "type": "merit",
+    "bd_eligible": true,
+    "levels": [
+      "master"
+    ],
+    "coverage": {
+      "tuition": "partial",
+      "tuition_percent": 50,
+      "stipend": {
+        "amount": 2000,
+        "currency": "EUR",
+        "per": "year"
+      },
+      "summary_en": "Half of tuition plus a yearly grant for the first year, renewable with good grades.",
+      "summary_bn": "প্রথম বছরের অর্ধেক টিউশন আর বছরে অনুদান; ভালো ফলাফলে নবায়নযোগ্য।"
+    },
+    "deadline": "2026-11-25",
+    "eligibility_summary_en": "International applicants with a strong CGPA and English score.",
+    "eligibility_summary_bn": "ভালো সিজিপিএ ও ইংরেজি স্কোরসহ আন্তর্জাতিক আবেদনকারী।",
+    "evaluates": [
+      "academics",
+      "english"
+    ],
+    "countries": [],
+    "universities": [
+      "sample-university-of-milan"
+    ],
+    "programs": [],
+    "official_url": "https://example.org/sample/scholarships/sample-milan-excellence-scholarship",
+    "source_url": "https://example.org/sample/scholarships/sample-milan-excellence-scholarship",
+    "last_verified": "2026-10-28",
+    "is_sample": true
+  },
+  {
+    "slug": "sample-german-academic-exchange-fund",
+    "name": "Sample German Academic Exchange Fund",
+    "provider": "Sample German Academic Exchange Fund",
+    "type": "merit",
+    "bd_eligible": true,
+    "levels": [
+      "master"
+    ],
+    "coverage": {
+      "tuition": "full",
+      "stipend": {
+        "amount": 950,
+        "currency": "EUR",
+        "per": "month"
+      },
+      "summary_en": "Monthly stipend, health insurance and a travel allowance for the whole program.",
+      "summary_bn": "পুরো প্রোগ্রামে মাসিক বৃত্তি, স্বাস্থ্যবীমা আর যাতায়াত ভাতা।"
+    },
+    "deadline": "2026-12-10",
+    "eligibility_summary_en": "Graduates with at least 2 years of relevant work or research experience after their bachelor's.",
+    "eligibility_summary_bn": "ব্যাচেলরের পর অন্তত ২ বছরের প্রাসঙ্গিক কাজ বা গবেষণার অভিজ্ঞতাসহ গ্র্যাজুয়েট।",
+    "evaluates": [
+      "academics",
+      "research",
+      "experience"
+    ],
+    "countries": [
+      "germany"
+    ],
+    "universities": [],
+    "programs": [],
+    "official_url": "https://example.org/sample/scholarships/sample-german-academic-exchange-fund",
+    "source_url": "https://example.org/sample/scholarships/sample-german-academic-exchange-fund",
+    "last_verified": "2026-10-12",
+    "is_sample": true
+  },
+  {
+    "slug": "sample-hungary-government-scholarship",
+    "name": "Sample Hungary Government Scholarship",
+    "provider": "Sample Hungarian Scholarship Board",
+    "type": "mixed",
+    "bd_eligible": true,
+    "levels": [
+      "bachelor",
+      "master"
+    ],
+    "coverage": {
+      "tuition": "full",
+      "stipend": {
+        "amount": 45000,
+        "currency": "HUF",
+        "per": "month"
+      },
+      "summary_en": "Tuition waiver, a monthly stipend, a dormitory place and health insurance.",
+      "summary_bn": "টিউশন মওকুফ, মাসিক বৃত্তি, হোস্টেলে থাকার জায়গা আর স্বাস্থ্যবীমা।"
+    },
+    "deadline": "2027-01-15",
+    "eligibility_summary_en": "Nominated through the home country's quota; academics and activities are scored, with some places weighted by need.",
+    "eligibility_summary_bn": "নিজ দেশের কোটার মাধ্যমে মনোনয়ন; পড়াশোনা ও কার্যক্রমে নম্বর দেওয়া হয়, কিছু আসনে আর্থিক প্রয়োজনও বিবেচনা করা হয়।",
+    "evaluates": [
+      "academics",
+      "extracurricular"
+    ],
+    "countries": [
+      "hungary"
+    ],
+    "universities": [],
+    "programs": [],
+    "official_url": "https://example.org/sample/scholarships/sample-hungary-government-scholarship",
+    "source_url": "https://example.org/sample/scholarships/sample-hungary-government-scholarship",
+    "last_verified": "2026-09-20",
+    "is_sample": true
+  },
+  {
+    "slug": "sample-munich-leadership-award",
+    "name": "Sample Munich Leadership Award",
+    "provider": "Sample Munich International Business School",
+    "type": "merit",
+    "bd_eligible": false,
+    "levels": [
+      "master"
+    ],
+    "coverage": {
+      "tuition": "partial",
+      "tuition_percent": 30,
+      "stipend": null,
+      "summary_en": "30% off tuition for the whole program.",
+      "summary_bn": "পুরো প্রোগ্রামে টিউশনে ৩০% ছাড়।"
+    },
+    "deadline": "2027-02-28",
+    "eligibility_summary_en": "Open only to EU/EEA citizens with proven leadership roles.",
+    "eligibility_summary_bn": "শুধু নেতৃত্বের অভিজ্ঞতাসহ ইইউ/ইইএ নাগরিকদের জন্য।",
+    "evaluates": [
+      "leadership",
+      "extracurricular"
+    ],
+    "countries": [],
+    "universities": [
+      "sample-munich-international-business-school"
+    ],
+    "programs": [],
+    "official_url": "https://example.org/sample/scholarships/sample-munich-leadership-award",
+    "source_url": "https://example.org/sample/scholarships/sample-munich-leadership-award",
+    "last_verified": "2026-08-24",
+    "is_sample": true
+  },
+  {
+    "slug": "sample-debrecen-public-health-grant",
+    "name": "Sample Debrecen Public Health Grant",
+    "provider": "Sample Debrecen College of Health Sciences",
+    "type": "merit",
+    "bd_eligible": true,
+    "levels": [
+      "master"
+    ],
+    "coverage": {
+      "tuition": "partial",
+      "tuition_percent": 75,
+      "stipend": null,
+      "summary_en": "75% off tuition for students with health-sector experience.",
+      "summary_bn": "স্বাস্থ্যখাতে অভিজ্ঞ শিক্ষার্থীদের টিউশনে ৭৫% ছাড়।"
+    },
+    "deadline": "2026-09-30",
+    "eligibility_summary_en": "Applicants with health-sector work or research experience.",
+    "eligibility_summary_bn": "স্বাস্থ্যখাতে কাজ বা গবেষণার অভিজ্ঞতাসহ আবেদনকারী।",
+    "evaluates": [
+      "experience",
+      "research"
+    ],
+    "countries": [],
+    "universities": [],
+    "programs": [
+      "dchs-msc-public-health"
+    ],
+    "official_url": "https://example.org/sample/scholarships/sample-debrecen-public-health-grant",
+    "source_url": "https://example.org/sample/scholarships/sample-debrecen-public-health-grant",
+    "last_verified": "2026-10-28",
+    "is_sample": true
+  }
+]

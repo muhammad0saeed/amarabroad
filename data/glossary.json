@@ -1,0 +1,252 @@
+[
+  {
+    "slug": "ects",
+    "term": "ECTS",
+    "term_bn": "ইসিটিএস",
+    "explain_en": "European credit points. One year of full-time study is 60 ECTS, so a 2-year master's is usually 120 ECTS.",
+    "explain_bn": "ইউরোপের ক্রেডিট পদ্ধতি। এক বছরের পূর্ণকালীন পড়াশোনা ৬০ ইসিটিএস, তাই ২ বছরের মাস্টার্স সাধারণত ১২০ ইসিটিএস।",
+    "source_url": "https://example.org/sample/glossary/ects",
+    "last_verified": "2026-08-24",
+    "is_sample": true
+  },
+  {
+    "slug": "moi",
+    "term": "MOI (Medium of Instruction letter)",
+    "term_bn": "এমওআই (মিডিয়াম অব ইনস্ট্রাকশন চিঠি)",
+    "explain_en": "A letter from your university saying your degree was taught in English. Some programs accept it instead of IELTS.",
+    "explain_bn": "আপনার বিশ্ববিদ্যালয়ের চিঠি, যেখানে বলা থাকে ডিগ্রিটি ইংরেজিতে পড়ানো হয়েছে। কিছু প্রোগ্রাম আইইএলটিএসের বদলে এটি গ্রহণ করে।",
+    "source_url": "https://example.org/sample/glossary/moi",
+    "last_verified": "2026-10-28",
+    "is_sample": true
+  },
+  {
+    "slug": "ielts",
+    "term": "IELTS",
+    "term_bn": "আইইএলটিএস",
+    "explain_en": "An English test scored in bands from 0 to 9. Most master's programs ask for 6.0 to 6.5.",
+    "explain_bn": "০ থেকে ৯ ব্যান্ডে নম্বর দেওয়া ইংরেজি পরীক্ষা। বেশিরভাগ মাস্টার্স প্রোগ্রাম ৬.০ থেকে ৬.৫ চায়।",
+    "source_url": "https://example.org/sample/glossary/ielts",
+    "last_verified": "2026-10-12",
+    "is_sample": true
+  },
+  {
+    "slug": "cgpa",
+    "term": "CGPA",
+    "term_bn": "সিজিপিএ",
+    "explain_en": "Your cumulative grade point average. In Bangladesh it is usually out of 4.00; universities abroad may convert it to their own scale.",
+    "explain_bn": "আপনার সামগ্রিক গ্রেড পয়েন্ট গড়। বাংলাদেশে সাধারণত ৪.০০-এর মধ্যে; বিদেশের বিশ্ববিদ্যালয় এটি নিজেদের স্কেলে রূপান্তর করতে পারে।",
+    "source_url": "https://example.org/sample/glossary/cgpa",
+    "last_verified": "2026-09-20",
+    "is_sample": true
+  },
+  {
+    "slug": "gpa-5",
+    "term": "SSC/HSC GPA",
+    "term_bn": "এসএসসি/এইচএসসি জিপিএ",
+    "explain_en": "Your board exam result out of 5.00. Bachelor's programs abroad use it for admission.",
+    "explain_bn": "৫.০০-এর মধ্যে আপনার বোর্ড পরীক্ষার ফল। বিদেশে ব্যাচেলর ভর্তিতে এটি দেখা হয়।",
+    "source_url": "https://example.org/sample/glossary/gpa-5",
+    "last_verified": "2026-08-24",
+    "is_sample": true
+  },
+  {
+    "slug": "three-year-bachelor",
+    "term": "3-year bachelor's",
+    "term_bn": "৩ বছরের ব্যাচেলর",
+    "explain_en": "Pass degrees and some programs in Bangladesh take 3 years. Some master's programs abroad only accept 4-year degrees, so check before applying.",
+    "explain_bn": "বাংলাদেশে পাস কোর্স ও কিছু প্রোগ্রাম ৩ বছরের। বিদেশের কিছু মাস্টার্স শুধু ৪ বছরের ডিগ্রি গ্রহণ করে, তাই আবেদনের আগে দেখে নিন।",
+    "source_url": "https://example.org/sample/glossary/three-year-bachelor",
+    "last_verified": "2026-10-28",
+    "is_sample": true
+  },
+  {
+    "slug": "provisional-certificate",
+    "term": "Provisional certificate",
+    "term_bn": "প্রভিশনাল সার্টিফিকেট",
+    "explain_en": "A temporary certificate issued before the final degree certificate. Useful when results are delayed by session jam.",
+    "explain_bn": "মূল সার্টিফিকেটের আগে দেওয়া অস্থায়ী সনদ। সেশনজটে ফল দেরি হলে এটি কাজে লাগে।",
+    "source_url": "https://example.org/sample/glossary/provisional-certificate",
+    "last_verified": "2026-10-12",
+    "is_sample": true
+  },
+  {
+    "slug": "session-jam",
+    "term": "Session jam",
+    "term_bn": "সেশনজট",
+    "explain_en": "Delays that push a degree past its normal length. Universities abroad may ask why your study took longer.",
+    "explain_bn": "যে দেরিতে ডিগ্রি স্বাভাবিক সময়ের চেয়ে লম্বা হয়ে যায়। বিদেশের বিশ্ববিদ্যালয় জানতে চাইতে পারে কেন পড়াশোনায় বেশি সময় লেগেছে।",
+    "source_url": "https://example.org/sample/glossary/session-jam",
+    "last_verified": "2026-09-20",
+    "is_sample": true
+  },
+  {
+    "slug": "attestation",
+    "term": "Document attestation",
+    "term_bn": "কাগজপত্র সত্যায়ন",
+    "explain_en": "Official confirmation that your certificates are genuine, usually from the education board, ministry and embassy. Start early: it can take weeks.",
+    "explain_bn": "আপনার সনদ আসল কি না তার আনুষ্ঠানিক নিশ্চয়তা, সাধারণত শিক্ষা বোর্ড, মন্ত্রণালয় ও দূতাবাস থেকে। আগে শুরু করুন: কয়েক সপ্তাহ লাগতে পারে।",
+    "source_url": "https://example.org/sample/glossary/attestation",
+    "last_verified": "2026-08-24",
+    "is_sample": true
+  },
+  {
+    "slug": "transcript",
+    "term": "Transcript",
+    "term_bn": "ট্রান্সক্রিপ্ট",
+    "explain_en": "The official list of every course and grade in your degree, issued by your university.",
+    "explain_bn": "আপনার ডিগ্রির প্রতিটি কোর্স ও গ্রেডের আনুষ্ঠানিক তালিকা, যা বিশ্ববিদ্যালয় দেয়।",
+    "source_url": "https://example.org/sample/glossary/transcript",
+    "last_verified": "2026-10-28",
+    "is_sample": true
+  },
+  {
+    "slug": "motivation-letter",
+    "term": "Motivation letter",
+    "term_bn": "মোটিভেশন লেটার",
+    "explain_en": "A one- or two-page letter explaining why you want this program and how it fits your goals. Write a new one for each program.",
+    "explain_bn": "এক-দুই পাতার চিঠি, যেখানে লিখবেন কেন এই প্রোগ্রাম চান আর এটি আপনার লক্ষ্যের সাথে কীভাবে মেলে। প্রতিটি প্রোগ্রামের জন্য আলাদা লিখুন।",
+    "source_url": "https://example.org/sample/glossary/motivation-letter",
+    "last_verified": "2026-10-12",
+    "is_sample": true
+  },
+  {
+    "slug": "lor",
+    "term": "Letter of recommendation",
+    "term_bn": "রিকমেন্ডেশন লেটার",
+    "explain_en": "A letter from a teacher or employer about your abilities. Ask early and give them your CV.",
+    "explain_bn": "আপনার যোগ্যতা নিয়ে শিক্ষক বা নিয়োগকর্তার চিঠি। আগেভাগে অনুরোধ করুন এবং তাঁদের আপনার সিভি দিন।",
+    "source_url": "https://example.org/sample/glossary/lor",
+    "last_verified": "2026-09-20",
+    "is_sample": true
+  },
+  {
+    "slug": "intake",
+    "term": "Intake",
+    "term_bn": "ইনটেক",
+    "explain_en": "The month a program starts. Most European programs start in September or October; some also start in February or March.",
+    "explain_bn": "যে মাসে প্রোগ্রাম শুরু হয়। ইউরোপের বেশিরভাগ প্রোগ্রাম সেপ্টেম্বর বা অক্টোবরে শুরু হয়; কিছু ফেব্রুয়ারি বা মার্চেও।",
+    "source_url": "https://example.org/sample/glossary/intake",
+    "last_verified": "2026-08-24",
+    "is_sample": true
+  },
+  {
+    "slug": "non-eu-seats",
+    "term": "Non-EU seats",
+    "term_bn": "নন-ইইউ আসন",
+    "explain_en": "Places reserved for applicants from outside the EU, such as Bangladesh. When a university doesn't publish the number, we show \"Not published\".",
+    "explain_bn": "ইইউর বাইরের (যেমন বাংলাদেশের) আবেদনকারীদের জন্য সংরক্ষিত আসন। বিশ্ববিদ্যালয় সংখ্যা প্রকাশ না করলে আমরা \"প্রকাশিত নয়\" দেখাই।",
+    "source_url": "https://example.org/sample/glossary/non-eu-seats",
+    "last_verified": "2026-10-28",
+    "is_sample": true
+  },
+  {
+    "slug": "tuition-free",
+    "term": "Tuition-free",
+    "term_bn": "টিউশন-ফ্রি",
+    "explain_en": "No tuition fee, but you still pay living costs and often a small semester fee.",
+    "explain_bn": "টিউশন ফি নেই, তবে জীবনযাত্রার খরচ আর প্রায়ই সামান্য সেমিস্টার ফি দিতে হয়।",
+    "source_url": "https://example.org/sample/glossary/tuition-free",
+    "last_verified": "2026-10-12",
+    "is_sample": true
+  },
+  {
+    "slug": "semester-contribution",
+    "term": "Semester contribution",
+    "term_bn": "সেমিস্টার কন্ট্রিবিউশন",
+    "explain_en": "A small fee German students pay each semester, often including a public transport ticket.",
+    "explain_bn": "জার্মানিতে প্রতি সেমিস্টারে দেওয়া ছোট ফি, যাতে প্রায়ই গণপরিবহনের টিকিট থাকে।",
+    "source_url": "https://example.org/sample/glossary/semester-contribution",
+    "last_verified": "2026-09-20",
+    "is_sample": true
+  },
+  {
+    "slug": "blocked-account",
+    "term": "Blocked account",
+    "term_bn": "ব্লকড অ্যাকাউন্ট",
+    "explain_en": "A German bank account holding a year of living costs that you can withdraw only monthly. Used as proof of funds for the visa.",
+    "explain_bn": "জার্মান ব্যাংক অ্যাকাউন্ট, যেখানে এক বছরের খরচ জমা থাকে এবং মাসে মাসে তোলা যায়। ভিসার জন্য আর্থিক সামর্থ্যের প্রমাণ হিসেবে লাগে।",
+    "source_url": "https://example.org/sample/glossary/blocked-account",
+    "last_verified": "2026-08-24",
+    "is_sample": true
+  },
+  {
+    "slug": "uni-assist",
+    "term": "uni-assist",
+    "term_bn": "ইউনি-অ্যাসিস্ট",
+    "explain_en": "A service many German universities use to check international applications before they decide. It charges a fee per application.",
+    "explain_bn": "অনেক জার্মান বিশ্ববিদ্যালয় সিদ্ধান্তের আগে আন্তর্জাতিক আবেদন যাচাইয়ে এই সেবা ব্যবহার করে। প্রতি আবেদনে ফি লাগে।",
+    "source_url": "https://example.org/sample/glossary/uni-assist",
+    "last_verified": "2026-10-28",
+    "is_sample": true
+  },
+  {
+    "slug": "german-grade",
+    "term": "German grade scale",
+    "term_bn": "জার্মান গ্রেড স্কেল",
+    "explain_en": "Germany grades from 1.0 (best) to 4.0 (pass). Universities convert your CGPA with a formula, so a lower German number is better.",
+    "explain_bn": "জার্মানিতে গ্রেড ১.০ (সেরা) থেকে ৪.০ (পাস)। বিশ্ববিদ্যালয় সূত্র দিয়ে আপনার সিজিপিএ রূপান্তর করে, তাই জার্মান সংখ্যা যত কম তত ভালো।",
+    "source_url": "https://example.org/sample/glossary/german-grade",
+    "last_verified": "2026-10-12",
+    "is_sample": true
+  },
+  {
+    "slug": "dsu",
+    "term": "DSU (right-to-study grant)",
+    "term_bn": "ডিএসইউ (রাইট-টু-স্টাডি গ্রান্ট)",
+    "explain_en": "Italy's regional grants based on family income. They can cover tuition, a cash grant, meals and housing.",
+    "explain_bn": "ইতালির আঞ্চলিক অনুদান, যা পরিবারের আয়ের ভিত্তিতে দেওয়া হয়। টিউশন, নগদ অনুদান, খাবার ও থাকার খরচ মেটাতে পারে।",
+    "source_url": "https://example.org/sample/glossary/dsu",
+    "last_verified": "2026-09-20",
+    "is_sample": true
+  },
+  {
+    "slug": "residence-permit",
+    "term": "Residence permit",
+    "term_bn": "রেসিডেন্স পারমিট",
+    "explain_en": "Permission to live in the country for your studies. You usually apply soon after arrival, even if you entered with a visa.",
+    "explain_bn": "পড়াশোনার জন্য দেশে থাকার অনুমতি। ভিসায় প্রবেশ করলেও সাধারণত পৌঁছানোর পর দ্রুত আবেদন করতে হয়।",
+    "source_url": "https://example.org/sample/glossary/residence-permit",
+    "last_verified": "2026-08-24",
+    "is_sample": true
+  },
+  {
+    "slug": "health-insurance",
+    "term": "Health insurance",
+    "term_bn": "স্বাস্থ্যবীমা",
+    "explain_en": "Required for students in all three countries. Costs differ a lot: check what your city guide shows.",
+    "explain_bn": "তিনটি দেশেই শিক্ষার্থীদের জন্য বাধ্যতামূলক। খরচে অনেক পার্থক্য: আপনার শহরের গাইডে দেখুন।",
+    "source_url": "https://example.org/sample/glossary/health-insurance",
+    "last_verified": "2026-10-28",
+    "is_sample": true
+  },
+  {
+    "slug": "conditional-offer",
+    "term": "Conditional offer",
+    "term_bn": "শর্তসাপেক্ষ অফার",
+    "explain_en": "An admission that becomes final once you send a missing item, such as your final certificate or English score.",
+    "explain_bn": "এমন ভর্তি, যা বাকি থাকা কিছু (যেমন চূড়ান্ত সনদ বা ইংরেজি স্কোর) পাঠালে চূড়ান্ত হয়।",
+    "source_url": "https://example.org/sample/glossary/conditional-offer",
+    "last_verified": "2026-10-12",
+    "is_sample": true
+  },
+  {
+    "slug": "application-fee",
+    "term": "Application fee",
+    "term_bn": "আবেদন ফি",
+    "explain_en": "A fee paid when you apply, usually by international card or bank transfer from Bangladesh. It is rarely refunded.",
+    "explain_bn": "আবেদনের সময় দেওয়া ফি, সাধারণত বাংলাদেশ থেকে আন্তর্জাতিক কার্ড বা ব্যাংক ট্রান্সফারে। সাধারণত ফেরত দেওয়া হয় না।",
+    "source_url": "https://example.org/sample/glossary/application-fee",
+    "last_verified": "2026-09-20",
+    "is_sample": true
+  },
+  {
+    "slug": "student-file",
+    "term": "Student file",
+    "term_bn": "স্টুডেন্ট ফাইল",
+    "explain_en": "A file opened at a Bangladeshi bank so you can legally send tuition and living costs abroad.",
+    "explain_bn": "বাংলাদেশি ব্যাংকে খোলা ফাইল, যাতে বৈধভাবে বিদেশে টিউশন ও জীবনযাত্রার খরচ পাঠাতে পারেন।",
+    "source_url": "https://example.org/sample/glossary/student-file",
+    "last_verified": "2026-08-24",
+    "is_sample": true
+  }
+]
