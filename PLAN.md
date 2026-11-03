@@ -151,4 +151,25 @@ Approved by Said on 2026-11-04.
 - **Primary color:** indigo blue, set once in the `@theme` design tokens.
 - **Check-ins:** stop after every one of the 7 phases for Said's OK.
 - **Phone testing:** the dev server is reachable from Said's phone on the same Wi-Fi, at the PC's local address. Nothing is put online.
-- **Git:** waiting on Said's answer.
+- **Git:** a commit at the end of each phase Said approves.
+
+## Design direction (from `design/references/`, settled 2026-11-04)
+
+The look comes from the five reference shots, kept light enough for a budget Android phone on slow data.
+
+| Element | Direction | Reference |
+| --- | --- | --- |
+| Canvas | Soft grey background (dark mode: near-black) with white rounded cards and very soft shadows; no glass blur | 1, 2, 3, 5 |
+| Primary color | Indigo blue for main buttons, active chips, progress bars, the active nav tab and links; everything else is neutral grey | 2, 4, 5 |
+| Buttons | Main action = full-width indigo pill with an arrow; secondary = white or grey pill with an outline | 4, 5 |
+| Type | Big, bold, tight headings ("Find your program abroad"), small grey supporting text, Inter + Noto Sans Bengali | 1, 3, 4 |
+| Cards | Large radius (about 24px for cards, 16px for inner tiles, full pill for chips and buttons); one featured card on Home in indigo with white text | 2, 3 |
+| Icons | Simple line icons (SVG, drawn in-house) inside pastel rounded tiles, one pastel per field or category (CSE, Business, Life sciences, …) | 3, 5 |
+| Countries | A color-wash card per country with its name and key facts, no photos | 4 (layout only) |
+| Chip rows | Scrollable rows of pill chips for quick filters and chat questions; date-strip chips for intakes and deadlines | 1, 2 |
+| Bottom nav | Floating white pill bar with 5 icons; the active tab gets an indigo pill and its label | 1, 4 |
+| Lists | Rounded list rows with an icon tile on the left, title + meta in the middle and a chevron or badge on the right | 3 |
+| Progress | Stepper dots and a thin indigo bar for the 5-step Match quiz; a ring or bar for the Fit Score | 3, 5 |
+| Imagery | None in Stage 1: no photos, no 3D renders, no avatars. Real illustrations can come with the Figma designs | — |
+
+Nothing is copied from the references: no names, text or artwork. They only set the visual direction.
