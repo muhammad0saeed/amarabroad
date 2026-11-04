@@ -55,7 +55,7 @@ export function ScholarshipList({ scholarships }: { scholarships: Scholarship[] 
       {shown.length === 0 ? (
         <EmptyState icon="scholarship" title={t("emptyTitle")} />
       ) : (
-        <ul className="grid gap-3 md:grid-cols-2">
+        <ul className="grid grid-cols-1 gap-3 md:grid-cols-2">
           {shown.map((s) => (
             <li key={s.slug} className="flex flex-col gap-3 rounded-card bg-surface p-4 shadow-card">
               <div>

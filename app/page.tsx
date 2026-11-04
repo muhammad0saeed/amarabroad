@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { inter, notoBengali } from "./fonts";
+import { latin, notoBengali } from "./fonts";
 import { localeRedirectScript } from "@/lib/inlineScripts";
 import { site } from "@/lib/site";
 
@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 // "/" only picks a language and moves on (see localeRedirectScript).
 export default function LanguageRedirect() {
   return (
-    <html lang="en" className={`${inter.variable} ${notoBengali.variable}`}>
+    <html lang="en" className={`${latin.variable} ${notoBengali.variable}`}>
       <head>
         <script dangerouslySetInnerHTML={{ __html: localeRedirectScript }} />
         <noscript>

@@ -1,7 +1,7 @@
 // A slim, serialisable view of a program for cards, search, filters and compare.
 // Built on the server from the full data; client components only receive these.
 
-import type { DegreeLevel, EnglishTest, GradeRequirement, Intake, ISODate, ProgramContext, TeachingLanguage } from "@/types";
+import type { DegreeLevel, EnglishTest, FieldGroup, GradeRequirement, Intake, ISODate, ProgramContext, TeachingLanguage } from "@/types";
 import { programCost } from "./cost";
 import type { RateTable } from "./money";
 
@@ -34,6 +34,10 @@ export interface ProgramSummary {
   related_bachelor_fields: string[];
   last_verified: ISODate;
   is_sample: boolean;
+  /** Subject area of `field` (filled in by the server, which knows the field list). */
+  field_group?: FieldGroup;
+  /** Whether any listed scholarship covers this program. */
+  has_scholarship?: boolean;
 }
 
 export function summarizeProgram(ctx: ProgramContext, rates: RateTable): ProgramSummary {

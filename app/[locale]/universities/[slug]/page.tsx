@@ -93,7 +93,7 @@ export default async function UniversityPage({ params }: Props) {
       </Card>
 
       <Section title={t("programsTitle")}>
-        <ul className="grid gap-3 md:grid-cols-2">
+        <ul className="grid grid-cols-1 gap-3 md:grid-cols-2">
           {programs.map((p) => (
             <li key={p.slug}>
               <ProgramCard program={p} field={fields[p.field]} />

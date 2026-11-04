@@ -3,10 +3,10 @@ import localFont from "next/font/local";
 // Self-hosted variable fonts (SIL Open Font License, see fonts/LICENSE-*.txt).
 // unicode-range lets the browser fetch each file only when its script appears.
 
-export const inter = localFont({
-  src: "./fonts/inter-latin-var.woff2",
+export const latin = localFont({
+  src: "./fonts/geist-latin-var.woff2",
   weight: "100 900",
-  variable: "--font-inter",
+  variable: "--font-latin",
   display: "swap",
   declarations: [
     {

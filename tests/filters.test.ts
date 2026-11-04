@@ -4,6 +4,7 @@ import {
   activeFilterCount,
   applyFilters,
   compareQuery,
+  facetCounts,
   EMPTY_FILTERS,
   parseCompareIds,
   parseFilters,
@@ -125,5 +126,47 @@ describe("compare links", () => {
     expect(parseCompareIds(new URLSearchParams("ids=a,b,a,c,d,e"))).toEqual(["a", "b", "c", "d"]);
     expect(compareQuery(["a", "b", "b"])).toBe("ids=a%2Cb");
     expect(parseCompareIds(new URLSearchParams(compareQuery(["x", "y"])))).toEqual(["x", "y"]);
+  });
+});
+
+describe("new filters", () => {
+  it("round-trips the new keys through the URL", () => {
+    const filters: ProgramFilters = {
+      ...EMPTY_FILTERS,
+      universities: ["sample-university-of-milan"],
+      universityTypes: ["public"],
+      fieldGroups: ["computing"],
+      durations: ["2y"],
+      maxTuitionLakh: 10,
+      deadline: "open",
+      englishTests: ["ielts"],
+      maxIelts: 6.5,
+      scholarship: true,
+      seatsPublished: true,
+      page: 3,
+    };
+    expect(parseFilters(new URLSearchParams(serializeFilters(filters)))).toEqual(filters);
+    expect(parseFilters(new URLSearchParams("type=state&area=magic&dur=9y&deadline=never&page=-2"))).toEqual(EMPTY_FILTERS);
+  });
+
+  it("filters by university, type, tuition, duration, deadline and IELTS", () => {
+    expect(run({ universities: ["sample-university-of-milan"] }).every((p) => p.university.slug === "sample-university-of-milan")).toBe(true);
+    expect(run({ universityTypes: ["private"] }).every((p) => p.university.type === "private")).toBe(true);
+    expect(run({ maxTuitionLakh: 5 }).every((p) => p.tuition_per_year_bdt <= 5e5)).toBe(true);
+    expect(run({ durations: ["1y"] }).every((p) => p.duration_months <= 12)).toBe(true);
+    expect(run({ deadline: "open" }).every((p) => nextDeadline(p.intakes, TODAY) !== null)).toBe(true);
+    const ielts = run({ maxIelts: 6 });
+    expect(ielts.length).toBeGreaterThan(0);
+    expect(ielts.every((p) => (p.english_tests.find((t) => t.test === "ielts")?.min_score ?? 99) <= 6)).toBe(true);
+  });
+
+  it("counts each option with every other filter applied", () => {
+    const f = { ...EMPTY_FILTERS, countries: ["italy"], level: "master" as const };
+    const counts = facetCounts(all, f, { today: TODAY });
+    // Country counts ignore the country filter itself, so other countries still show what they'd add
+    expect(counts.countries.germany).toBe(all.filter((p) => p.country.slug === "germany" && p.degree_level === "master").length);
+    expect(counts.levels.bachelor).toBe(all.filter((p) => p.country.slug === "italy" && p.degree_level === "bachelor").length);
+    expect(counts.flags.moi).toBe(run(f).filter((p) => p.accepts_moi).length);
+    expect(counts.budget["40"]).toBe(run(f).filter((p) => p.total_bdt <= 40e5).length);
   });
 });

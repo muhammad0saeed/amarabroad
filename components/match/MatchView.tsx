@@ -107,7 +107,7 @@ function MatchResults({ profile, programs, fields, fitContext, onEdit }: { profi
       {eligible.length === 0 ? (
         <EmptyState icon="match" title={t("emptyTitle")} body={t("emptyBody")} />
       ) : (
-        <ol className="grid gap-3 md:grid-cols-2">
+        <ol className="grid grid-cols-1 gap-3 md:grid-cols-2">
           {eligible.map(({ program, fit: r }, i) => (
             <li key={program.slug}>
               <ProgramCard

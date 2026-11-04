@@ -84,7 +84,7 @@
   },
   "search": {
     "title": "Find programs",
-    "subtitle": "Filter by country, budget in taka and Bangladesh-specific rules like 3-year degrees and MOI.",
+    "subtitle": "Every filter a Bangladeshi applicant needs: budget in taka, 3-year degrees, MOI, deadlines and more.",
     "searchLabel": "Search programs",
     "placeholder": "Program, university, city or subject",
     "go": "Search",
@@ -118,7 +118,57 @@
     "emptyTitle": "No programs match",
     "emptyBody": "Try removing a filter or raising your budget.",
     "showResults": "{count, plural, =0 {No results} one {Show # program} other {Show # programs}}",
-    "close": "Close"
+    "close": "Close",
+    "groupBd": "Fits a Bangladeshi degree",
+    "groupWhere": "Where",
+    "groupStudy": "What to study",
+    "groupCost": "Cost and funding",
+    "groupAdmission": "Admission",
+    "city": "City",
+    "university": "University",
+    "universityType": "University type",
+    "area": "Subject area",
+    "duration": "Duration",
+    "dur": {
+      "1y": "Up to 1 year",
+      "2y": "Up to 2 years",
+      "3y": "3 years or more"
+    },
+    "tuition": "Tuition per year",
+    "tuitionUnder": "Under {amount} lakh a year",
+    "scholarship": "Has a scholarship",
+    "seats": "Seats for non-EU published",
+    "deadline": "Deadline",
+    "deadlineOpen": "Still open",
+    "deadlineSoon": "Closes within 30 days",
+    "englishTest": "Accepts this test",
+    "ielts": "My IELTS score",
+    "ieltsUpTo": "IELTS {score} or less",
+    "anyLevel": "Any",
+    "showMore": "Show all {count}",
+    "showLess": "Show fewer",
+    "findIn": "Search {name}",
+    "noOptions": "Nothing matches",
+    "activeFilters": "Active filters",
+    "remove": "Remove {label}",
+    "pageOf": "Page {page} of {total}",
+    "prev": "Previous",
+    "next": "Next",
+    "pagination": "Pages",
+    "resultRange": "{from}–{to} of {total}",
+    "updating": "Updating results",
+    "searchNear": "Search a program, university or city",
+    "areas": {
+      "computing": "Computing & IT",
+      "engineering": "Engineering",
+      "business": "Business & economics",
+      "social": "Social sciences",
+      "humanities": "Humanities",
+      "health": "Health",
+      "life_sciences": "Life sciences",
+      "natural_sciences": "Natural sciences",
+      "design": "Design & architecture"
+    }
   },
   "program": {
     "totalCost": "Total cost",
@@ -809,5 +859,13 @@
     "title": "Page not found",
     "body": "This page doesn't exist or has moved.",
     "back": "Go to Home"
+  },
+  "explore": {
+    "label": "Browse by",
+    "programs": "Programs",
+    "universities": "Universities",
+    "cities": "Cities",
+    "countries": "Countries",
+    "scholarships": "Scholarships"
   }
 }

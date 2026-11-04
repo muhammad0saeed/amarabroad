@@ -12,18 +12,22 @@
    ------------------------------------------------------------------ */
 
 :root {
-  --canvas: #f2f3f7;
+  /* Neutral canvas, white surfaces, near-black ink. One accent: cobalt. */
+  --canvas: #f4f5f7;
   --surface: #ffffff;
-  --surface-2: #f6f7fa;
-  --border: #e3e5ec;
-  --ink: #13141b;
-  --ink-muted: #565b6b;
+  --surface-2: #eef0f3;
+  --border: #e2e5ea;
+  --ink: #0f1115;
+  --ink-muted: #586070;
 
-  --primary: #4741e0;
-  --primary-hover: #3a33c4;
+  /* Primary = main actions (near-black pills, like the references). */
+  --primary: #0f1115;
+  --primary-hover: #2a2e36;
   --on-primary: #ffffff;
-  --primary-soft: #eceeff;
-  --primary-ink: #3a33c4;
+  /* Accent = links, selected states, highlights. */
+  --accent: #2448f0;
+  --primary-soft: #e8edff;
+  --primary-ink: #1f3fd6;
 
   --success: #11734b;
   --success-soft: #e3f6ec;
@@ -32,30 +36,31 @@
   --danger: #b42318;
   --danger-soft: #fde8e6;
 
-  /* Pastel icon tiles (one per field / category). */
-  --tile-indigo: #e7e8ff;
-  --tile-blue: #e1efff;
-  --tile-green: #dff5e8;
-  --tile-pink: #fde6ef;
-  --tile-amber: #fff0d4;
-  --tile-teal: #dcf4f2;
+  /* Icon tiles are one neutral tone now (no pastel rainbow). */
+  --tile-indigo: #eef0f3;
+  --tile-blue: #eef0f3;
+  --tile-green: #eef0f3;
+  --tile-pink: #eef0f3;
+  --tile-amber: #eef0f3;
+  --tile-teal: #eef0f3;
 
-  --shadow-color: 16 18 27;
+  --shadow-color: 15 17 21;
 }
 
 [data-theme="dark"] {
-  --canvas: #0d0e13;
-  --surface: #171922;
-  --surface-2: #1f2230;
-  --border: #2b2f3e;
-  --ink: #f2f3f8;
-  --ink-muted: #a6abbb;
+  --canvas: #0b0c0f;
+  --surface: #15171c;
+  --surface-2: #1e2128;
+  --border: #2a2e37;
+  --ink: #f2f3f5;
+  --ink-muted: #a3a9b6;
 
-  --primary: #5b5bf0;
-  --primary-hover: #7072f5;
-  --on-primary: #ffffff;
-  --primary-soft: #23244a;
-  --primary-ink: #a9acff;
+  --primary: #f2f3f5;
+  --primary-hover: #d9dce2;
+  --on-primary: #0f1115;
+  --accent: #6d86ff;
+  --primary-soft: #1d2440;
+  --primary-ink: #9db0ff;
 
   --success: #5ed4a0;
   --success-soft: #12301f;
@@ -64,18 +69,18 @@
   --danger: #ff8a80;
   --danger-soft: #3a1714;
 
-  --tile-indigo: #262857;
-  --tile-blue: #172c46;
-  --tile-green: #15342a;
-  --tile-pink: #3d1c2b;
-  --tile-amber: #3a2c12;
-  --tile-teal: #133536;
+  --tile-indigo: #1e2128;
+  --tile-blue: #1e2128;
+  --tile-green: #1e2128;
+  --tile-pink: #1e2128;
+  --tile-amber: #1e2128;
+  --tile-teal: #1e2128;
 
   --shadow-color: 0 0 0;
 }
 
 @theme inline {
-  --font-sans: var(--font-inter), var(--font-bengali), "Noto Sans Bengali", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-latin), var(--font-bengali), "Noto Sans Bengali", ui-sans-serif, system-ui, sans-serif;
 
   --color-canvas: var(--canvas);
   --color-surface: var(--surface);
@@ -89,6 +94,7 @@
   --color-on-primary: var(--on-primary);
   --color-primary-soft: var(--primary-soft);
   --color-primary-ink: var(--primary-ink);
+  --color-accent: var(--accent);
 
   --color-success: var(--success);
   --color-success-soft: var(--success-soft);
@@ -104,14 +110,15 @@
   --color-tile-amber: var(--tile-amber);
   --color-tile-teal: var(--tile-teal);
 
-  --shadow-card: 0 1px 2px rgb(var(--shadow-color) / 0.04), 0 8px 24px rgb(var(--shadow-color) / 0.06);
+  /* Crisp hairline instead of soft blur: reads sharper on cheap screens. */
+  --shadow-card: 0 0 0 1px rgb(var(--shadow-color) / 0.07), 0 1px 2px rgb(var(--shadow-color) / 0.05);
   --shadow-float: 0 8px 32px rgb(var(--shadow-color) / 0.14);
 }
 
 @theme {
   /* Radius: cards, inner tiles; pills use rounded-full. */
-  --radius-card: 1.5rem;
-  --radius-tile: 1rem;
+  --radius-card: 1.25rem;
+  --radius-tile: 0.875rem;
 
   /* Minimum tap target (44px): h-tap, min-h-tap, size-tap. */
   --spacing-tap: 2.75rem;
@@ -119,12 +126,12 @@
   --breakpoint-xs: 22.5rem;
 
   /* Type scale: big, tight headings over small muted text. */
-  --text-display: 2rem;
-  --text-display--line-height: 1.1;
-  --text-display--letter-spacing: -0.02em;
+  --text-display: 2.25rem;
+  --text-display--line-height: 1.05;
+  --text-display--letter-spacing: -0.035em;
   --text-title: 1.5rem;
   --text-title--line-height: 1.2;
-  --text-title--letter-spacing: -0.015em;
+  --text-title--letter-spacing: -0.025em;
   --text-heading: 1.125rem;
   --text-heading--line-height: 1.35;
   --text-body: 0.9375rem;
@@ -149,7 +156,7 @@
     line-height: 1.7;
   }
   :focus-visible {
-    outline: 2px solid var(--primary);
+    outline: 2px solid var(--accent);
     outline-offset: 2px;
   }
 }

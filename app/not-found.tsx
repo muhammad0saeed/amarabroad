@@ -1,11 +1,11 @@
 import Link from "next/link";
-import { inter, notoBengali } from "./fonts";
+import { latin, notoBengali } from "./fonts";
 import { themeScript } from "@/lib/inlineScripts";
 
 // Fallback 404 for URLs outside /en and /bn (becomes out/404.html). Shown in both languages.
 export default function RootNotFound() {
   return (
-    <html lang="en" className={`${inter.variable} ${notoBengali.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`${latin.variable} ${notoBengali.variable}`} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>

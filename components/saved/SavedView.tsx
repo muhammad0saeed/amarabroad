@@ -30,7 +30,7 @@ export function SavedView({ programs, fields, fitContext }: { programs: ProgramS
         {savedPrograms.length === 0 ? (
           <EmptyState icon="bookmark" title={t("emptyTitle")} body={t("emptyBody")} action={<ButtonLink href="/programs">{t("browse")}</ButtonLink>} />
         ) : (
-          <ul className="grid gap-3 md:grid-cols-2">
+          <ul className="grid grid-cols-1 gap-3 md:grid-cols-2">
             {savedPrograms.map((p) => (
               <li key={p.slug}>
                 <ProgramCard program={p} field={fields[p.field]} fit={<FitBadge program={p} ctx={fitContext} />} />
