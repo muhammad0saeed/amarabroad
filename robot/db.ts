@@ -48,6 +48,14 @@ export async function dueProgramSources(limit: number): Promise<SourceRow[]> {
   ) as SourceRow[];
 }
 
+/** Program pages already read, longest-unread first: for re-reading them after the rules improved. */
+export async function knownProgramSources(limit: number): Promise<SourceRow[]> {
+  return must(
+    await db().from("sources").select("*").eq("kind", "program_page").eq("status", "active").not("entity_slug", "is", null).order("last_checked_at", { ascending: true, nullsFirst: true }).limit(limit),
+    "known sources",
+  ) as SourceRow[];
+}
+
 export async function childSources(programSlug: string): Promise<SourceRow[]> {
   return must(await db().from("sources").select("*").eq("entity_type", "program").eq("entity_slug", programSlug).neq("kind", "program_page"), "child sources") as SourceRow[];
 }
@@ -150,6 +158,7 @@ export async function applyProgram(args: {
   const update: Record<string, unknown> = Object.fromEntries(applied.map((c) => [c.field, c.newValue]));
   update.last_verified = today;
   update.source_url = args.sourceUrl;
+  update.official_url = args.sourceUrl;
   update.is_sample = false;
   must(await db().from("programs").update(update).eq("slug", slug), "update program");
 

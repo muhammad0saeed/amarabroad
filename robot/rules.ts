@@ -164,7 +164,12 @@ function duration(lines: string[]): ProgramFacts["duration_months"] {
     if (!DURATION_KEY.test(lines[i]!)) continue;
     for (let j = i; j <= Math.min(i + 4, lines.length - 1); j++) {
       // Pages split "4" and "semesters" over lines (bullets, table cells): read the lines so far as one.
-      const m = lines.slice(i, j + 1).join(" ").match(DURATION);
+      const joined = lines.slice(i, j + 1).join(" ");
+      // German "Regelstudienzeit" / "Standard Duration of Studies" is counted in semesters by law,
+      // so TU Munich's bare "4 (fulltime)" means 4 semesters.
+      const bare = /(standard duration|regelstudienzeit|standard period of study)/i.test(lines[i]!) ? joined.match(/(?:^|[\s•:])(\d{1,2})\s*(?:\(|$)/) : null;
+      if (!joined.match(DURATION) && bare && Number(bare[1]) >= 1 && Number(bare[1]) <= 12) return { value: Number(bare[1]) * 6, quote: quoteOf(lines, i, j) };
+      const m = joined.match(DURATION);
       if (!m) continue;
       const n = WORD_NUMBERS[m[1]!.toLowerCase()] ?? Number(m[1]!.replace(",", "."));
       const unit = m[2]!.toLowerCase();
@@ -395,9 +400,11 @@ function documents(lines: string[]): ProgramFacts["required_documents"] {
 /** Title words → our subject list (most specific first). */
 export const SUBJECTS: [string, RegExp][] = [
   ["data-science", /data science|data analytics|data engineering|machine learning|big data|business analytics|artificial intelligence|\bai\b/i],
-  ["cse", /computer science|informatics|informatik|informatica|software|computing|computer engineering|cyber ?security|information (technology|systems)|\bict\b|robotics and ai/i],
-  ["biotechnology", /biotechnolog|bioengineering|bioinformatics|biomedical engineering/i],
+  // Electrical before computing ("Electrical Engineering and Information Technology"), and
+  // biotechnology before computing ("Bioinformatics").
   ["eee", /electrical|electronic|elektrotechnik|communications? engineering|telecommunication|power engineering|microelectronics|integrated circuit|embedded systems/i],
+  ["biotechnology", /biotechnolog|bioengineering|bioinformatics|biomedical engineering/i],
+  ["cse", /computer science|informatics|informatik|informatica|software|computing|computer engineering|cyber ?security|information (technology|systems)|\bict\b|robotics and ai/i],
   ["civil", /civil engineering|structural|bauingenieur|construction|geotechnic|transportation|environmental engineering|water/i],
   ["mechanical", /mechanical|mechatronic|maschinenbau|automotive|aerospace|aeronautic|production|manufacturing|robotics|energy engineering|industrial engineering|materials engineering/i],
   ["textile", /textile|fashion/i],
@@ -412,12 +419,16 @@ export const SUBJECTS: [string, RegExp][] = [
   ["agriculture", /agricult|agronom|food|forest|horticult|nutrition|veterinary/i],
   ["chemistry", /chemi|materials science|polymer/i],
   ["math-physics", /mathemat|physics|statistic|astro|quantum/i],
-  ["social-sciences", /sociolog|political|politics|international relations|psycholog|public policy|social|communication|media|journalism|law|legal|education/i],
+  ["social-sciences", /responsibility|ethics|society|science and technology studies|sociolog|political|politics|international relations|psycholog|public policy|social|communication|media|journalism|law|legal|education/i],
   ["english-humanities", /english|literature|linguistic|history|philosoph|language|cultural|humanities|arts|music|theolog/i],
 ];
 
 export function subjectOf(title: string): string | null {
-  return SUBJECTS.find(([, re]) => re.test(title))?.[0] ?? null;
+  // The degree's own name says nothing about the subject: "Master of Arts" isn't "arts", "Master of Science" isn't science.
+  const subject = title
+    .replace(/\b(bachelor|master)'?s?( of| in)? (arts|science|sciences|engineering|education|laws|fine arts|philosophy)\b/gi, " ")
+    .replace(/\((m|b)\.?\s?(a|sc|eng|ed)\.?\)|\b(m|b)\.?(sc|a|eng)\.?(?=\s|$)/gi, " ");
+  return SUBJECTS.find(([, re]) => re.test(subject))?.[0] ?? null;
 }
 
 /** "Bachelor's degree in computer science, electrical engineering or a related field" → [cse, eee]. */

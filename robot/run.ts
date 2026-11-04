@@ -5,7 +5,8 @@
 //   npm run robot -- discover <university-slug>          find a university's program pages and watch them
 //   npm run robot -- discover-all [--limit 20]           the same for every university not yet searched
 //   npm run robot -- add <url> --university <slug>       watch one program page
-//   npm run robot -- check [--limit 300]                 visit due program pages, update what changed
+//   npm run robot -- check [--limit 300] [--reread]      visit due program pages, update what changed
+//                                                        (--reread: read known pages again after a rule improvement)
 
 import { planChanges } from "./checks.ts";
 import * as store from "./db.ts";
@@ -40,7 +41,7 @@ interface Stats {
   cost_usd: number;
 }
 
-async function checkOne(source: store.SourceRow, validFields: Set<string>, stats: Stats) {
+async function checkOne(source: store.SourceRow, validFields: Set<string>, stats: Stats, reread = false) {
   const uni = source.university ? await store.universityContext(source.university) : null;
   if (!uni) throw new Error(`source ${source.url} has no university`);
   const fetched = await fetchPageDetailed(source.url);
@@ -70,7 +71,8 @@ async function checkOne(source: store.SourceRow, validFields: Set<string>, stats
     stats.pages_checked++;
     if (p) childPages.push({ source: c, page: p });
   }
-  const changed = main.hash !== source.content_hash || childPages.some((c) => c.page.hash !== c.source?.content_hash);
+  // --reread: read again even if the page didn't change (after the rules improved). Surprising differences are still held.
+  const changed = reread || main.hash !== source.content_hash || childPages.some((c) => c.page.hash !== c.source?.content_hash);
   const existing = source.entity_slug ? await store.loadProgram(source.entity_slug) : null;
 
   if (!changed && existing) {
@@ -123,7 +125,8 @@ async function checkOne(source: store.SourceRow, validFields: Set<string>, stats
 
 async function check() {
   const limit = Number(flag("limit", "300"));
-  const due = await store.dueProgramSources(limit);
+  const reread = rest.includes("--reread");
+  const due = reread ? await store.knownProgramSources(limit) : await store.dueProgramSources(limit);
   const validFields = new Set((await store.fieldList()).map((f) => f.split(":")[0]!));
   const run = await store.startRun(process.env.GITHUB_ACTIONS ? "schedule" : "manual");
   const stats: Stats = { pages_checked: 0, pages_changed: 0, changes_applied: 0, changes_held: 0, errors: 0, cost_usd: 0 };
@@ -131,7 +134,7 @@ async function check() {
   for (const source of due) {
     log(source.url);
     try {
-      await checkOne(source, validFields, stats);
+      await checkOne(source, validFields, stats, reread);
     } catch (e) {
       stats.errors++;
       const message = e instanceof Error ? e.message : String(e);

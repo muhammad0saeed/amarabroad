@@ -144,7 +144,13 @@ export interface PlannedChange {
 }
 
 const RANGES: Record<string, [number, number]> = { ielts: [4, 9], toefl_ibt: [30, 120], pte: [30, 90], duolingo: [60, 160] };
-const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
+/** JSON with object keys sorted: the database returns {"year","month","deadline"} in its own key order. */
+function stable(value: unknown): string {
+  if (Array.isArray(value)) return `[${value.map(stable).join(",")}]`;
+  if (value && typeof value === "object") return `{${Object.keys(value).sort().map((k) => `${JSON.stringify(k)}:${stable((value as Record<string, unknown>)[k])}`).join(",")}}`;
+  return JSON.stringify(value ?? null);
+}
+const same = (a: unknown, b: unknown) => stable(a) === stable(b);
 const daysBetween = (a: string, b: string) => (Date.parse(b) - Date.parse(a)) / 86_400_000;
 
 /**

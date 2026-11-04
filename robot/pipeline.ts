@@ -2,7 +2,7 @@
 // reads the facts with the rules in rules.ts, and throws out any fact whose quote isn't on those pages
 // (a safety net against rule bugs). No AI and no outside service involved.
 
-import { contentHash, extractLinks, htmlToText, pageMeta, type PageLink, type PageMeta } from "./clean.ts";
+import { cleanUrl, contentHash, extractLinks, htmlToText, pageMeta, type PageLink, type PageMeta } from "./clean.ts";
 import { verifyFacts, type Dropped } from "./checks.ts";
 import type { ProgramFacts } from "./facts.ts";
 import { politeFetch, RobotsDisallowed } from "./fetch.ts";
@@ -32,7 +32,7 @@ export async function fetchPageDetailed(url: string): Promise<FetchOutcome> {
     const text = htmlToText(res.body);
     const meta = pageMeta(res.body);
     // Use the page's own clean address when it gives one on the same site (drops ?cHash=… and similar).
-    const canonical = meta.canonical && new URL(meta.canonical).hostname === new URL(res.finalUrl).hostname ? meta.canonical : res.finalUrl;
+    const canonical = cleanUrl(meta.canonical && new URL(meta.canonical).hostname === new URL(res.finalUrl).hostname ? meta.canonical : res.finalUrl);
     return {
       page: { url: canonical, status: res.status, text, hash: contentHash(text), links: extractLinks(res.body, res.finalUrl), meta, etag: res.etag, lastModified: res.lastModified },
     };

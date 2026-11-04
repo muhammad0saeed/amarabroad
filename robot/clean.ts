@@ -93,6 +93,17 @@ export function contentHash(text: string): string {
   return createHash("sha256").update(stable).digest("hex");
 }
 
+/** Query parameters that only track or filter (TYPO3's cHash, list filters, analytics) and never pick the page. */
+const NOISE_PARAMS = /^(chash|utm_.*|hl|amp|departments|graduation|location|typeofstudy|languageproficiency|fbclid|gclid|mc_.*|_ga|ref|source)$/i;
+
+/** The same address without tracking or filter parameters ("…/detail/x?departments=…&cHash=…" → "…/detail/x"). */
+export function cleanUrl(raw: string): string {
+  const u = new URL(decodeEntities(raw));
+  for (const key of [...u.searchParams.keys()]) if (NOISE_PARAMS.test(key)) u.searchParams.delete(key);
+  u.hash = "";
+  return u.toString();
+}
+
 /** URLs listed in a sitemap.xml (or sitemap index). */
 export function sitemapUrls(xml: string): string[] {
   return [...xml.matchAll(/<loc>\s*([^<\s]+)\s*<\/loc>/gi)].map((m) => decodeEntities(m[1]!));

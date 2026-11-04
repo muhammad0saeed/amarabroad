@@ -129,3 +129,13 @@ describe("polite fetching and cleaning", () => {
     expect(registrable("www.ox.ac.uk")).toBe("ox.ac.uk");
   });
 });
+
+describe("comparing with what the database returns", () => {
+  it("doesn't log a change when only the key order differs", async () => {
+    const { planChanges } = await import("@/robot/checks");
+    const old = { slug: "x", title: "X", degree_level: "master", field: "cse", related_bachelor_fields: [], duration_months: 24, ects_credits: 120, language: "en", language_requirement_en: null, currency: "EUR", tuition_per_year: 3000, other_fees_per_year: 0, application_fee: 0,
+      intakes: [JSON.parse('{"year":2027,"month":10,"deadline":"2027-05-31"}')], english_tests: [], accepts_moi: false, accepts_3yr_bachelor: false, accepts_provisional: false, min_gpa_requirement: null, seats_total: null, seats_non_eu: null, required_documents: [], overview_en: "x", career_paths_en: [] } as const;
+    const facts = { ...(await import("@/robot/facts")).EMPTY_FACTS, intakes: [{ start_month: 10, start_year: 2027, deadline: "2027-05-31", deadline_for: "all" as const, quote: "q" }] };
+    expect(planChanges(old as never, facts, "2026-11-05")).toEqual([]);
+  });
+});

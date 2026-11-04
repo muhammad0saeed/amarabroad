@@ -118,3 +118,30 @@ describe("finding program pages", () => {
     ]);
   });
 });
+
+describe("fixes from the first real run (TU Munich)", () => {
+  it("reads a bare 'Standard Duration of Studies: 4' as semesters", () => {
+    const f = readFacts([{ url: "https://u.de/x", text: "Standard Duration of Studies\n•\n4\n(fulltime)\nCredits\n120 ECTS", meta: pageMeta("<title>X (M.Sc.) - U</title><h1>X (M.Sc.)</h1>") }], "2026-11-05");
+    expect(f.duration_months?.value).toBe(24);
+  });
+
+  it("files Electrical Engineering and IT under electrical, Bioinformatics under biotech", () => {
+    expect(subjectOf("Electrical Engineering and Information Technology – Bachelor of Science")).toBe("eee");
+    expect(subjectOf("Bioinformatics – Bachelor of Science")).toBe("biotechnology");
+    expect(subjectOf("Informatics – Master of Science")).toBe("cse");
+  });
+
+  it("cleans tracking parameters from official links", async () => {
+    const { cleanUrl } = await import("@/robot/clean");
+    expect(cleanUrl("https://www.tum.de/en/x?graduation=Bachelor&amp;cHash=cc2e")).toBe("https://www.tum.de/en/x");
+    expect(cleanUrl("https://u.edu/index.php?id=4123&utm_source=x")).toBe("https://u.edu/index.php?id=4123");
+  });
+});
+
+describe("subject from the title, not the degree name", () => {
+  it("ignores 'Master of Arts' / 'Master of Science'", () => {
+    expect(subjectOf("Responsibility in Science, Engineering and Technology (RESET) – Master of Arts (M.A.)")).toBe("social-sciences");
+    expect(subjectOf("English Literature – Master of Arts")).toBe("english-humanities");
+    expect(subjectOf("Mathematics – Bachelor of Science (B.Sc.)")).toBe("math-physics");
+  });
+});
