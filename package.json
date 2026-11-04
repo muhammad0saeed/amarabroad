@@ -18,7 +18,8 @@
     "robot:try": "node robot/try.ts",
     "robot:peek": "node robot/peek.ts",
     "robot:wikidata": "node robot/wikidata-peek.ts",
-    "robot:discover-try": "node robot/discover-try.ts"
+    "robot:discover-try": "node robot/discover-try.ts",
+    "robot:measure": "node robot/measure.ts"
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",

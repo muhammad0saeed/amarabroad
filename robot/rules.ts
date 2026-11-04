@@ -157,7 +157,7 @@ function degreeLevel(pages: RulePage[]): ProgramFacts["degree_level"] {
 }
 
 const DURATION = /(\d+(?:[.,]5)?|one and a half|one|two|three|four|five|six)[\s-]*(semesters?|years?|months?|terms?|jahre|semestri|anni|félév|év)\b/i;
-const DURATION_KEY = /(duration|length|standard period|regelstudienzeit|studiendauer|durata|képzési idő|period of study)/i;
+const DURATION_KEY = /(duration|length|standard period|standard duration|regelstudienzeit|studiendauer|durata|képzési idő|period of study|program length|programme length)/i;
 
 function duration(lines: string[]): ProgramFacts["duration_months"] {
   for (let i = 0; i < lines.length; i++) {

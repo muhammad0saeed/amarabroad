@@ -34,6 +34,16 @@ Key choices:
 | 2.6 | **Admin: content manager** — edit programs, universities, cities, countries, scholarships, exchange rates; "mark verified today"; pages refresh after saving | You change a deadline in `/admin` and see it live |
 | 2.7 | **Deploy to Vercel and check** — connect the project, set environment variables, private access, run the Stage 2 checklist | A private Vercel address that works on your phone |
 
+### Change of direction (2026-11-05): a search engine fed by a data robot, no AI
+
+Said decided the app is a **search engine and directory of real programs**, filled automatically by scanning universities' own websites in 30+ countries, **without any external AI API**. Added to Stage 2:
+
+| # | Phase | What you'll see at the end |
+| --- | --- | --- |
+| 2.2b | **Data robot** (`robot/`, done): Wikidata seeding, discovery (sitemap or content-checked crawl), rule-based fact reading with evidence sentences, plausibility holds, change log, daily GitHub Actions run, full-text page search in the database | `npm run robot:try -- <url>` reads a real program page; `robot -- seed / discover-all / check` fill the database |
+| 2.3 (wider) | Read from Supabase, and also: programs with missing facts ("Not found, check the official page"), each fact's evidence and check date on the program page, page-content search results with snippets, countries and cities without a finished guide | The site shows real, robot-found programs |
+| 2.5 (wider) | The admin inbox also lists the robot's held changes (approve / reject) and its daily run report | You approve a held tuition change in one click |
+
 Not in Stage 2 (Stage 3, per the brief): page-change monitor, deadline calendar, outcome statistics, analytics, bulk CSV import, chat log of unanswered questions.
 
 ## Database tables (phase 2.2)
