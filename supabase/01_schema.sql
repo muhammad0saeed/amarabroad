@@ -188,9 +188,10 @@ create table if not exists public.programs (
   seats_total integer,
   seats_non_eu integer,
   min_gpa_requirement jsonb,                       -- {value, scale, local_note_en?, local_note_bn?}; null = not stated
-  accepts_3yr_bachelor boolean not null default false,
-  accepts_moi boolean not null default false,
-  accepts_provisional boolean not null default false,
+  -- Yes, no, or null = not stated on the official page ("not found" must never read as "no").
+  accepts_3yr_bachelor boolean,
+  accepts_moi boolean,
+  accepts_provisional boolean,
   open_to_bd_citizens boolean not null default true,
   english_tests jsonb not null default '[]',      -- [{test, min_score}]
   required_documents text[] not null default '{}',

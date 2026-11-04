@@ -5,7 +5,7 @@
 
 import "server-only";
 import Fuse from "fuse.js";
-import { listCities, listCountries, listFields, listProgramContexts, listScholarships, listUniversities } from "./data";
+import { dataVersion, listCities, listCountries, listFields, listProgramContexts, listScholarships, listUniversities } from "./data";
 import { applyFilters, facetCounts, PAGE_SIZE, type FacetCounts, type ProgramFilters } from "./filters";
 import { getRates } from "./server";
 import { summarizeProgram, type ProgramSummary } from "./summary";
@@ -44,9 +44,16 @@ interface Catalogue {
   options: SearchOptions;
 }
 let catalogue: Promise<Catalogue> | null = null;
+let builtFor = -1;
 
 /** Every program as a summary, with subject area and scholarship flags filled in. Built once per server process. */
-function loadCatalogue(): Promise<Catalogue> {
+async function loadCatalogue(): Promise<Catalogue> {
+  // Rebuilt whenever the underlying data is reloaded (every 10 minutes with live data).
+  const version = await dataVersion();
+  if (version !== builtFor) {
+    builtFor = version;
+    catalogue = null;
+  }
   catalogue ??= (async (): Promise<Catalogue> => {
     const [rates, contexts, fields, scholarships, countries, cities, universities] = await Promise.all([
       getRates(),

@@ -269,9 +269,10 @@ function predicates(f: ProgramFilters, o: ApplyOptions): Record<Facet, (p: Progr
       const min = ieltsMin(p);
       return min !== null && min <= f.maxIelts;
     },
-    accepts3yr: (p) => !f.accepts3yr || p.accepts_3yr_bachelor,
-    moi: (p) => !f.moi || p.accepts_moi,
-    provisional: (p) => !f.provisional || p.accepts_provisional,
+    // These filters ask for a stated "yes"; "not stated" doesn't match.
+    accepts3yr: (p) => !f.accepts3yr || p.accepts_3yr_bachelor === true,
+    moi: (p) => !f.moi || p.accepts_moi === true,
+    provisional: (p) => !f.provisional || p.accepts_provisional === true,
     bdOpen: (p) => !f.bdOpen || p.open_to_bd_citizens,
     scholarship: (p) => !f.scholarship || Boolean(p.has_scholarship),
     seats: (p) => !f.seatsPublished || p.seats_non_eu !== null,
@@ -360,9 +361,9 @@ export function facetCounts(programs: ProgramSummary[], f: ProgramFilters, optio
     englishTests: countBy(without("englishTest"), (p) => p.english_tests.map((t) => t.test)),
     flags: {
       tuitionFree: ifOn("free", (p) => p.tuition_per_year === 0),
-      accepts3yr: ifOn("accepts3yr", (p) => p.accepts_3yr_bachelor),
-      moi: ifOn("moi", (p) => p.accepts_moi),
-      provisional: ifOn("provisional", (p) => p.accepts_provisional),
+      accepts3yr: ifOn("accepts3yr", (p) => p.accepts_3yr_bachelor === true),
+      moi: ifOn("moi", (p) => p.accepts_moi === true),
+      provisional: ifOn("provisional", (p) => p.accepts_provisional === true),
       bdOpen: ifOn("bdOpen", (p) => p.open_to_bd_citizens),
       scholarship: ifOn("scholarship", (p) => Boolean(p.has_scholarship)),
       seatsPublished: ifOn("seats", (p) => p.seats_non_eu !== null),

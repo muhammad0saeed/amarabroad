@@ -7,6 +7,7 @@ import { formatBDT } from "@/lib/money";
 import { getCatalogue } from "@/lib/search";
 import { lowestTotal } from "@/lib/summary";
 import { initPage, type LocaleParams } from "@/lib/server";
+import { countryHref } from "@/lib/places";
 
 export async function generateMetadata({ params }: LocaleParams): Promise<Metadata> {
   const t = await getTranslations({ locale: (await params).locale, namespace: "browse" });
@@ -31,7 +32,7 @@ export default async function CountriesPage({ params }: LocaleParams) {
             <li key={c.slug}>
               <PlaceCard
                 size="lg"
-                href={`/countries/${c.slug}`}
+                href={countryHref(c)}
                 title={locale === "bn" ? c.name_bn : c.name_en}
                 subtitle={cityNames.join(" · ")}
                 photo={c.photo}

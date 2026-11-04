@@ -29,7 +29,8 @@ export function ProgramCard({ program: p, field, fit, headingLevel = "h3" }: { p
 
   // Bangladesh rules, as a compact checklist. Only the ones that matter for this level.
   const rules: { ok: boolean; label: string }[] = [
-    ...(p.degree_level === "master" ? [{ ok: p.accepts_3yr_bachelor, label: p.accepts_3yr_bachelor ? t("tag3yr") : t("tagNo3yr") }] : []),
+    // Only stated answers appear on the card; "not stated" is spelled out on the program page.
+    ...(p.degree_level === "master" && p.accepts_3yr_bachelor !== null ? [{ ok: p.accepts_3yr_bachelor, label: p.accepts_3yr_bachelor ? t("tag3yr") : t("tagNo3yr") }] : []),
     ...(p.accepts_moi ? [{ ok: true, label: t("tagMoi") }] : []),
     ...(p.accepts_provisional ? [{ ok: true, label: t("tagProvisional") }] : []),
   ];

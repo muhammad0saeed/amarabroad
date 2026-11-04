@@ -135,7 +135,7 @@ type EnglishStatus =
 
 function englishStatus(profile: StudentProfile, program: FitProgram): EnglishStatus {
   if (program.english_tests.length === 0) return { status: "not_applicable" };
-  const moi = profile.has_moi && program.accepts_moi;
+  const moi = profile.has_moi && program.accepts_moi === true;
   const { english_test: test, english_score: score } = profile;
   if (test && score !== null) {
     const requirement = program.english_tests.find((t) => t.test === test);
@@ -177,7 +177,8 @@ export function eligibilityGate(profile: StudentProfile, program: FitProgram): G
 
   if (!program.open_to_bd_citizens) reasons.push({ code: "not_open_to_bd" });
   if (master && onlyHsc(profile)) reasons.push({ code: "needs_bachelor" });
-  if (master && !onlyHsc(profile) && profile.degree_years === 3 && !program.accepts_3yr_bachelor) {
+  // Only a stated "no" rules a 3-year degree out; "not stated" doesn't.
+  if (master && !onlyHsc(profile) && profile.degree_years === 3 && program.accepts_3yr_bachelor === false) {
     reasons.push({ code: "three_year_not_accepted" });
   }
 

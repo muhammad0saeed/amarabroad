@@ -266,7 +266,10 @@
     "officialLink": "Official program page",
     "reportWrong": "Report wrong info",
     "shareResult": "Share your result",
-    "costLivingShort": "Living costs"
+    "costLivingShort": "Living costs",
+    "tag3yrUnknown": "3-year degree: not stated",
+    "tagMoiUnknown": "MOI: not stated",
+    "tagProvisionalUnknown": "Early application: not stated"
   },
   "fit": {
     "title": "Your Fit Score",
@@ -396,7 +399,8 @@
       "deadline": "Application deadline: {date}",
       "warning": "This is sample data. Check the official page before deciding.",
       "missing": "Some details weren't on the official page; check the link below."
-    }
+    },
+    "notStated": "not stated"
   },
   "forms": {
     "previewHint": "Preview mode: this form checks your answers but doesn't send anything yet.",
@@ -678,7 +682,8 @@
       "provisional": "Provisional OK",
       "seats": "Non-EU seats",
       "deadline": "Next deadline"
-    }
+    },
+    "notStated": "Not stated"
   },
   "match": {
     "title": "Match me",

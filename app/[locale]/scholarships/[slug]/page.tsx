@@ -7,16 +7,19 @@ import { DaysLeft } from "@/components/ui/DaysLeft";
 import { Badge, Card, ExternalLink, Fact, PageHeader, Section } from "@/components/ui/primitives";
 import { Link } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
-import { getScholarship, listCountries, listProgramContexts, listScholarships, listScholarshipsForProgram, listUniversities } from "@/lib/data";
+import { DATA_SOURCE, getScholarship, listCountries, listProgramContexts, listScholarships, listScholarshipsForProgram, listUniversities } from "@/lib/data";
 import { formatDate } from "@/lib/format";
 import { localizeDigits, pick } from "@/lib/localize";
 import { formatMoney } from "@/lib/money";
 import { initPage } from "@/lib/server";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
-export const dynamicParams = false;
+// Live data: pages are made on first visit and kept for 10 minutes. Sample data: all made at build time.
+export const dynamicParams = true;
+export const revalidate = 600;
 
 export async function generateStaticParams() {
+  if (DATA_SOURCE === "supabase") return [];
   const scholarships = await listScholarships();
   return routing.locales.flatMap((locale) => scholarships.map((s) => ({ locale, slug: s.slug })));
 }

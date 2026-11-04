@@ -6,16 +6,19 @@ import { Badge, ButtonLink, Card, ExternalLink, Fact, PageHeader, Section } from
 import { Link } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 import { monthlyLivingCost } from "@/lib/cost";
-import { getCountry, listCities, listCountries, listScholarshipsForCountry, listUniversities } from "@/lib/data";
+import { DATA_SOURCE, getCountry, listCities, listCountries, listScholarshipsForCountry, listUniversities, hasGuide } from "@/lib/data";
 import { formatDate } from "@/lib/format";
 import { localizeDigits, pick } from "@/lib/localize";
 import { formatBDT, toBDT } from "@/lib/money";
 import { getRates, initPage } from "@/lib/server";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
-export const dynamicParams = false;
+// Live data: pages are made on first visit and kept for 10 minutes. Sample data: all made at build time.
+export const dynamicParams = true;
+export const revalidate = 600;
 
 export async function generateStaticParams() {
+  if (DATA_SOURCE === "supabase") return [];
   const countries = await listCountries();
   return routing.locales.flatMap((locale) => countries.map((c) => ({ locale, slug: c.slug })));
 }
@@ -28,7 +31,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function CountryPage({ params }: Props) {
   const locale = await initPage(params);
   const country = await getCountry((await params).slug);
-  if (!country) notFound();
+  // A country the robot created but whose guide isn't written yet has no page of its own.
+  if (!country || !hasGuide(country)) notFound();
   const t = await getTranslations("country");
   const common = await getTranslations("common");
   const labels = await getTranslations("labels");

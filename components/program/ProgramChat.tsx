@@ -36,7 +36,7 @@ export function ProgramChat({ ctx, cost, scholarshipNames }: { ctx: ProgramConte
   const [input, setInput] = useState("");
   const [copied, setCopied] = useState<number | null>(null);
   const { program: p, university: u, city, country } = ctx;
-  const yes = (v: boolean) => t(v ? "yes" : "no");
+  const yes = (v: boolean | null) => (v === null ? t("notFound") : t(v ? "yes" : "no"));
   const num = (v: number) => formatNumber(v, locale, 2);
 
   async function ask(question: string, intent?: ChatIntent) {
@@ -105,11 +105,11 @@ export function ProgramChat({ ctx, cost, scholarshipNames }: { ctx: ProgramConte
           ? t("a.languageRequirement", { requirement: (locale === "bn" && p.language_requirement_bn) || p.language_requirement_en || "" })
           : t("a.english", { tests: p.english_tests.map((e) => `${labels(`test.${e.test}`)} ${num(e.min_score)}`).join(", "), moi: yes(p.accepts_moi) });
       case "moi":
-        return t(p.accepts_moi ? "a.moiYes" : "a.moiNo");
+        return p.accepts_moi === null ? t("notFound") : t(p.accepts_moi ? "a.moiYes" : "a.moiNo");
       case "three_year":
-        return t(p.accepts_3yr_bachelor ? "a.threeYearYes" : "a.threeYearNo");
+        return p.accepts_3yr_bachelor === null ? t("notFound") : t(p.accepts_3yr_bachelor ? "a.threeYearYes" : "a.threeYearNo");
       case "provisional":
-        return t(p.accepts_provisional ? "a.provisionalYes" : "a.provisionalNo");
+        return p.accepts_provisional === null ? t("notFound") : t(p.accepts_provisional ? "a.provisionalYes" : "a.provisionalNo");
       case "seats":
         return p.seats_non_eu === null
           ? t("a.seatsUnknown")

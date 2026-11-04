@@ -123,9 +123,9 @@ export interface ProgramRow {
   application_fee: number;
   intakes: { month: number; year: number; deadline: string }[];
   english_tests: { test: string; min_score: number }[];
-  accepts_moi: boolean;
-  accepts_3yr_bachelor: boolean;
-  accepts_provisional: boolean;
+  accepts_moi: boolean | null;
+  accepts_3yr_bachelor: boolean | null;
+  accepts_provisional: boolean | null;
   min_gpa_requirement: { value: number; scale: number; local_note_en?: string } | null;
   seats_total: number | null;
   seats_non_eu: number | null;
@@ -220,7 +220,8 @@ export function planChanges(old: ProgramRow | null, f: ProgramFacts, today: stri
   for (const key of ["accepts_moi", "accepts_3yr_bachelor", "accepts_provisional"] as const) {
     const v = f[key];
     // A "yes" that becomes "no" (or the reverse) changes who can apply: worth a second look.
-    if (v) propose(key, v.value, v.quote, !isNew && old[key] !== v.value ? `${key} flipped to ${v.value}` : null);
+    // (Going from "not stated" to an answer is new information, not a flip.)
+    if (v) propose(key, v.value, v.quote, !isNew && old[key] !== null && old[key] !== v.value ? `${key} flipped to ${v.value}` : null);
   }
 
   if (f.min_grade) {

@@ -15,18 +15,22 @@ import { SampleBadge } from "@/components/ui/SampleBadge";
 import { Link } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 import { programCost } from "@/lib/cost";
-import { getProgramContext, listPrograms, listScholarshipsForProgram } from "@/lib/data";
+import { DATA_SOURCE, getProgramContext, listPrograms, listScholarshipsForProgram } from "@/lib/data";
 import { formatDate, formatMonthYear } from "@/lib/format";
 import { formatNumber, isFallback, localizeDigits, pick, pickList, type AppLocale } from "@/lib/localize";
 import { formatBDT, formatMoney } from "@/lib/money";
 import { getFieldInfo, getFieldNames, getFitContext, getRates, initPage } from "@/lib/server";
 import { site } from "@/lib/site";
+import { countryHref, cityHref } from "@/lib/places";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 
-export const dynamicParams = false;
+// Live data: pages are made on first visit and kept for 10 minutes. Sample data: all made at build time.
+export const dynamicParams = true;
+export const revalidate = 600;
 
 export async function generateStaticParams() {
+  if (DATA_SOURCE === "supabase") return [];
   const programs = await listPrograms();
   return routing.locales.flatMap((locale) => programs.map((p) => ({ locale, slug: p.slug })));
 }
@@ -64,7 +68,7 @@ export default async function ProgramPage({ params }: Props) {
   // Bangla summary for parents, always in Bangla.
   const bn = await getTranslations({ locale: "bn", namespace: "parent" });
   const bnLabels = await getTranslations({ locale: "bn", namespace: "labels" });
-  const bnYes = (v: boolean) => bn(v ? "yes" : "no");
+  const bnYes = (v: boolean | null) => (v === null ? bn("notStated") : bn(v ? "yes" : "no"));
   const latest = [...p.intakes].sort((a, b) => (a.deadline < b.deadline ? -1 : 1)).at(-1);
   const ielts = p.english_tests.find((e) => e.test === "ielts");
   // Lines for the facts we have, and one honest line for the rest (never a guessed value).
@@ -92,8 +96,8 @@ export default async function ProgramPage({ params }: Props) {
         <Breadcrumbs
           label={common("breadcrumb")}
           items={[
-            { href: `/countries/${country.slug}`, label: countryName },
-            { href: `/cities/${city.slug}`, label: cityName },
+            { href: countryHref(country), label: countryName },
+            { href: cityHref(city), label: cityName },
             { href: `/universities/${u.slug}`, label: u.name },
           ]}
         />
@@ -174,14 +178,15 @@ export default async function ProgramPage({ params }: Props) {
 
       <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">
         {[
-          ...(p.degree_level === "master" ? [{ ok: p.accepts_3yr_bachelor, label: t(p.accepts_3yr_bachelor ? "tag3yr" : "tagNo3yr") }] : []),
-          { ok: p.accepts_moi, label: t(p.accepts_moi ? "tagMoi" : "tagNoMoi") },
-          { ok: p.accepts_provisional, label: t(p.accepts_provisional ? "tagProvisional" : "tagNoProvisional") },
+          // ok: true = stated yes, false = stated no, null = the official page doesn't say.
+          ...(p.degree_level === "master" ? [{ ok: p.accepts_3yr_bachelor, label: t(p.accepts_3yr_bachelor === null ? "tag3yrUnknown" : p.accepts_3yr_bachelor ? "tag3yr" : "tagNo3yr") }] : []),
+          { ok: p.accepts_moi, label: t(p.accepts_moi === null ? "tagMoiUnknown" : p.accepts_moi ? "tagMoi" : "tagNoMoi") },
+          { ok: p.accepts_provisional, label: t(p.accepts_provisional === null ? "tagProvisionalUnknown" : p.accepts_provisional ? "tagProvisional" : "tagNoProvisional") },
           { ok: p.open_to_bd_citizens, label: t(p.open_to_bd_citizens ? "tagBd" : "tagNotBd") },
         ].map((r) => (
           <li key={r.label} className="flex min-h-tap items-center gap-3 rounded-tile bg-surface px-3 py-2 shadow-card">
             <span className={`grid size-7 shrink-0 place-items-center rounded-full ${r.ok ? "bg-success-soft text-success" : "bg-surface-2 text-ink-muted"}`}>
-              <Icon name={r.ok ? "check" : "close"} className="size-4" weight="bold" />
+              <Icon name={r.ok === null ? "info" : r.ok ? "check" : "close"} className="size-4" weight="bold" />
             </span>
             <span className={r.ok ? "font-medium" : "text-ink-muted"}>{r.label}</span>
           </li>
@@ -352,7 +357,7 @@ export default async function ProgramPage({ params }: Props) {
           </table>
           <p className="mt-3 text-meta text-ink-muted">
             {t("costNote")}{" "}
-            <Link href={`/cities/${city.slug}`} className="font-semibold text-primary-ink hover:underline">
+            <Link href={cityHref(city)} className="font-semibold text-primary-ink hover:underline">
               {t("cityGuide", { city: cityName })}
             </Link>
           </p>

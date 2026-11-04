@@ -101,9 +101,9 @@ export function CompareView({ programs, fitContext }: { programs: ProgramSummary
     [t("row.firstYear"), (x) => (x.first_year_bdt === null ? <NotFound /> : formatBDT(x.first_year_bdt, locale))],
     [t("row.minGrade"), (x) => (x.min_gpa_requirement === null ? <NotFound /> : `${formatNumber(x.min_gpa_requirement.value, locale, 2)} / ${formatNumber(x.min_gpa_requirement.scale, locale)}`)],
     [t("row.ielts"), (x) => { const i = x.english_tests.find((e) => e.test === "ielts"); return i ? formatNumber(i.min_score, locale) : "—"; }],
-    [t("row.moi"), (x) => <YesNoTag yes={x.accepts_moi}>{t(x.accepts_moi ? "yes" : "no")}</YesNoTag>],
-    [t("row.threeYear"), (x) => (x.degree_level === "master" ? <YesNoTag yes={x.accepts_3yr_bachelor}>{t(x.accepts_3yr_bachelor ? "yes" : "no")}</YesNoTag> : "—")],
-    [t("row.provisional"), (x) => <YesNoTag yes={x.accepts_provisional}>{t(x.accepts_provisional ? "yes" : "no")}</YesNoTag>],
+    [t("row.moi"), (x) => (x.accepts_moi === null ? <NotFound /> : <YesNoTag yes={x.accepts_moi}>{t(x.accepts_moi ? "yes" : "no")}</YesNoTag>)],
+    [t("row.threeYear"), (x) => (x.degree_level !== "master" ? "—" : x.accepts_3yr_bachelor === null ? <NotFound /> : <YesNoTag yes={x.accepts_3yr_bachelor}>{t(x.accepts_3yr_bachelor ? "yes" : "no")}</YesNoTag>)],
+    [t("row.provisional"), (x) => (x.accepts_provisional === null ? <NotFound /> : <YesNoTag yes={x.accepts_provisional}>{t(x.accepts_provisional ? "yes" : "no")}</YesNoTag>)],
     [t("row.seats"), (x) => (x.seats_non_eu === null ? p("notPublished") : localizeDigits(String(x.seats_non_eu), locale))],
     [t("row.deadline"), (x) => <NextDeadline intakes={x.intakes} />],
   ];

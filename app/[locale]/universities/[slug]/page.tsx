@@ -5,15 +5,19 @@ import { ProgramCard } from "@/components/program/ProgramCard";
 import { Badge, Breadcrumbs, Card, ExternalLink, Fact, PageHeader, Section, YesNoTag } from "@/components/ui/primitives";
 import { Link } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
-import { getCity, getCountry, getUniversity, listScholarshipsForUniversity, listUniversities } from "@/lib/data";
+import { DATA_SOURCE, getCity, getCountry, getUniversity, listScholarshipsForUniversity, listUniversities } from "@/lib/data";
 import { formatDate } from "@/lib/format";
 import { isFallback, localizeDigits, pick } from "@/lib/localize";
 import { getFieldInfo, getSummaries, initPage } from "@/lib/server";
+import { countryHref, cityHref } from "@/lib/places";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
-export const dynamicParams = false;
+// Live data: pages are made on first visit and kept for 10 minutes. Sample data: all made at build time.
+export const dynamicParams = true;
+export const revalidate = 600;
 
 export async function generateStaticParams() {
+  if (DATA_SOURCE === "supabase") return [];
   const universities = await listUniversities();
   return routing.locales.flatMap((locale) => universities.map((u) => ({ locale, slug: u.slug })));
 }
@@ -44,8 +48,8 @@ export default async function UniversityPage({ params }: Props) {
         <Breadcrumbs
           label={common("breadcrumb")}
           items={[
-            { href: `/countries/${country.slug}`, label: countryName },
-            { href: `/cities/${city.slug}`, label: cityName },
+            { href: countryHref(country), label: countryName },
+            { href: cityHref(city), label: cityName },
             { label: u.name },
           ]}
         />
@@ -67,7 +71,7 @@ export default async function UniversityPage({ params }: Props) {
         <Fact
           label={t("city")}
           value={
-            <Link href={`/cities/${city.slug}`} className="text-primary-ink hover:underline">
+            <Link href={cityHref(city)} className="text-primary-ink hover:underline">
               {cityName}
             </Link>
           }

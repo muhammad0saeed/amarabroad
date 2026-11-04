@@ -30,9 +30,10 @@ export interface ProgramSummary {
   seats_non_eu: number | null;
   min_gpa_requirement: GradeRequirement | null;
   english_tests: { test: EnglishTest; min_score: number }[];
-  accepts_3yr_bachelor: boolean;
-  accepts_moi: boolean;
-  accepts_provisional: boolean;
+  /** null = not stated on the official page. */
+  accepts_3yr_bachelor: boolean | null;
+  accepts_moi: boolean | null;
+  accepts_provisional: boolean | null;
   open_to_bd_citizens: boolean;
   related_bachelor_fields: string[];
   last_verified: ISODate;

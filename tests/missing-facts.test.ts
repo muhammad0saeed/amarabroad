@@ -75,11 +75,28 @@ describe("Fit Score with missing facts", () => {
     expect(eligibilityGate(profile, program).map((r) => r.code)).not.toContain("grade_below_minimum");
     expect(eligibilityGate(profile, program).map((r) => r.code)).not.toContain("grade_missing");
     const fit = computeFit(profile, program, { fieldGroups: {} });
-    expect(fit.eligible && fit.parts.find((part) => part.key === "academics")?.scored).toBe(false);
+    expect(fit.eligible).toBe(true);
+    if (fit.eligible) expect(fit.parts.find((part) => part.key === "academics")?.scored).toBe(false);
   });
 
   it("no listed qualifying subjects: the subject check can't rule anyone out", () => {
     const program = { ...base.program, degree_level: "master" as const, field: "economics", related_bachelor_fields: [] };
     expect(eligibilityGate(profile, program).map((r) => r.code)).not.toContain("field_not_related");
+  });
+});
+
+describe("3-year degree, MOI and early application can be 'not stated'", () => {
+  it("'not stated' never rules a student out and never matches a 'yes' filter", () => {
+    const threeYear: StudentProfile = {
+      degree_type: "bsc-pass", degree_years: 3, university_type: "nu", cgpa: 3.5, cgpa_scale: 4, ssc_gpa: null, hsc_gpa: null, field: "cse",
+      english_test: "ielts", english_score: 7.5, has_moi: true, budget_bdt_total: null, target_countries: [], target_fields: [], experience_months: 0,
+      research: false, extracurriculars: [], certificates: [], skills: [],
+    };
+    const unknown = { ...base.program, degree_level: "master" as const, accepts_3yr_bachelor: null, accepts_moi: null, related_bachelor_fields: [] };
+    expect(eligibilityGate(threeYear, unknown).map((r) => r.code)).not.toContain("three_year_not_accepted");
+    expect(eligibilityGate(threeYear, { ...unknown, accepts_3yr_bachelor: false }).map((r) => r.code)).toContain("three_year_not_accepted");
+    const summary = summarizeProgram({ ...base, program: unknown }, rates);
+    expect(applyFilters([summary], { ...EMPTY_FILTERS, accepts3yr: true }, { today: "2026-11-05" })).toEqual([]);
+    expect(applyFilters([summary], { ...EMPTY_FILTERS, moi: true }, { today: "2026-11-05" })).toEqual([]);
   });
 });

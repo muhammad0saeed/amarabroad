@@ -12,6 +12,7 @@ import { formatBDT } from "@/lib/money";
 import { getCatalogue, getSearchOptions } from "@/lib/search";
 import { lowestTotal } from "@/lib/summary";
 import { initPage, type LocaleParams } from "@/lib/server";
+import { countryHref } from "@/lib/places";
 
 export default async function HomePage({ params }: LocaleParams) {
   const locale = await initPage(params);
@@ -162,7 +163,7 @@ export default async function HomePage({ params }: LocaleParams) {
               return (
                 <li key={c.slug} className="w-[78%] shrink-0 snap-start sm:w-auto">
                   <PlaceCard
-                    href={`/countries/${c.slug}`}
+                    href={countryHref(c)}
                     title={name(c)}
                     subtitle={cities.filter((x) => x.country === c.slug).map(name).join(" · ")}
                     photo={c.photo}

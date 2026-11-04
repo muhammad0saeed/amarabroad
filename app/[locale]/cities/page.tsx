@@ -8,6 +8,7 @@ import { formatBDT } from "@/lib/money";
 import { getCatalogue } from "@/lib/search";
 import { lowestTotal } from "@/lib/summary";
 import { initPage } from "@/lib/server";
+import { cityHref } from "@/lib/places";
 
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ country?: string }> };
 
@@ -56,7 +57,7 @@ export default async function CitiesPage({ params, searchParams }: Props) {
                   return (
                     <li key={city.slug}>
                       <PlaceCard
-                        href={`/cities/${city.slug}`}
+                        href={cityHref(city)}
                         title={name(city)}
                         subtitle={name(c)}
                         photo={city.photo}

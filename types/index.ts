@@ -17,6 +17,8 @@ export interface Provenance {
   last_verified: ISODate;
   /** True for everything in Stage 1: the record is invented. */
   is_sample: boolean;
+  /** Where the record came from: "robot" (read from the university's own site), "admin" or "sample". */
+  origin?: "sample" | "robot" | "admin";
 }
 
 /** A self-hosted photo (see public/photos/CREDITS.md). */
@@ -35,6 +37,8 @@ export interface Bilingual {
 export interface Country extends Provenance {
   slug: string;
   photo?: Photo;
+  /** False when the robot created the country but its guide (costs, visa, jobs) isn't written yet. */
+  has_guide?: boolean;
   name_en: string;
   name_bn: string;
   currency: CurrencyCode;
@@ -64,6 +68,8 @@ export type LanguageNeed = "essential" | "helpful" | "not_needed";
 export interface City extends Provenance {
   slug: string;
   photo?: Photo;
+  /** False when the robot created the city but its guide (living costs, jobs) isn't written yet. */
+  has_guide?: boolean;
   name_en: string;
   name_bn: string;
   /** Country slug. */
@@ -172,10 +178,11 @@ export interface Program extends Provenance {
   seats_non_eu: number | null;
   /** null = the official page doesn't state a minimum. */
   min_gpa_requirement: GradeRequirement | null;
-  accepts_3yr_bachelor: boolean;
-  accepts_moi: boolean;
+  /** Yes / no / null = not stated on the official page (never read null as "no"). */
+  accepts_3yr_bachelor: boolean | null;
+  accepts_moi: boolean | null;
   /** Provisional certificate accepted (session jam). */
-  accepts_provisional: boolean;
+  accepts_provisional: boolean | null;
   open_to_bd_citizens: boolean;
   english_tests: { test: EnglishTest; min_score: number }[];
   required_documents: DocumentKey[];

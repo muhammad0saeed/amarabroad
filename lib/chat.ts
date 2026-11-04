@@ -135,7 +135,7 @@ export function answerQuestion(question: string, ctx: ProgramContext, scholarshi
 
 const TEST_NAMES = { ielts: "IELTS", toefl_ibt: "TOEFL iBT", pte: "PTE Academic", duolingo: "Duolingo English Test" } as const;
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-const yesNo = (value: boolean) => (value ? "yes" : "no");
+const yesNo = (value: boolean | null) => (value === null ? "not stated on the official page" : value ? "yes" : "no");
 
 /** Text for "Copy question with program details", to paste into ChatGPT or Gemini. Always English. */
 export function copyPrompt(question: string, { program, university, city, country }: ProgramContext, siteName: string): string {

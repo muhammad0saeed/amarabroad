@@ -1,8 +1,11 @@
 import { useTranslations } from "next-intl";
+import { IS_SAMPLE_DATA } from "@/lib/source";
 
-// Shown on every card and page while the data is sample (Stage 1).
-export function SampleBadge({ className = "" }: { className?: string }) {
+// Shown on every card and page while the site runs on sample data (Stage 1).
+export function SampleBadge({ className = "", force = false }: { className?: string; force?: boolean }) {
   const t = useTranslations("common");
+  // On real data the badge only appears where a record says it's sample (force).
+  if (!IS_SAMPLE_DATA && !force) return null;
   return (
     <span
       title={t("sampleNotice")}
