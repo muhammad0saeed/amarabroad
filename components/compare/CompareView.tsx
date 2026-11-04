@@ -63,7 +63,7 @@ export function CompareView({ programs, fitContext }: { programs: ProgramSummary
     setSavedNow(true);
   }
 
-  if (!hydrated && !fromUrl.length) return <p className="text-ink-muted">{t("loading")}</p>;
+  if (!hydrated && !fromUrl.length) return <p className="min-h-[60dvh] text-ink-muted">{t("loading")}</p>;
   if (selected.length < COMPARE_MIN) {
     return (
       <EmptyState

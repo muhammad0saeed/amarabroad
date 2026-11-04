@@ -22,7 +22,7 @@ export function SavedView({ programs, fields, fitContext }: { programs: ProgramS
   const bySlug = new Map(programs.map((p) => [p.slug, p]));
   const savedPrograms = saved.map((s) => bySlug.get(s)).filter((p): p is ProgramSummary => !!p);
 
-  if (!hydrated) return <p className="text-ink-muted">{t("loading")}</p>;
+  if (!hydrated) return <p className="min-h-[60dvh] text-ink-muted">{t("loading")}</p>;
 
   return (
     <div className="space-y-8">

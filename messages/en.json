@@ -593,7 +593,6 @@
   "match": {
     "title": "Match me",
     "subtitle": "5 short steps. Get programs ranked by how well your profile fits their published requirements.",
-    "loading": "Loading…",
     "privacy": "Your answers stay on this phone or computer. Nothing is sent.",
     "seeMatches": "See my matches",
     "cancel": "Cancel",

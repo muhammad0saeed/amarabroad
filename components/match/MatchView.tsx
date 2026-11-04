@@ -38,8 +38,9 @@ export function MatchView({ programs, fields, fitContext, options }: Props) {
     window.scrollTo({ top: 0 });
   }
 
-  if (!hydrated) return <p className="text-ink-muted">{t("loading")}</p>;
-  if (editing || !isProfileComplete(profile)) {
+  // The static HTML shows step 1 of the quiz (no layout jump for new visitors);
+  // a saved profile swaps it for the results once the page loads.
+  if (!hydrated || editing || !isProfileComplete(profile)) {
     return (
       <div className="space-y-3">
         <p className="flex gap-2 text-meta text-ink-muted">
