@@ -6,6 +6,7 @@ import { listCities, listCountries, listUniversities } from "@/lib/data";
 import { localizeDigits } from "@/lib/localize";
 import { formatBDT } from "@/lib/money";
 import { getCatalogue } from "@/lib/search";
+import { lowestTotal } from "@/lib/summary";
 import { initPage } from "@/lib/server";
 
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ country?: string }> };
@@ -62,7 +63,7 @@ export default async function CitiesPage({ params, searchParams }: Props) {
                         stats={[
                           t("programs", { count: inCity.length }),
                           t("universities", { count: universities.filter((u) => u.city === city.slug).length }),
-                          ...(inCity.length ? [t("from", { amount: formatBDT(Math.min(...inCity.map((p) => p.total_bdt)), locale) })] : []),
+                          ...(lowestTotal(inCity) !== null ? [t("from", { amount: formatBDT(lowestTotal(inCity)!, locale) })] : []),
                         ]}
                       />
                     </li>

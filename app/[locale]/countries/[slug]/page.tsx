@@ -93,9 +93,11 @@ export default async function CountryPage({ params }: Props) {
                   <span className="text-heading font-semibold">{locale === "bn" ? c.name_bn : c.name_en}</span>
                   <Icon name="chevronRight" className="text-ink-muted" />
                 </span>
-                <span className="mt-1 block text-meta text-ink-muted">
-                  {t("livingFrom", { amount: formatBDT(toBDT(monthlyLivingCost(c), country.currency, rates), locale) })}
-                </span>
+                {monthlyLivingCost(c) !== null && (
+                  <span className="mt-1 block text-meta text-ink-muted">
+                    {t("livingFrom", { amount: formatBDT(toBDT(monthlyLivingCost(c)!, country.currency, rates), locale) })}
+                  </span>
+                )}
               </Link>
             </li>
           ))}

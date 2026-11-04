@@ -14,12 +14,13 @@ import type { ProgramContext } from "@/types";
 // Same order as SUGGESTED_INTENTS in lib/chat (kept here so the chip row doesn't pull in Fuse.js).
 const CHIPS: ChatIntent[] = ["tuition", "deadline", "english", "three_year", "moi", "seats", "documents", "scholarships"];
 
+/** In taka; null = not known (the chat then says so instead of guessing). */
 export interface ChatCost {
-  totalBDT: number;
-  firstYearBDT: number;
-  livingMonthly: number;
-  livingMonthlyBDT: number;
-  tuitionPerYearBDT: number;
+  totalBDT: number | null;
+  firstYearBDT: number | null;
+  livingMonthly: number | null;
+  livingMonthlyBDT: number | null;
+  tuitionPerYearBDT: number | null;
 }
 
 interface Turn {
@@ -62,15 +63,21 @@ export function ProgramChat({ ctx, cost, scholarshipNames }: { ctx: ProgramConte
     }
   }
 
+  const feeCurrency = p.currency ?? country.currency;
   function fieldAnswer(intent: ChatIntent): ReactNode {
     switch (intent) {
       case "tuition":
+        if (p.tuition_per_year === null || p.currency === null) return t("notFound");
         return p.tuition_per_year === 0
-          ? t("a.tuitionFree", { fees: formatMoney(p.other_fees_per_year, p.currency, locale) })
-          : t("a.tuition", { amount: formatMoney(p.tuition_per_year, p.currency, locale), bdt: formatBDT(cost.tuitionPerYearBDT, locale) });
+          ? t("a.tuitionFree", { fees: formatMoney(p.other_fees_per_year, feeCurrency, locale) })
+          : cost.tuitionPerYearBDT === null
+            ? formatMoney(p.tuition_per_year, p.currency, locale)
+            : t("a.tuition", { amount: formatMoney(p.tuition_per_year, p.currency, locale), bdt: formatBDT(cost.tuitionPerYearBDT, locale) });
       case "total_cost":
+        if (cost.totalBDT === null || cost.firstYearBDT === null) return t("notFound");
         return t("a.totalCost", { total: formatBDT(cost.totalBDT, locale), firstYear: formatBDT(cost.firstYearBDT, locale) });
       case "living_cost":
+        if (cost.livingMonthly === null || cost.livingMonthlyBDT === null) return t("notFound");
         return t("a.livingCost", {
           city: locale === "bn" ? city.name_bn : city.name_en,
           local: formatMoney(cost.livingMonthly, country.currency, locale),
@@ -78,6 +85,7 @@ export function ProgramChat({ ctx, cost, scholarshipNames }: { ctx: ProgramConte
         });
       case "deadline":
       case "intake":
+        if (p.intakes.length === 0) return t("notFound");
         return (
           <ul className="list-disc pl-5">
             {p.intakes.map((i) => (
@@ -86,10 +94,13 @@ export function ProgramChat({ ctx, cost, scholarshipNames }: { ctx: ProgramConte
           </ul>
         );
       case "duration":
-        return t("a.duration", { months: localizeDigits(String(p.duration_months), locale), ects: localizeDigits(String(p.ects_credits), locale) });
+        if (p.duration_months === null) return t("notFound");
+        return t("a.duration", { months: localizeDigits(String(p.duration_months), locale), ects: localizeDigits(String(p.ects_credits ?? "—"), locale) });
       case "ects":
+        if (p.ects_credits === null) return t("notFound");
         return t("a.ects", { ects: localizeDigits(String(p.ects_credits), locale) });
       case "english":
+        if (p.english_tests.length === 0 && !p.language_requirement_en) return t("notFound");
         return p.english_tests.length === 0
           ? t("a.languageRequirement", { requirement: (locale === "bn" && p.language_requirement_bn) || p.language_requirement_en || "" })
           : t("a.english", { tests: p.english_tests.map((e) => `${labels(`test.${e.test}`)} ${num(e.min_score)}`).join(", "), moi: yes(p.accepts_moi) });
@@ -104,6 +115,7 @@ export function ProgramChat({ ctx, cost, scholarshipNames }: { ctx: ProgramConte
           ? t("a.seatsUnknown")
           : t("a.seats", { nonEu: localizeDigits(String(p.seats_non_eu), locale), total: localizeDigits(String(p.seats_total ?? "—"), locale) });
       case "documents":
+        if (p.required_documents.length === 0) return t("notFound");
         return (
           <ul className="list-disc pl-5">
             {p.required_documents.map((d) => (
@@ -112,17 +124,20 @@ export function ProgramChat({ ctx, cost, scholarshipNames }: { ctx: ProgramConte
           </ul>
         );
       case "grade":
+        if (!p.min_gpa_requirement) return t("notFound");
         return t("a.grade", { value: num(p.min_gpa_requirement.value), scale: num(p.min_gpa_requirement.scale) }) + (p.min_gpa_requirement.local_note_en ? ` (${(locale === "bn" && p.min_gpa_requirement.local_note_bn) || p.min_gpa_requirement.local_note_en})` : "");
       case "language":
-        return t("a.language", { language: labels(`lang.${p.language}`) }) + (p.language_requirement_en ? ` ${(locale === "bn" && p.language_requirement_bn) || p.language_requirement_en}.` : "");
+        if (p.language === null) return t("notFound");
+        return t("a.language", { language: labels.has(`lang.${p.language}`) ? labels(`lang.${p.language}`) : p.language.toUpperCase() }) + (p.language_requirement_en ? ` ${(locale === "bn" && p.language_requirement_bn) || p.language_requirement_en}.` : "");
       case "scholarships":
         return t("a.scholarships", { names: scholarshipNames.join(", ") });
       case "careers":
         return t("a.careers", { careers: pickList(p.career_paths_en, p.career_paths_bn, locale).join(", ") });
       case "work":
+        if (country.student_work_hours === null) return t("notFound");
         return t("a.work", { hours: localizeDigits(String(country.student_work_hours), locale), country: locale === "bn" ? country.name_bn : country.name_en });
       case "application_fee":
-        return t("a.applicationFee", { amount: formatMoney(p.application_fee, p.currency, locale) });
+        return t("a.applicationFee", { amount: formatMoney(p.application_fee, feeCurrency, locale) });
       case "ranking":
         return u.ranking ? t("a.ranking", { rank: localizeDigits(u.ranking.rank, locale), year: localizeDigits(String(u.ranking.year), locale), source: u.ranking.source }) : t("notFound");
       case "verified":

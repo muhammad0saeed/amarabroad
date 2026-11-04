@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { Icon } from "@/components/icons";
+import { NotFound } from "@/components/ui/NotFound";
 import { Badge, Breadcrumbs, Card, ExternalLink, Fact, IconTile, PageHeader, Section } from "@/components/ui/primitives";
 import { Link } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
@@ -36,11 +37,13 @@ export default async function CityPage({ params }: Props) {
   const rates = await getRates();
   const universities = await listUniversities({ city: city.slug });
   const cur = country.currency;
-  const bdt = (amount: number) => formatBDT(toBDT(amount, cur, rates), locale);
+  // Unknown amounts (guide not written yet) show "Not found", never a zero.
+  const bdt = (amount: number | null) => (amount === null ? <NotFound /> : formatBDT(toBDT(amount, cur, rates), locale));
+  const local = (amount: number | null) => (amount === null ? undefined : formatMoney(amount, cur, locale));
   const cityName = locale === "bn" ? city.name_bn : city.name_en;
   const countryName = locale === "bn" ? country.name_bn : country.name_en;
 
-  const rows: [string, number][] = [
+  const rows: [string, number | null][] = [
     [t("rentShared"), city.cost_rent_shared],
     [t("food"), city.cost_food],
     [t("transport"), city.cost_transport],
@@ -64,10 +67,10 @@ export default async function CityPage({ params }: Props) {
       </div>
 
       <dl className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-        <Fact label={t("monthlyShared")} value={bdt(monthlyLivingCost(city, "shared"))} hint={formatMoney(monthlyLivingCost(city, "shared"), cur, locale)} />
-        <Fact label={t("monthlyStudio")} value={bdt(monthlyLivingCost(city, "studio"))} hint={formatMoney(monthlyLivingCost(city, "studio"), cur, locale)} />
-        <Fact label={t("students")} value={localizeDigits(formatIndianInteger(city.population_students), locale)} />
-        <Fact label={t("workHours")} value={t("hoursPerWeek", { hours: localizeDigits(String(country.student_work_hours), locale) })} />
+        <Fact label={t("monthlyShared")} value={bdt(monthlyLivingCost(city, "shared"))} hint={local(monthlyLivingCost(city, "shared"))} />
+        <Fact label={t("monthlyStudio")} value={bdt(monthlyLivingCost(city, "studio"))} hint={local(monthlyLivingCost(city, "studio"))} />
+        <Fact label={t("students")} value={city.population_students === null ? <NotFound /> : localizeDigits(formatIndianInteger(city.population_students), locale)} />
+        <Fact label={t("workHours")} value={country.student_work_hours === null ? <NotFound /> : t("hoursPerWeek", { hours: localizeDigits(String(country.student_work_hours), locale) })} />
       </dl>
 
       <Section title={t("costTitle")}>
@@ -92,7 +95,7 @@ export default async function CityPage({ params }: Props) {
                   </th>
                   <td className="py-2 text-right">
                     <span className="font-semibold">{bdt(amount)}</span>
-                    <span className="block text-ink-muted">{formatMoney(amount, cur, locale)}</span>
+                    {amount !== null && <span className="block text-ink-muted">{local(amount)}</span>}
                   </td>
                 </tr>
               ))}
@@ -104,7 +107,7 @@ export default async function CityPage({ params }: Props) {
               </tr>
             </tbody>
           </table>
-          <p className="mt-3 text-meta text-ink-muted">{t("studioNote", { amount: bdt(city.cost_rent_studio) })}</p>
+          {city.cost_rent_studio !== null && <p className="mt-3 text-meta text-ink-muted">{t("studioNote", { amount: formatBDT(toBDT(city.cost_rent_studio, cur, rates), locale) })}</p>}
         </Card>
       </Section>
 
@@ -113,7 +116,7 @@ export default async function CityPage({ params }: Props) {
           <p>{pick(country, "student_work_note", locale)}</p>
           <p>
             <span className="font-semibold">{t("minWage")}: </span>
-            {country.min_wage === null ? t("noMinWage") : t("minWageValue", { amount: formatMoney(country.min_wage, cur, locale), bdt: bdt(country.min_wage) })}
+            {country.min_wage === null ? t("noMinWage") : t("minWageValue", { amount: formatMoney(country.min_wage, cur, locale), bdt: formatBDT(toBDT(country.min_wage, cur, rates), locale) })}
           </p>
           <p className="text-meta text-ink-muted">{pick(country, "min_wage_note", locale)}</p>
           <div>

@@ -2,9 +2,10 @@ import { useLocale, useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 import { GROUP_ICON, Icon } from "@/components/icons";
 import { NextDeadline } from "@/components/ui/NextDeadline";
+import { NotFound } from "@/components/ui/NotFound";
 import { Link } from "@/i18n/navigation";
 import { localizeDigits, type AppLocale } from "@/lib/localize";
-import { formatBDT } from "@/lib/money";
+import { formatBDT, formatMoney } from "@/lib/money";
 import type { ProgramSummary } from "@/lib/summary";
 import type { FieldGroup, TileColor } from "@/types";
 import { ProgramCardActions } from "./ProgramActions";
@@ -63,18 +64,37 @@ export function ProgramCard({ program: p, field, fit, headingLevel = "h3" }: { p
       </p>
 
       <div className="mt-4 flex items-end justify-between gap-3">
+        {/* The whole cost when we know it; otherwise tuition per year; otherwise "Not found". Never a guess. */}
         <div>
-          <p className="text-meta text-ink-muted">{t("totalCost")}</p>
-          <p className="text-title leading-none font-bold tracking-tight tabular-nums">{formatBDT(p.total_bdt, locale)}</p>
+          {p.total_bdt !== null ? (
+            <>
+              <p className="text-meta text-ink-muted">{t("totalCost")}</p>
+              <p className="text-title leading-none font-bold tracking-tight tabular-nums">{formatBDT(p.total_bdt, locale)}</p>
+            </>
+          ) : p.tuition_per_year !== null ? (
+            <>
+              <p className="text-meta text-ink-muted">{t("tuitionPerYear")}</p>
+              <p className="text-title leading-none font-bold tracking-tight tabular-nums">
+                {p.tuition_per_year === 0 ? t("tuitionFree") : p.tuition_per_year_bdt !== null ? formatBDT(p.tuition_per_year_bdt, locale) : formatMoney(p.tuition_per_year, p.currency ?? "EUR", locale)}
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="text-meta text-ink-muted">{t("tuitionPerYear")}</p>
+              <NotFound className="mt-1 text-body" />
+            </>
+          )}
         </div>
         <dl className="flex gap-4 text-right text-meta">
           <div>
             <dt className="text-ink-muted">{t("duration")}</dt>
-            <dd className="font-semibold">{t("months", { count: p.duration_months })}</dd>
+            <dd className="font-semibold">{p.duration_months === null ? <NotFound /> : t("months", { count: p.duration_months })}</dd>
           </div>
           <div>
-            <dt className="text-ink-muted">{p.language === "en" ? "IELTS" : t("teaching")}</dt>
-            <dd className="font-semibold">{p.language === "en" ? (ielts ? localizeDigits(String(ielts.min_score), locale) : "—") : labels(`lang.${p.language}`)}</dd>
+            <dt className="text-ink-muted">{p.language === "en" || p.language === null ? "IELTS" : t("teaching")}</dt>
+            <dd className="font-semibold">
+              {p.language === "en" || p.language === null ? ielts ? localizeDigits(String(ielts.min_score), locale) : <NotFound /> : labels(`lang.${p.language}`)}
+            </dd>
           </div>
         </dl>
       </div>

@@ -74,7 +74,7 @@ function MatchResults({ profile, programs, fields, fitContext, onEdit }: { profi
     return programs
       .filter((p) => p.degree_level === level)
       .filter((p) => !onlyMine || ((!profile.target_countries.length || profile.target_countries.includes(p.country.slug)) && (!profile.target_fields.length || profile.target_fields.includes(p.field))))
-      .filter((p) => !withinBudget || budget === null || p.total_bdt <= budget)
+      .filter((p) => !withinBudget || budget === null || (p.total_bdt !== null && p.total_bdt <= budget))
       .map((p) => ({ program: p, fit: computeFit(profile, p, fitContext) }));
   }, [programs, profile, fitContext, onlyMine, withinBudget, budget]);
 
@@ -118,7 +118,7 @@ function MatchResults({ profile, programs, fields, fitContext, onEdit }: { profi
                   <span className="flex items-center gap-1.5">
                     <span className="text-meta font-semibold text-ink-muted">#{localizeDigits(String(i + 1), locale)}</span>
                     <Badge tone={BAND_TONE[r.band]}>{fit("badge", { score: localizeDigits(String(r.score), locale), band: fit(`band.${r.band}`) })}</Badge>
-                    {budget !== null && program.total_bdt > budget && <Badge tone="warning">{t("overBudget")}</Badge>}
+                    {budget !== null && program.total_bdt !== null && program.total_bdt > budget && <Badge tone="warning">{t("overBudget")}</Badge>}
                   </span>
                 }
               />

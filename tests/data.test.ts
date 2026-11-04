@@ -124,7 +124,7 @@ describe("references", () => {
   it("has an exchange rate for every currency in use", () => {
     const rates = new Set(exchangeRates.map((r) => r.currency));
     for (const c of countries) expect(rates.has(c.currency), c.slug).toBe(true);
-    for (const p of programs) expect(rates.has(p.currency), p.slug).toBe(true);
+    for (const p of programs) expect(rates.has(p.currency!), p.slug).toBe(true);
   });
 });
 
@@ -135,7 +135,7 @@ describe("program values", () => {
     for (const p of programs) {
       expect(p.duration_months, p.slug).toBeGreaterThanOrEqual(12);
       expect(p.tuition_per_year, p.slug).toBeGreaterThanOrEqual(0);
-      expect(p.ects_credits / (p.duration_months / 12), p.slug).toBeCloseTo(60, 0);
+      expect(p.ects_credits! / (p.duration_months! / 12), p.slug).toBeCloseTo(60, 0);
       if (p.seats_non_eu !== null && p.seats_total !== null) expect(p.seats_non_eu, p.slug).toBeLessThanOrEqual(p.seats_total);
       for (const t of p.english_tests) {
         const [min, max] = RANGES[t.test];
@@ -147,7 +147,7 @@ describe("program values", () => {
 
   it("states grade minimums on the right scale (CGPA /4 for master's, HSC GPA /5 for bachelor's)", () => {
     for (const p of programs) {
-      const { value, scale } = p.min_gpa_requirement;
+      const { value, scale } = p.min_gpa_requirement!;
       expect(scale, p.slug).toBe(p.degree_level === "master" ? 4 : 5);
       expect(value, p.slug).toBeGreaterThan(0);
       expect(value, p.slug).toBeLessThanOrEqual(scale);
@@ -190,7 +190,7 @@ describe("planted edge cases", () => {
     expect(scholarships.some((s) => s.type === "need")).toBe(true);
     expect(programs.some((p) => p.intakes.some((i) => i.deadline < SEED_DATE))).toBe(true);
     expect(scholarships.some((s) => s.deadline < SEED_DATE)).toBe(true);
-    expect(programs.some((p) => p.min_gpa_requirement.local_note_en?.includes("German grade"))).toBe(true);
+    expect(programs.some((p) => p.min_gpa_requirement?.local_note_en?.includes("German grade"))).toBe(true);
     // Added from the project brief
     expect(programs.some((p) => !p.open_to_bd_citizens)).toBe(true);
     expect(programs.some((p) => p.accepts_provisional)).toBe(true);

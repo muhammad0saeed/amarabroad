@@ -195,8 +195,8 @@ function matchesText(p: ProgramSummary, q: string, fieldNames: Record<string, st
     .every((word) => haystack.includes(word));
 }
 
-export function durationOf(months: number): Duration {
-  return months <= 12 ? "1y" : months <= 24 ? "2y" : "3y";
+export function durationOf(months: number | null): Duration | undefined {
+  return months === null ? undefined : months <= 12 ? "1y" : months <= 24 ? "2y" : "3y";
 }
 
 function ieltsMin(p: ProgramSummary): number | null {
@@ -248,11 +248,15 @@ function predicates(f: ProgramFilters, o: ApplyOptions): Record<Facet, (p: Progr
     level: (p) => !f.level || p.degree_level === f.level,
     fieldGroup: (p) => !f.fieldGroups.length || (p.field_group !== undefined && f.fieldGroups.includes(p.field_group)),
     field: (p) => !f.fields.length || f.fields.includes(p.field),
-    language: (p) => !f.languages.length || f.languages.includes(p.language),
+    language: (p) => !f.languages.length || (p.language !== null && f.languages.includes(p.language)),
     intake: (p) => !f.intakeMonths.length || p.intakes.some((i) => f.intakeMonths.includes(i.month)),
-    duration: (p) => !f.durations.length || f.durations.includes(durationOf(p.duration_months)),
-    budget: (p) => f.maxBudgetLakh === null || p.total_bdt <= f.maxBudgetLakh * 1e5,
-    tuition: (p) => f.maxTuitionLakh === null || p.tuition_per_year_bdt <= f.maxTuitionLakh * 1e5,
+    duration: (p) => {
+      const d = durationOf(p.duration_months);
+      return !f.durations.length || (d !== undefined && f.durations.includes(d));
+    },
+    // An unknown cost never counts as "under the budget".
+    budget: (p) => f.maxBudgetLakh === null || (p.total_bdt !== null && p.total_bdt <= f.maxBudgetLakh * 1e5),
+    tuition: (p) => f.maxTuitionLakh === null || (p.tuition_per_year_bdt !== null && p.tuition_per_year_bdt <= f.maxTuitionLakh * 1e5),
     free: (p) => !f.tuitionFree || p.tuition_per_year === 0,
     deadline: (p) => {
       if (!f.deadline) return true;
@@ -286,13 +290,15 @@ export function applyFilters(programs: ProgramSummary[], f: ProgramFilters, opti
 export function sortPrograms(programs: ProgramSummary[], sort: SortKey, today: ISODate): ProgramSummary[] {
   const sorted = [...programs];
   const deadlineOf = (p: ProgramSummary) => nextDeadline(p.intakes, today)?.deadline ?? "9999-12-31";
+  // Unknown amounts go last whichever way the list is sorted.
+  const byAmount = (a: number | null, b: number | null, dir: 1 | -1) => (a === null ? (b === null ? 0 : 1) : b === null ? -1 : (a - b) * dir);
   switch (sort) {
     case "cost_low":
-      return sorted.sort((a, b) => a.total_bdt - b.total_bdt);
+      return sorted.sort((a, b) => byAmount(a.total_bdt, b.total_bdt, 1));
     case "cost_high":
-      return sorted.sort((a, b) => b.total_bdt - a.total_bdt);
+      return sorted.sort((a, b) => byAmount(a.total_bdt, b.total_bdt, -1));
     case "tuition_low":
-      return sorted.sort((a, b) => a.tuition_per_year_bdt - b.tuition_per_year_bdt);
+      return sorted.sort((a, b) => byAmount(a.tuition_per_year_bdt, b.tuition_per_year_bdt, 1));
     case "deadline":
       return sorted.sort((a, b) => (deadlineOf(a) < deadlineOf(b) ? -1 : deadlineOf(a) > deadlineOf(b) ? 1 : 0));
     default:
@@ -348,7 +354,7 @@ export function facetCounts(programs: ProgramSummary[], f: ProgramFilters, optio
     levels: countBy(without("level"), (p) => p.degree_level),
     fieldGroups: countBy(without("fieldGroup"), (p) => p.field_group),
     fields: countBy(without("field"), (p) => p.field),
-    languages: countBy(without("language"), (p) => p.language),
+    languages: countBy(without("language"), (p) => p.language ?? undefined),
     intakeMonths: countBy(without("intake"), (p) => p.intakes.map((i) => String(i.month))),
     durations: countBy(without("duration"), (p) => durationOf(p.duration_months)),
     englishTests: countBy(without("englishTest"), (p) => p.english_tests.map((t) => t.test)),
@@ -366,8 +372,8 @@ export function facetCounts(programs: ProgramSummary[], f: ProgramFilters, optio
         return next !== null && next.deadline <= soon;
       }),
     },
-    budget: thresholds("budget", BUDGET_PRESETS_LAKH, (p) => p.total_bdt / 1e5),
-    tuition: thresholds("tuition", TUITION_PRESETS_LAKH, (p) => p.tuition_per_year_bdt / 1e5),
+    budget: thresholds("budget", BUDGET_PRESETS_LAKH, (p) => (p.total_bdt === null ? null : p.total_bdt / 1e5)),
+    tuition: thresholds("tuition", TUITION_PRESETS_LAKH, (p) => (p.tuition_per_year_bdt === null ? null : p.tuition_per_year_bdt / 1e5)),
     ielts: thresholds("ielts", IELTS_PRESETS, ieltsMin),
   };
 }

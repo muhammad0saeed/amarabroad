@@ -10,6 +10,7 @@ import { getCoverage, listCities, listCountries, listScholarships, listUniversit
 import { localizeDigits } from "@/lib/localize";
 import { formatBDT } from "@/lib/money";
 import { getCatalogue, getSearchOptions } from "@/lib/search";
+import { lowestTotal } from "@/lib/summary";
 import { initPage, type LocaleParams } from "@/lib/server";
 
 export default async function HomePage({ params }: LocaleParams) {
@@ -167,7 +168,7 @@ export default async function HomePage({ params }: LocaleParams) {
                     photo={c.photo}
                     stats={[
                       browse("programs", { count: inCountry.length }),
-                      ...(inCountry.length ? [browse("from", { amount: formatBDT(Math.min(...inCountry.map((p) => p.total_bdt)), locale) })] : []),
+                      ...(lowestTotal(inCountry) !== null ? [browse("from", { amount: formatBDT(lowestTotal(inCountry)!, locale) })] : []),
                     ]}
                   />
                 </li>

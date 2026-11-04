@@ -15,7 +15,19 @@
     "englishOnly": "Not available in Bangla yet, so it's shown in English.",
     "notForBd": "Not for BD citizens",
     "verifiedOn": "Last verified {date}",
-    "photoCredit": "Photo: {credit}"
+    "photoCredit": "Photo: {credit}",
+    "notFound": "Not found, check the official page",
+    "notFoundShort": "Not found",
+    "costUnknown": "Full cost not known yet",
+    "costGap": {
+      "tuition": "tuition isn't on the official page",
+      "duration": "the program length isn't on the official page",
+      "living": "living costs for this city aren't in our guide yet",
+      "rate": "we don't have an exchange rate for this currency yet"
+    },
+    "foundOn": "Found on the official page",
+    "checkedOn": "Checked {date}",
+    "robotNote": "Read automatically from the university's own website. Always confirm on the official page before you apply."
   },
   "header": {
     "skipToContent": "Skip to content",
@@ -253,7 +265,8 @@
     "officialBody": "Requirements and deadlines change. Our data was last verified on {date}; always confirm on the university's own page.",
     "officialLink": "Official program page",
     "reportWrong": "Report wrong info",
-    "shareResult": "Share your result"
+    "shareResult": "Share your result",
+    "costLivingShort": "Living costs"
   },
   "fit": {
     "title": "Your Fit Score",
@@ -381,7 +394,8 @@
       "otherLanguage": "Language: {requirement}",
       "threeYear": "3-year degree accepted: {answer}",
       "deadline": "Application deadline: {date}",
-      "warning": "This is sample data. Check the official page before deciding."
+      "warning": "This is sample data. Check the official page before deciding.",
+      "missing": "Some details weren't on the official page; check the link below."
     }
   },
   "forms": {

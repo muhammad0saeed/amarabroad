@@ -67,7 +67,7 @@ describe("filtering", () => {
     }
     // Everything that qualifies is included
     const expected = all.filter(
-      (p) => ["italy", "hungary"].includes(p.country.slug) && p.total_bdt <= 40e5 && p.accepts_3yr_bachelor && p.accepts_moi,
+      (p) => ["italy", "hungary"].includes(p.country.slug) && p.total_bdt! <= 40e5 && p.accepts_3yr_bachelor && p.accepts_moi,
     );
     expect(results.map((p) => p.slug).sort()).toEqual(expected.map((p) => p.slug).sort());
     expect(results.map((p) => p.slug)).not.toContain("stub-msc-computer-science");
@@ -103,8 +103,8 @@ describe("filtering", () => {
 describe("sorting", () => {
   it("sorts by total cost", () => {
     const low = run({ sort: "cost_low" }).map((p) => p.total_bdt);
-    expect(low).toEqual([...low].sort((a, b) => a - b));
-    expect(run({ sort: "cost_high" })[0]?.total_bdt).toBe(Math.max(...low));
+    expect(low).toEqual([...low].sort((a, b) => a! - b!));
+    expect(run({ sort: "cost_high" })[0]?.total_bdt).toBe(Math.max(...low.map(Number)));
   });
 
   it("sorts by next open deadline, closed intakes last", () => {
@@ -152,8 +152,8 @@ describe("new filters", () => {
   it("filters by university, type, tuition, duration, deadline and IELTS", () => {
     expect(run({ universities: ["sample-university-of-milan"] }).every((p) => p.university.slug === "sample-university-of-milan")).toBe(true);
     expect(run({ universityTypes: ["private"] }).every((p) => p.university.type === "private")).toBe(true);
-    expect(run({ maxTuitionLakh: 5 }).every((p) => p.tuition_per_year_bdt <= 5e5)).toBe(true);
-    expect(run({ durations: ["1y"] }).every((p) => p.duration_months <= 12)).toBe(true);
+    expect(run({ maxTuitionLakh: 5 }).every((p) => p.tuition_per_year_bdt! <= 5e5)).toBe(true);
+    expect(run({ durations: ["1y"] }).every((p) => p.duration_months! <= 12)).toBe(true);
     expect(run({ deadline: "open" }).every((p) => nextDeadline(p.intakes, TODAY) !== null)).toBe(true);
     const ielts = run({ maxIelts: 6 });
     expect(ielts.length).toBeGreaterThan(0);
@@ -167,6 +167,6 @@ describe("new filters", () => {
     expect(counts.countries.germany).toBe(all.filter((p) => p.country.slug === "germany" && p.degree_level === "master").length);
     expect(counts.levels.bachelor).toBe(all.filter((p) => p.country.slug === "italy" && p.degree_level === "bachelor").length);
     expect(counts.flags.moi).toBe(run(f).filter((p) => p.accepts_moi).length);
-    expect(counts.budget["40"]).toBe(run(f).filter((p) => p.total_bdt <= 40e5).length);
+    expect(counts.budget["40"]).toBe(run(f).filter((p) => p.total_bdt! <= 40e5).length);
   });
 });

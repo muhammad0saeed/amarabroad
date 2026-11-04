@@ -9,6 +9,7 @@ import { listCities, listCountries, listUniversities } from "@/lib/data";
 import { localizeDigits } from "@/lib/localize";
 import { formatBDT } from "@/lib/money";
 import { getCatalogue } from "@/lib/search";
+import { lowestTotal } from "@/lib/summary";
 import { initPage } from "@/lib/server";
 
 type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ q?: string; country?: string; type?: string; page?: string }> };
@@ -115,7 +116,7 @@ export default async function UniversitiesPage({ params, searchParams }: Props) 
                   <div className="flex-1" />
                   <div className="mt-4 flex items-center justify-between gap-2 border-t border-border pt-3 text-meta">
                     <span className="font-semibold">{t("programs", { count: own.length })}</span>
-                    {own.length > 0 && <span className="text-ink-muted">{t("from", { amount: formatBDT(Math.min(...own.map((p) => p.total_bdt)), locale) })}</span>}
+                    {lowestTotal(own) !== null && <span className="text-ink-muted">{t("from", { amount: formatBDT(lowestTotal(own)!, locale) })}</span>}
                   </div>
                 </article>
               </li>

@@ -155,8 +155,8 @@ function englishStatus(profile: StudentProfile, program: FitProgram): EnglishSta
 const onlyHsc = (profile: StudentProfile) => profile.field.startsWith("hsc-");
 
 /** The profile's relevant grade and the program's minimum, both on a 4.0 scale. */
-function gradesOnFourPoint(profile: StudentProfile, program: FitProgram): { yours: number | null; minimum: number } {
-  const { value, scale } = program.min_gpa_requirement;
+function gradesOnFourPoint(profile: StudentProfile, program: FitProgram): { yours: number | null; minimum: number | null } {
+  const requirement = program.min_gpa_requirement;
   const yours =
     program.degree_level === "bachelor"
       ? profile.hsc_gpa === null
@@ -165,7 +165,8 @@ function gradesOnFourPoint(profile: StudentProfile, program: FitProgram): { your
       : profile.cgpa === null || onlyHsc(profile)
         ? null
         : toFourPoint(profile.cgpa, profile.cgpa_scale);
-  return { yours, minimum: toFourPoint(value, scale) };
+  // No stated minimum: nothing to compare against (never a made-up minimum).
+  return { yours, minimum: requirement ? toFourPoint(requirement.value, requirement.scale) : null };
 }
 
 // ---------------------------------------------------------------- 1. eligibility gate
@@ -181,8 +182,10 @@ export function eligibilityGate(profile: StudentProfile, program: FitProgram): G
   }
 
   // Field: master's programs check the bachelor field; bachelor's programs check the HSC stream.
+  // When the page doesn't list qualifying subjects (common on robot-read pages), this check can't rule anyone out.
   const fieldListed = profile.field === program.field || program.related_bachelor_fields.includes(profile.field);
-  if (master ? !onlyHsc(profile) && !fieldListed : onlyHsc(profile) && !fieldListed) {
+  const fieldsKnown = program.related_bachelor_fields.length > 0;
+  if (fieldsKnown && (master ? !onlyHsc(profile) && !fieldListed : onlyHsc(profile) && !fieldListed)) {
     reasons.push({ code: "field_not_related", params: { field: profile.field } });
   }
 
@@ -195,11 +198,11 @@ export function eligibilityGate(profile: StudentProfile, program: FitProgram): G
     reasons.push({ code: "english_test_not_accepted", params: { test: english.test, accepted: english.accepted.join(",") } });
   }
 
-  if (!(master && onlyHsc(profile))) {
+  if (!(master && onlyHsc(profile)) && program.min_gpa_requirement) {
     const { yours, minimum } = gradesOnFourPoint(profile, program);
     const { value, scale } = program.min_gpa_requirement;
     if (yours === null) reasons.push({ code: "grade_missing", params: { scale } });
-    else if (yours < minimum - 1e-9) {
+    else if (minimum !== null && yours < minimum - 1e-9) {
       const shown = program.degree_level === "bachelor" ? profile.hsc_gpa! : profile.cgpa!;
       const shownScale = program.degree_level === "bachelor" ? 5 : profile.cgpa_scale;
       reasons.push({ code: "grade_below_minimum", params: { yours: shown, yoursScale: shownScale, min: value, scale } });
@@ -220,7 +223,7 @@ function scoreParts(profile: StudentProfile, program: FitProgram, ctx: FitContex
 
   // Academics: 20 for meeting the minimum, + up to 20 scaled by how far above it.
   const { yours, minimum } = gradesOnFourPoint(profile, program);
-  const above = Math.max(0, (yours ?? minimum) - minimum);
+  const above = minimum === null ? 0 : Math.max(0, (yours ?? minimum) - minimum);
   const academics = C.academics.base + Math.min(C.academics.bonusMax, (C.academics.bonusMax * above) / C.academics.fullBonusAbove);
 
   // English: 12 for meeting the minimum, + 4 per 0.5 IELTS band above it (max 8); MOI-only = 12.
@@ -255,7 +258,8 @@ function scoreParts(profile: StudentProfile, program: FitProgram, ctx: FitContex
   const extras = Math.min(C.extras.max, relevant * C.extras.perItem);
 
   return [
-    { key: "academics", points: Math.round(academics), max: C.academics.max, scored: true },
+    // Not scored when the program states no minimum grade.
+    { key: "academics", points: Math.round(academics), max: C.academics.max, scored: minimum !== null },
     { key: "english", points: englishPoints, max: C.english.max, scored: english.status !== "not_applicable" },
     { key: "field", points: field, max: C.field.max, scored: true },
     { key: "experience", points: experience, max: C.experience.max, scored: true },

@@ -2,7 +2,7 @@
 // Built on the server from the full data; client components only receive these.
 
 import type { DegreeLevel, EnglishTest, FieldGroup, GradeRequirement, Intake, ISODate, ProgramContext, TeachingLanguage } from "@/types";
-import { programCost } from "./cost";
+import { programCost, type CostGap } from "./cost";
 import type { RateTable } from "./money";
 
 export interface ProgramSummary {
@@ -13,19 +13,22 @@ export interface ProgramSummary {
   country: { slug: string; name_en: string; name_bn: string };
   degree_level: DegreeLevel;
   field: string;
-  language: TeachingLanguage;
+  language: TeachingLanguage | null;
   language_requirement_en?: string;
   language_requirement_bn?: string;
-  duration_months: number;
-  ects_credits: number;
+  duration_months: number | null;
+  ects_credits: number | null;
   currency: ProgramContext["program"]["currency"];
-  tuition_per_year: number;
-  tuition_per_year_bdt: number;
-  total_bdt: number;
-  first_year_bdt: number;
+  /** 0 = tuition-free; null = not found on the official page. */
+  tuition_per_year: number | null;
+  tuition_per_year_bdt: number | null;
+  /** Whole program in taka, living costs included; null when a part is unknown (see cost_gaps). */
+  total_bdt: number | null;
+  first_year_bdt: number | null;
+  cost_gaps: CostGap[];
   intakes: Intake[];
   seats_non_eu: number | null;
-  min_gpa_requirement: GradeRequirement;
+  min_gpa_requirement: GradeRequirement | null;
   english_tests: { test: EnglishTest; min_score: number }[];
   accepts_3yr_bachelor: boolean;
   accepts_moi: boolean;
@@ -60,8 +63,9 @@ export function summarizeProgram(ctx: ProgramContext, rates: RateTable): Program
     currency: p.currency,
     tuition_per_year: p.tuition_per_year,
     tuition_per_year_bdt: cost.bdt.tuitionPerYear,
-    total_bdt: Math.round(cost.bdt.total),
-    first_year_bdt: Math.round(cost.bdt.firstYear),
+    total_bdt: cost.bdt.total === null ? null : Math.round(cost.bdt.total),
+    first_year_bdt: cost.bdt.firstYear === null ? null : Math.round(cost.bdt.firstYear),
+    cost_gaps: cost.gaps,
     intakes: p.intakes,
     seats_non_eu: p.seats_non_eu,
     min_gpa_requirement: p.min_gpa_requirement,
@@ -83,4 +87,10 @@ export function nextDeadline(intakes: Intake[], today: ISODate): Intake | null {
       .filter((i) => i.deadline >= today)
       .sort((a, b) => (a.deadline < b.deadline ? -1 : a.deadline > b.deadline ? 1 : 0))[0] ?? null
   );
+}
+
+/** Lowest known total cost among these programs, or null when none is known ("From ৳ X" on lists). */
+export function lowestTotal(programs: Pick<ProgramSummary, "total_bdt">[]): number | null {
+  const known = programs.map((p) => p.total_bdt).filter((x): x is number => x !== null);
+  return known.length ? Math.min(...known) : null;
 }

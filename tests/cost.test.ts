@@ -40,12 +40,12 @@ describe("program cost in taka", () => {
   it("costs more with a studio than a shared room", async () => {
     const context = await ctx("sum-msc-computer-science");
     expect(monthlyLivingCost(context.city, "studio")).toBe(1437);
-    expect(programCost(context, rates, "studio").bdt.total).toBeGreaterThan(programCost(context, rates).bdt.total);
+    expect(programCost(context, rates, "studio").bdt.total!).toBeGreaterThan(programCost(context, rates).bdt.total!);
   });
 
   it("handles programs shorter than a year in the first-year figure", async () => {
     const c = programCost(await ctx("ebs-mba-international-business"), rates);
-    expect(c.bdt.firstYear).toBeCloseTo(c.bdt.total);
+    expect(c.bdt.firstYear).toBeCloseTo(c.bdt.total!);
   });
 });
 

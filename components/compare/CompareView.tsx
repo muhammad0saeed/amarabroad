@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 import { FitBadge } from "@/components/fit/FitScore";
 import { Icon } from "@/components/icons";
+import { NotFound } from "@/components/ui/NotFound";
 import { NextDeadline } from "@/components/ui/NextDeadline";
 import { ButtonLink, buttonClass, EmptyState, YesNoTag } from "@/components/ui/primitives";
 import { Link, useRouter } from "@/i18n/navigation";
@@ -80,12 +81,25 @@ export function CompareView({ programs, fitContext }: { programs: ProgramSummary
     [t("row.fit"), (x) => <FitBadge program={x} ctx={fitContext} />],
     [t("row.place"), (x) => `${name(x.city)}, ${name(x.country)}`],
     [t("row.level"), (x) => labels(`level.${x.degree_level}`)],
-    [t("row.duration"), (x) => p("months", { count: x.duration_months })],
-    [t("row.language"), (x) => labels(`lang.${x.language}`)],
-    [t("row.tuition"), (x) => (x.tuition_per_year === 0 ? p("tuitionFree") : <>{formatBDT(x.tuition_per_year_bdt, locale)}<span className="block text-ink-muted">{formatMoney(x.tuition_per_year, x.currency, locale)}</span></>)],
-    [t("row.total"), (x) => <strong>{formatBDT(x.total_bdt, locale)}</strong>],
-    [t("row.firstYear"), (x) => formatBDT(x.first_year_bdt, locale)],
-    [t("row.minGrade"), (x) => `${formatNumber(x.min_gpa_requirement.value, locale, 2)} / ${formatNumber(x.min_gpa_requirement.scale, locale)}`],
+    [t("row.duration"), (x) => (x.duration_months === null ? <NotFound /> : p("months", { count: x.duration_months }))],
+    [t("row.language"), (x) => (x.language === null ? <NotFound /> : labels(`lang.${x.language}`))],
+    [
+      t("row.tuition"),
+      (x) =>
+        x.tuition_per_year === null || x.currency === null ? (
+          <NotFound />
+        ) : x.tuition_per_year === 0 ? (
+          p("tuitionFree")
+        ) : (
+          <>
+            {x.tuition_per_year_bdt === null ? null : formatBDT(x.tuition_per_year_bdt, locale)}
+            <span className="block text-ink-muted">{formatMoney(x.tuition_per_year, x.currency, locale)}</span>
+          </>
+        ),
+    ],
+    [t("row.total"), (x) => (x.total_bdt === null ? <NotFound /> : <strong>{formatBDT(x.total_bdt, locale)}</strong>)],
+    [t("row.firstYear"), (x) => (x.first_year_bdt === null ? <NotFound /> : formatBDT(x.first_year_bdt, locale))],
+    [t("row.minGrade"), (x) => (x.min_gpa_requirement === null ? <NotFound /> : `${formatNumber(x.min_gpa_requirement.value, locale, 2)} / ${formatNumber(x.min_gpa_requirement.scale, locale)}`)],
     [t("row.ielts"), (x) => { const i = x.english_tests.find((e) => e.test === "ielts"); return i ? formatNumber(i.min_score, locale) : "—"; }],
     [t("row.moi"), (x) => <YesNoTag yes={x.accepts_moi}>{t(x.accepts_moi ? "yes" : "no")}</YesNoTag>],
     [t("row.threeYear"), (x) => (x.degree_level === "master" ? <YesNoTag yes={x.accepts_3yr_bachelor}>{t(x.accepts_3yr_bachelor ? "yes" : "no")}</YesNoTag> : "—")],

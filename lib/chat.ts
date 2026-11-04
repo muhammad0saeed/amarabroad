@@ -139,7 +139,13 @@ const yesNo = (value: boolean) => (value ? "yes" : "no");
 
 /** Text for "Copy question with program details", to paste into ChatGPT or Gemini. Always English. */
 export function copyPrompt(question: string, { program, university, city, country }: ProgramContext, siteName: string): string {
-  const tuition = program.tuition_per_year === 0 ? "none (tuition-free)" : `${formatMoney(program.tuition_per_year, program.currency)} per year`;
+  const NOT_FOUND = "not found on the official page";
+  const tuition =
+    program.tuition_per_year === null || program.currency === null
+      ? NOT_FOUND
+      : program.tuition_per_year === 0
+        ? "none (tuition-free)"
+        : `${formatMoney(program.tuition_per_year, program.currency)} per year`;
   const intakes = program.intakes
     .map((i) => `${MONTHS[i.month - 1]} ${i.year} intake, deadline ${i.deadline}`)
     .join("; ");
@@ -147,9 +153,8 @@ export function copyPrompt(question: string, { program, university, city, countr
     program.english_tests.length > 0
       ? program.english_tests.map((t) => `${TEST_NAMES[t.test]} ${t.min_score}`).join(", ")
       : (program.language_requirement_en ?? "not listed");
-  const grade = `${program.min_gpa_requirement.value} out of ${program.min_gpa_requirement.scale}${
-    program.min_gpa_requirement.local_note_en ? ` (${program.min_gpa_requirement.local_note_en})` : ""
-  }`;
+  const req = program.min_gpa_requirement;
+  const grade = req ? `${req.value} out of ${req.scale}${req.local_note_en ? ` (${req.local_note_en})` : ""}` : NOT_FOUND;
 
   return [
     "I'm a student from Bangladesh. Please answer my question about this study program.",
@@ -157,10 +162,10 @@ export function copyPrompt(question: string, { program, university, city, countr
     "",
     `Question: ${question.trim()}`,
     "",
-    `Program: ${program.title} (${program.degree_level === "master" ? "master's" : "bachelor's"}, ${program.duration_months} months, ${program.ects_credits} ECTS)`,
+    `Program: ${program.title} (${program.degree_level === "master" ? "master's" : "bachelor's"}, ${program.duration_months ?? "?"} months, ${program.ects_credits ?? "?"} ECTS)`,
     `University: ${university.name} (${university.type}), ${city.name_en}, ${country.name_en}`,
-    `Tuition: ${tuition}${program.other_fees_per_year ? `; other fees ${formatMoney(program.other_fees_per_year, program.currency)} per year` : ""}`,
-    `Intakes: ${intakes}`,
+    `Tuition: ${tuition}${program.other_fees_per_year ? `; other fees ${formatMoney(program.other_fees_per_year, program.currency ?? country.currency)} per year` : ""}`,
+    `Intakes: ${intakes || NOT_FOUND}`,
     `Minimum grade: ${grade}`,
     `English: ${english}; MOI accepted: ${yesNo(program.accepts_moi)}`,
     `3-year bachelor's accepted: ${yesNo(program.accepts_3yr_bachelor)}; provisional certificate accepted: ${yesNo(program.accepts_provisional)}`,

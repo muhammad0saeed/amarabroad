@@ -10,6 +10,7 @@ import { ProgramChat } from "@/components/program/ProgramChat";
 import { AddToCalendar } from "@/components/ui/AddToCalendar";
 import { DaysLeft } from "@/components/ui/DaysLeft";
 import { Badge, Breadcrumbs, Card, Disclosure, ExternalLink, Section } from "@/components/ui/primitives";
+import { NotFound } from "@/components/ui/NotFound";
 import { SampleBadge } from "@/components/ui/SampleBadge";
 import { Link } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
@@ -57,22 +58,28 @@ export default async function ProgramPage({ params }: Props) {
   const countryName = L === "bn" ? country.name_bn : country.name_en;
   const num = (v: number) => formatNumber(v, L, 2);
   const langReq = (L === "bn" && p.language_requirement_bn) || p.language_requirement_en;
+  // Languages beyond the ones we have labels for (the robot finds French, Dutch…) show their code.
+  const languageName = (code: string) => (labels.has(`lang.${code}`) ? labels(`lang.${code}`) : code.toUpperCase());
 
   // Bangla summary for parents, always in Bangla.
   const bn = await getTranslations({ locale: "bn", namespace: "parent" });
   const bnLabels = await getTranslations({ locale: "bn", namespace: "labels" });
   const bnYes = (v: boolean) => bn(v ? "yes" : "no");
-  const latest = [...p.intakes].sort((a, b) => (a.deadline < b.deadline ? -1 : 1)).at(-1)!;
+  const latest = [...p.intakes].sort((a, b) => (a.deadline < b.deadline ? -1 : 1)).at(-1);
   const ielts = p.english_tests.find((e) => e.test === "ielts");
+  // Lines for the facts we have, and one honest line for the rest (never a guessed value).
+  const missing =
+    p.duration_months === null || cost.bdt.total === null || p.tuition_per_year === null || !p.min_gpa_requirement || !latest || (!ielts && !p.language_requirement_bn);
   const parentText = [
     `${p.title} — ${u.name}, ${city.name_bn}, ${country.name_bn}`,
-    bn("line.level", { level: bnLabels(`level.${p.degree_level}`), months: localizeDigits(String(p.duration_months), "bn") }),
-    bn("line.total", { total: formatBDT(cost.bdt.total, "bn"), firstYear: formatBDT(cost.bdt.firstYear, "bn") }),
-    p.tuition_per_year === 0 ? bn("line.tuitionFree") : bn("line.tuition", { amount: formatBDT(cost.bdt.tuitionPerYear, "bn") }),
-    bn("line.grade", { value: formatNumber(p.min_gpa_requirement.value, "bn", 2), scale: formatNumber(p.min_gpa_requirement.scale, "bn") }),
-    ielts ? bn("line.english", { score: formatNumber(ielts.min_score, "bn"), moi: bnYes(p.accepts_moi) }) : bn("line.otherLanguage", { requirement: p.language_requirement_bn ?? "" }),
+    p.duration_months !== null ? bn("line.level", { level: bnLabels(`level.${p.degree_level}`), months: localizeDigits(String(p.duration_months), "bn") }) : "",
+    cost.bdt.total !== null && cost.bdt.firstYear !== null ? bn("line.total", { total: formatBDT(cost.bdt.total, "bn"), firstYear: formatBDT(cost.bdt.firstYear, "bn") }) : "",
+    p.tuition_per_year === 0 ? bn("line.tuitionFree") : cost.bdt.tuitionPerYear !== null ? bn("line.tuition", { amount: formatBDT(cost.bdt.tuitionPerYear, "bn") }) : "",
+    p.min_gpa_requirement ? bn("line.grade", { value: formatNumber(p.min_gpa_requirement.value, "bn", 2), scale: formatNumber(p.min_gpa_requirement.scale, "bn") }) : "",
+    ielts ? bn("line.english", { score: formatNumber(ielts.min_score, "bn"), moi: bnYes(p.accepts_moi) }) : p.language_requirement_bn ? bn("line.otherLanguage", { requirement: p.language_requirement_bn }) : "",
     p.degree_level === "master" ? bn("line.threeYear", { answer: bnYes(p.accepts_3yr_bachelor) }) : "",
-    bn("line.deadline", { date: formatDate(latest.deadline, "bn") }),
+    latest ? bn("line.deadline", { date: formatDate(latest.deadline, "bn") }) : "",
+    missing ? bn("line.missing") : "",
     bn("line.warning"),
     p.official_url,
   ]
@@ -127,23 +134,39 @@ export default async function ProgramPage({ params }: Props) {
       <section aria-label={t("totalCost")} className="overflow-hidden rounded-card bg-surface shadow-card">
         <div className="p-5">
           <p className="text-meta text-ink-muted">{t("totalCost")}</p>
-          <p className="mt-1 text-[2.25rem] leading-none font-bold tracking-[-0.03em] tabular-nums">{formatBDT(cost.bdt.total, L)}</p>
-          <p className="mt-2 text-meta text-ink-muted">{t("firstYear", { amount: formatBDT(cost.bdt.firstYear, L) })}</p>
+          {cost.bdt.total !== null && cost.bdt.firstYear !== null ? (
+            <>
+              <p className="mt-1 text-[2.25rem] leading-none font-bold tracking-[-0.03em] tabular-nums">{formatBDT(cost.bdt.total, L)}</p>
+              <p className="mt-2 text-meta text-ink-muted">{t("firstYear", { amount: formatBDT(cost.bdt.firstYear, L) })}</p>
+            </>
+          ) : (
+            <>
+              <p className="mt-1 text-heading font-bold">{common("costUnknown")}</p>
+              {/* Say exactly why, so nobody reads a partial number as the full cost. */}
+              <p className="mt-1 text-meta text-ink-muted">{cost.gaps.map((g) => common(`costGap.${g}`)).join(" · ")}</p>
+            </>
+          )}
         </div>
         <dl className="grid grid-cols-3 divide-x divide-border border-t border-border text-meta">
           <div className="p-3 sm:p-4">
             <dt className="text-ink-muted">{t("tuitionPerYear")}</dt>
-            <dd className="mt-0.5 font-semibold">{p.tuition_per_year === 0 ? t("tuitionFree") : formatBDT(cost.bdt.tuitionPerYear, L)}</dd>
-            {p.tuition_per_year !== 0 && <dd className="text-ink-muted">{formatMoney(p.tuition_per_year, p.currency, L)}</dd>}
+            {p.tuition_per_year === null || p.currency === null ? (
+              <dd className="mt-0.5"><NotFound /></dd>
+            ) : (
+              <>
+                <dd className="mt-0.5 font-semibold">{p.tuition_per_year === 0 ? t("tuitionFree") : cost.bdt.tuitionPerYear !== null ? formatBDT(cost.bdt.tuitionPerYear, L) : formatMoney(p.tuition_per_year, p.currency, L)}</dd>
+                {p.tuition_per_year !== 0 && cost.bdt.tuitionPerYear !== null && <dd className="text-ink-muted">{formatMoney(p.tuition_per_year, p.currency, L)}</dd>}
+              </>
+            )}
           </div>
           <div className="p-3 sm:p-4">
             <dt className="text-ink-muted">{t("duration")}</dt>
-            <dd className="mt-0.5 font-semibold">{t("months", { count: p.duration_months })}</dd>
-            <dd className="text-ink-muted">{localizeDigits(String(p.ects_credits), L)} ECTS</dd>
+            <dd className="mt-0.5 font-semibold">{p.duration_months === null ? <NotFound /> : t("months", { count: p.duration_months })}</dd>
+            {p.ects_credits !== null && <dd className="text-ink-muted">{localizeDigits(String(p.ects_credits), L)} ECTS</dd>}
           </div>
           <div className="p-3 sm:p-4">
             <dt className="text-ink-muted">{t("teaching")}</dt>
-            <dd className="mt-0.5 font-semibold">{labels(`lang.${p.language}`)}</dd>
+            <dd className="mt-0.5 font-semibold">{p.language === null ? <NotFound /> : languageName(p.language)}</dd>
             {langReq && <dd className="line-clamp-2 text-ink-muted">{langReq}</dd>}
           </div>
         </dl>
@@ -189,8 +212,14 @@ export default async function ProgramPage({ params }: Props) {
           <div>
             <h3 className="font-semibold">{t(p.degree_level === "bachelor" ? "minHsc" : "minCgpa")}</h3>
             <p className="mt-1">
-              {num(p.min_gpa_requirement.value)} / {num(p.min_gpa_requirement.scale)}
-              {p.min_gpa_requirement.local_note_en && <span className="text-ink-muted"> · {(L === "bn" && p.min_gpa_requirement.local_note_bn) || p.min_gpa_requirement.local_note_en}</span>}
+              {p.min_gpa_requirement ? (
+                <>
+                  {num(p.min_gpa_requirement.value)} / {num(p.min_gpa_requirement.scale)}
+                  {p.min_gpa_requirement.local_note_en && <span className="text-ink-muted"> · {(L === "bn" && p.min_gpa_requirement.local_note_bn) || p.min_gpa_requirement.local_note_en}</span>}
+                </>
+              ) : (
+                <NotFound long />
+              )}
             </p>
           </div>
           <div>
@@ -277,23 +306,37 @@ export default async function ProgramPage({ params }: Props) {
           <table className="w-full text-meta">
             <caption className="sr-only">{t("costTitle")}</caption>
             <tbody className="divide-y divide-border">
-              {[
-                [t("costTuition", { years: formatNumber(cost.years, L) }), cost.bdt.tuition, formatMoney(cost.tuitionTotal, p.currency, L)],
-                ...(cost.feesTotal ? [[t("costFees"), cost.bdt.fees, formatMoney(cost.feesTotal, p.currency, L)] as const] : []),
-                [t("costApplication"), cost.bdt.application, formatMoney(p.application_fee, p.currency, L)],
+              {(
                 [
-                  t("costLiving", { months: localizeDigits(String(p.duration_months), L), monthly: formatBDT(cost.bdt.livingMonthly, L) }),
-                  cost.bdt.living,
-                  formatMoney(cost.livingTotal, country.currency, L),
-                ],
-              ].map(([label, bdt, local]) => (
+                  [
+                    cost.years !== null ? t("costTuition", { years: formatNumber(cost.years, L) }) : t("tuitionPerYear"),
+                    cost.bdt.tuition,
+                    cost.tuitionTotal !== null && p.currency ? formatMoney(cost.tuitionTotal, p.currency, L) : null,
+                  ],
+                  ...(cost.feesTotal ? [[t("costFees"), cost.bdt.fees, formatMoney(cost.feesTotal, p.currency ?? country.currency, L)] as const] : []),
+                  [t("costApplication"), cost.bdt.application, formatMoney(p.application_fee, p.currency ?? country.currency, L)],
+                  [
+                    p.duration_months !== null && cost.bdt.livingMonthly !== null
+                      ? t("costLiving", { months: localizeDigits(String(p.duration_months), L), monthly: formatBDT(cost.bdt.livingMonthly, L) })
+                      : t("costLivingShort"),
+                    cost.bdt.living,
+                    cost.livingTotal !== null ? formatMoney(cost.livingTotal, country.currency, L) : null,
+                  ],
+                ] as const
+              ).map(([label, bdt, local]) => (
                 <tr key={String(label)}>
                   <th scope="row" className="py-2 pr-3 text-left font-normal">
                     {label}
                   </th>
                   <td className="py-2 text-right">
-                    <span className="font-semibold">{formatBDT(Number(bdt), L)}</span>
-                    <span className="block text-ink-muted">{local}</span>
+                    {bdt === null ? (
+                      <NotFound />
+                    ) : (
+                      <>
+                        <span className="font-semibold">{formatBDT(bdt, L)}</span>
+                        {local && <span className="block text-ink-muted">{local}</span>}
+                      </>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -301,7 +344,9 @@ export default async function ProgramPage({ params }: Props) {
                 <th scope="row" className="py-2 pr-3 text-left font-semibold">
                   {t("totalCost")}
                 </th>
-                <td className="py-2 text-right text-body font-bold">{formatBDT(cost.bdt.total, L)}</td>
+                <td className="py-2 text-right text-body font-bold">
+                  {cost.bdt.total !== null ? formatBDT(cost.bdt.total, L) : <span className="text-meta font-normal text-ink-muted">{common("costUnknown")}</span>}
+                </td>
               </tr>
             </tbody>
           </table>

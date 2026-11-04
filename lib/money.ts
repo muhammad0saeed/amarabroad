@@ -11,8 +11,15 @@ export function rateTable(rates: ExchangeRate[]): RateTable {
   return Object.fromEntries(rates.map((r) => [r.currency, r.bdt_per_unit])) as RateTable;
 }
 
+export function canConvert(currency: CurrencyCode | null | undefined, rates: RateTable): currency is CurrencyCode {
+  return !!currency && rates[currency] !== undefined;
+}
+
+/** Amount in taka. Throws for a currency without a rate: check canConvert first. */
 export function toBDT(amount: number, currency: CurrencyCode, rates: RateTable): number {
-  return amount * rates[currency];
+  const rate = rates[currency];
+  if (rate === undefined) throw new Error(`No exchange rate for ${currency}`);
+  return amount * rate;
 }
 
 /** 1234567 → "12,34,567" (lakh/crore grouping). */
@@ -53,14 +60,22 @@ export function formatBDT(amount: number, locale: AppLocale = "en", { compact = 
   return localizeDigits(`৳ ${body}`, locale);
 }
 
-const SYMBOLS: Record<CurrencyCode, { symbol: string; suffix: boolean }> = {
+const SYMBOLS: Record<string, { symbol: string; suffix: boolean }> = {
   EUR: { symbol: "€", suffix: false },
   HUF: { symbol: "Ft", suffix: true },
+  GBP: { symbol: "£", suffix: false },
+  USD: { symbol: "$", suffix: false },
+  CHF: { symbol: "CHF", suffix: true },
+  SEK: { symbol: "kr", suffix: true },
+  NOK: { symbol: "kr", suffix: true },
+  DKK: { symbol: "kr", suffix: true },
+  PLN: { symbol: "zł", suffix: true },
+  CZK: { symbol: "Kč", suffix: true },
 };
 
 /** Local currency: "€2,800", "160,000 Ft". */
 export function formatMoney(amount: number, currency: CurrencyCode, locale: AppLocale = "en"): string {
-  const { symbol, suffix } = SYMBOLS[currency];
+  const { symbol, suffix } = SYMBOLS[currency] ?? { symbol: currency, suffix: true };
   const number = formatWestern(amount, 2);
   return localizeDigits(suffix ? `${number} ${symbol}` : `${symbol}${number}`, locale);
 }

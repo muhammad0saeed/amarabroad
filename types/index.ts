@@ -4,9 +4,11 @@
 
 /** Calendar date, "YYYY-MM-DD". */
 export type ISODate = string;
-export type CurrencyCode = "EUR" | "HUF";
+/** ISO 4217 code. Stage 1 data used EUR and HUF; the robot adds whatever a university charges in. */
+export type CurrencyCode = string;
 export type DegreeLevel = "bachelor" | "master";
-export type TeachingLanguage = "en" | "it" | "de" | "hu";
+/** ISO 639-1 code; Stage 1 data used en/it/de/hu, the robot finds others too. */
+export type TeachingLanguage = string;
 export type EnglishTest = "ielts" | "toefl_ibt" | "pte" | "duolingo";
 
 /** Carried by every record, so pages can show where a fact came from and how fresh it is. */
@@ -43,8 +45,8 @@ export interface Country extends Provenance {
   education_system_bn?: string;
   post_study_work_en: string;
   post_study_work_bn?: string;
-  /** Hours a student may work per week during term. */
-  student_work_hours: number;
+  /** Hours a student may work per week during term; null when the guide isn't written yet. */
+  student_work_hours: number | null;
   student_work_note_en: string;
   student_work_note_bn?: string;
   /** Gross hourly minimum wage in local currency; null when the country has no national minimum. */
@@ -68,15 +70,15 @@ export interface City extends Provenance {
   country: string;
   overview_en: string;
   overview_bn?: string;
-  population_students: number;
-  // Monthly costs in the country's currency.
-  cost_rent_shared: number;
-  cost_rent_studio: number;
-  cost_food: number;
-  cost_transport: number;
-  cost_phone: number;
-  cost_insurance: number;
-  local_language_needed_for_jobs: LanguageNeed;
+  population_students: number | null;
+  // Monthly costs in the country's currency; null until the city guide is written.
+  cost_rent_shared: number | null;
+  cost_rent_studio: number | null;
+  cost_food: number | null;
+  cost_transport: number | null;
+  cost_phone: number | null;
+  cost_insurance: number | null;
+  local_language_needed_for_jobs: LanguageNeed | null;
   local_language_note_en: string;
   local_language_note_bn?: string;
   common_student_jobs: Bilingual[];
@@ -150,16 +152,17 @@ export interface Program extends Provenance {
   degree_level: DegreeLevel;
   /** Field slug (see fields.json). */
   field: string;
-  language: TeachingLanguage;
+  /** null when the robot couldn't find it on the official page. */
+  language: TeachingLanguage | null;
   /** Language level needed when teaching isn't in English, e.g. "German C1". */
   language_requirement_en?: string;
   language_requirement_bn?: string;
-  duration_months: number;
-  ects_credits: number;
-  /** Currency of tuition and fees. */
-  currency: CurrencyCode;
-  /** 0 = tuition-free. */
-  tuition_per_year: number;
+  duration_months: number | null;
+  ects_credits: number | null;
+  /** Currency of tuition and fees (null when tuition wasn't found). */
+  currency: CurrencyCode | null;
+  /** 0 = tuition-free; null = not found, which is NOT the same as free. */
+  tuition_per_year: number | null;
   /** Semester contributions and similar yearly fees, on top of tuition. */
   other_fees_per_year: number;
   application_fee: number;
@@ -167,7 +170,8 @@ export interface Program extends Provenance {
   seats_total: number | null;
   /** Seats for non-EU applicants; null = "Not published". */
   seats_non_eu: number | null;
-  min_gpa_requirement: GradeRequirement;
+  /** null = the official page doesn't state a minimum. */
+  min_gpa_requirement: GradeRequirement | null;
   accepts_3yr_bachelor: boolean;
   accepts_moi: boolean;
   /** Provisional certificate accepted (session jam). */

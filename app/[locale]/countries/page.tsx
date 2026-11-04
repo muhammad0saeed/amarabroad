@@ -5,6 +5,7 @@ import { PlaceCard } from "@/components/place/PlaceCard";
 import { listCities, listCountries, listUniversities } from "@/lib/data";
 import { formatBDT } from "@/lib/money";
 import { getCatalogue } from "@/lib/search";
+import { lowestTotal } from "@/lib/summary";
 import { initPage, type LocaleParams } from "@/lib/server";
 
 export async function generateMetadata({ params }: LocaleParams): Promise<Metadata> {
@@ -37,7 +38,7 @@ export default async function CountriesPage({ params }: LocaleParams) {
                 stats={[
                   t("programs", { count: inCountry.length }),
                   t("universities", { count: unis }),
-                  ...(inCountry.length ? [t("from", { amount: formatBDT(Math.min(...inCountry.map((p) => p.total_bdt)), locale) })] : []),
+                  ...(lowestTotal(inCountry) !== null ? [t("from", { amount: formatBDT(lowestTotal(inCountry)!, locale) })] : []),
                 ]}
               />
             </li>
