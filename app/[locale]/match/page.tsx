@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { MatchView } from "@/components/match/MatchView";
 import { PageHeader } from "@/components/ui/primitives";
-import { SampleBadge } from "@/components/ui/SampleBadge";
 import { getProfileFormOptions } from "@/lib/formOptions";
 import { getFieldInfo, getFitContext, getSummaries, initPage, type LocaleParams } from "@/lib/server";
 
@@ -16,7 +15,7 @@ export default async function MatchPage({ params }: LocaleParams) {
   const t = await getTranslations("match");
   return (
     <>
-      <PageHeader eyebrow={<SampleBadge />} title={t("title")} subtitle={t("subtitle")} />
+      <PageHeader title={t("title")} subtitle={t("subtitle")} />
       <MatchView programs={await getSummaries()} fields={await getFieldInfo()} fitContext={await getFitContext()} options={await getProfileFormOptions()} />
     </>
   );

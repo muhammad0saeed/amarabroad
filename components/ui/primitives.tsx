@@ -4,6 +4,7 @@ import type { ComponentProps, ReactNode } from "react";
 import { GROUP_ICON, Icon, type IconName } from "@/components/icons";
 import { Link } from "@/i18n/navigation";
 import type { FieldGroup, TileColor } from "@/types";
+import { SampleBadge } from "./SampleBadge";
 
 type Variant = "primary" | "secondary" | "ghost" | "soft";
 type Size = "md" | "sm";
@@ -141,7 +142,11 @@ export function ExternalLink({ href, children, className = "" }: { href: string;
 export function PageHeader({ eyebrow, title, subtitle, children }: { eyebrow?: ReactNode; title: string; subtitle?: ReactNode; children?: ReactNode }) {
   return (
     <header className="pt-2 pb-5">
-      {eyebrow && <div className="mb-2 flex flex-wrap items-center gap-2">{eyebrow}</div>}
+      {/* Every page shows the sample-data badge while Stage 1 runs on sample data. */}
+      <div className="mb-2 flex flex-wrap items-center gap-2">
+        <SampleBadge />
+        {eyebrow}
+      </div>
       <h1 className="text-title font-bold sm:text-display">{title}</h1>
       {subtitle && <p className="mt-2 max-w-prose text-ink-muted">{subtitle}</p>}
       {children}

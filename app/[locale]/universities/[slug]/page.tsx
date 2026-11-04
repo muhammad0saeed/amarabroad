@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { ProgramCard } from "@/components/program/ProgramCard";
 import { Badge, Breadcrumbs, Card, ExternalLink, Fact, PageHeader, Section, YesNoTag } from "@/components/ui/primitives";
-import { SampleBadge } from "@/components/ui/SampleBadge";
 import { Link } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 import { getCity, getCountry, getUniversity, listScholarshipsForUniversity, listUniversities } from "@/lib/data";
@@ -54,7 +53,6 @@ export default async function UniversityPage({ params }: Props) {
           title={u.name}
           eyebrow={
             <>
-              <SampleBadge />
               <Badge tone="primary">{labels(`universityType.${u.type}`)}</Badge>
               <Badge icon="clock">{common("verifiedOn", { date: formatDate(u.last_verified, locale) })}</Badge>
             </>

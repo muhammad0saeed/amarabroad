@@ -1,0 +1,39 @@
+# Apache settings for the static site on Hostever (cPanel). Copied into /out by `npm run build`.
+# If you protect the folder with cPanel "Directory Privacy", cPanel adds its own lines to this file:
+# keep them when you upload a new build (see README).
+
+# Our own 404 page
+ErrorDocument 404 /404.html
+
+# Always use https once the subdomain has an SSL certificate (AutoSSL in cPanel)
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{HTTPS} !=on
+  RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+</IfModule>
+
+# Keep it out of search engines while it's a private preview
+<IfModule mod_headers.c>
+  Header set X-Robots-Tag "noindex, nofollow"
+</IfModule>
+
+# Text files and prefetch data get the right types
+AddType text/plain .txt
+AddType font/woff2 .woff2
+AddDefaultCharset utf-8
+
+# Compress text (pages are 3–5× smaller over slow mobile data)
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/plain text/css text/javascript application/javascript application/json image/svg+xml
+</IfModule>
+
+# Scripts, styles and fonts have new file names on every build: cache them for a year.
+# Pages and prefetch data are re-checked every time, so a new upload shows straight away.
+<IfModule mod_headers.c>
+  <FilesMatch "\.(js|css|woff2)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+  <FilesMatch "\.(html|txt)$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+</IfModule>

@@ -4,7 +4,6 @@ import { Suspense } from "react";
 import { ProgramCard } from "@/components/program/ProgramCard";
 import { ProgramSearch } from "@/components/search/ProgramSearch";
 import { PageHeader } from "@/components/ui/primitives";
-import { SampleBadge } from "@/components/ui/SampleBadge";
 import { listCountries } from "@/lib/data";
 import { getFieldInfo, getFitContext, getSummaries, initPage, type LocaleParams } from "@/lib/server";
 
@@ -23,7 +22,7 @@ export default async function ProgramsPage({ params }: LocaleParams) {
 
   return (
     <>
-      <PageHeader eyebrow={<SampleBadge />} title={t("title")} subtitle={t("subtitle")} />
+      <PageHeader title={t("title")} subtitle={t("subtitle")} />
       {/* The static HTML shows the first programs right away; the full, filterable list takes over once the page loads. */}
       <Suspense
         fallback={

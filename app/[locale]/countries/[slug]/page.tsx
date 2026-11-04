@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { Icon } from "@/components/icons";
 import { Badge, ButtonLink, Card, ExternalLink, Fact, PageHeader, Section } from "@/components/ui/primitives";
-import { SampleBadge } from "@/components/ui/SampleBadge";
 import { Link } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 import { monthlyLivingCost } from "@/lib/cost";
@@ -45,7 +44,6 @@ export default async function CountryPage({ params }: Props) {
         title={t("title", { country: name })}
         eyebrow={
           <>
-            <SampleBadge />
             <Badge icon="clock">{common("verifiedOn", { date: formatDate(country.last_verified, locale) })}</Badge>
           </>
         }

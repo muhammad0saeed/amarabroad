@@ -5,7 +5,6 @@ import { Icon } from "@/components/icons";
 import { AddToCalendar } from "@/components/ui/AddToCalendar";
 import { DaysLeft } from "@/components/ui/DaysLeft";
 import { Badge, Card, ExternalLink, Fact, PageHeader, Section } from "@/components/ui/primitives";
-import { SampleBadge } from "@/components/ui/SampleBadge";
 import { Link } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 import { getScholarship, listCountries, listProgramContexts, listScholarships, listScholarshipsForProgram, listUniversities } from "@/lib/data";
@@ -52,7 +51,6 @@ export default async function ScholarshipPage({ params }: Props) {
         title={s.name}
         eyebrow={
           <>
-            <SampleBadge />
             <Badge tone={s.type === "need" ? "neutral" : "primary"}>{labels(`scholarshipType.${s.type}`)}</Badge>
             {s.bd_eligible ? <Badge tone="success" icon="check">{t("bdEligible")}</Badge> : <Badge tone="danger">{t("notBdEligible")}</Badge>}
           </>

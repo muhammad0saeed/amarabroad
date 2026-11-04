@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { Icon } from "@/components/icons";
 import { Badge, Breadcrumbs, Card, ExternalLink, Fact, IconTile, PageHeader, Section } from "@/components/ui/primitives";
-import { SampleBadge } from "@/components/ui/SampleBadge";
 import { Link } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 import { monthlyLivingCost } from "@/lib/cost";
@@ -57,7 +56,6 @@ export default async function CityPage({ params }: Props) {
           title={t("title", { city: cityName })}
           eyebrow={
             <>
-              <SampleBadge />
               <Badge icon="clock">{common("verifiedOn", { date: formatDate(city.last_verified, locale) })}</Badge>
             </>
           }
