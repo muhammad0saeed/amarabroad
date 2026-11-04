@@ -54,6 +54,9 @@ export default async function ProgramPage({ params }: Props) {
   const rates = await getRates();
   const cost = programCost(ctx, rates);
   const scholarships = await listScholarshipsForProgram(p.slug);
+  // Robot-read programs: the exact words on the official page behind each fact.
+  const evidence = DATA_SOURCE === "supabase" && p.origin === "robot" ? await (await import("@/lib/supabase/evidence")).getEvidence(p.slug) : {};
+  const sources = await getTranslations("sources");
   const fitContext = await getFitContext();
   const fieldNames = await getFieldNames();
   const field = (await getFieldInfo())[p.field];
@@ -192,6 +195,36 @@ export default async function ProgramPage({ params }: Props) {
           </li>
         ))}
       </ul>
+
+      {Object.keys(evidence).length > 0 && (
+        <Disclosure
+          id="sources"
+          summary={
+            <span className="flex items-center gap-2">
+              <Icon name="checkCircle" className="size-5 text-accent" />
+              {sources("title")} <span className="text-ink-muted">({localizeDigits(String(Object.keys(evidence).length), L)})</span>
+            </span>
+          }
+        >
+          <p className="text-meta text-ink-muted">{sources("intro")}</p>
+          <dl className="mt-3 divide-y divide-border">
+            {Object.entries(evidence).map(([field, e]) => (
+              <div key={field} className="py-3">
+                <dt className="text-meta font-semibold">{sources.has(`field.${field}`) ? sources(`field.${field}`) : field}</dt>
+                <dd className="mt-1 text-meta">
+                  <q className="text-ink">{e.quote}</q>
+                </dd>
+                <dd className="mt-1 flex flex-wrap items-center gap-x-2 text-[0.75rem] text-ink-muted">
+                  <a href={e.url} target="_blank" rel="noopener noreferrer" className="font-semibold text-primary-ink hover:underline">
+                    {new URL(e.url).hostname.replace(/^www\./, "")}
+                  </a>
+                  <span>· {sources("checked", { date: formatDate(e.date, L) })}</span>
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </Disclosure>
+      )}
 
       <ProgramPageActions slug={p.slug} title={p.title} />
 

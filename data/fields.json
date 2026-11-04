@@ -1,28 +1,191 @@
 [
-  { "slug": "cse", "name_en": "Computer Science & Engineering", "name_bn": "কম্পিউটার সায়েন্স ও ইঞ্জিনিয়ারিং", "group": "computing", "tile": "indigo" },
-  { "slug": "data-science", "name_en": "Data Science", "name_bn": "ডেটা সায়েন্স", "group": "computing", "tile": "indigo" },
-  { "slug": "eee", "name_en": "Electrical & Electronic Engineering", "name_bn": "ইলেকট্রিক্যাল ও ইলেকট্রনিক ইঞ্জিনিয়ারিং", "group": "engineering", "tile": "blue" },
-  { "slug": "civil", "name_en": "Civil Engineering", "name_bn": "সিভিল ইঞ্জিনিয়ারিং", "group": "engineering", "tile": "blue" },
-  { "slug": "mechanical", "name_en": "Mechanical Engineering", "name_bn": "মেকানিক্যাল ইঞ্জিনিয়ারিং", "group": "engineering", "tile": "blue" },
-  { "slug": "textile", "name_en": "Textile Engineering", "name_bn": "টেক্সটাইল ইঞ্জিনিয়ারিং", "group": "engineering", "tile": "blue" },
-  { "slug": "architecture", "name_en": "Architecture", "name_bn": "স্থাপত্য", "group": "design", "tile": "pink" },
-  { "slug": "business", "name_en": "Business Administration", "name_bn": "ব্যবসায় প্রশাসন", "group": "business", "tile": "amber" },
-  { "slug": "finance", "name_en": "Finance & Accounting", "name_bn": "ফিন্যান্স ও অ্যাকাউন্টিং", "group": "business", "tile": "amber" },
-  { "slug": "economics", "name_en": "Economics", "name_bn": "অর্থনীতি", "group": "social", "tile": "teal" },
-  { "slug": "social-sciences", "name_en": "Social Sciences", "name_bn": "সামাজিক বিজ্ঞান", "group": "social", "tile": "teal" },
-  { "slug": "english-humanities", "name_en": "English & Humanities", "name_bn": "ইংরেজি ও মানবিক", "group": "humanities", "tile": "pink" },
-  { "slug": "public-health", "name_en": "Public Health", "name_bn": "জনস্বাস্থ্য", "group": "health", "tile": "green" },
-  { "slug": "medicine", "name_en": "Medicine", "name_bn": "চিকিৎসাবিজ্ঞান", "group": "health", "tile": "green" },
-  { "slug": "pharmacy", "name_en": "Pharmacy", "name_bn": "ফার্মেসি", "group": "health", "tile": "green" },
-  { "slug": "microbiology", "name_en": "Microbiology", "name_bn": "মাইক্রোবায়োলজি", "group": "life_sciences", "tile": "green" },
-  { "slug": "biotechnology", "name_en": "Biotechnology", "name_bn": "বায়োটেকনোলজি", "group": "life_sciences", "tile": "green" },
-  { "slug": "agriculture", "name_en": "Agriculture", "name_bn": "কৃষি", "group": "life_sciences", "tile": "green" },
-  { "slug": "math-physics", "name_en": "Mathematics & Physics", "name_bn": "গণিত ও পদার্থবিজ্ঞান", "group": "natural_sciences", "tile": "indigo" },
-  { "slug": "chemistry", "name_en": "Chemistry", "name_bn": "রসায়ন", "group": "natural_sciences", "tile": "teal" },
-  { "slug": "general-science", "name_en": "General Science (pass course)", "name_bn": "সাধারণ বিজ্ঞান (পাস কোর্স)", "group": "natural_sciences", "tile": "teal" },
-  { "slug": "general-business", "name_en": "General Business (pass course)", "name_bn": "সাধারণ ব্যবসায় শিক্ষা (পাস কোর্স)", "group": "business", "tile": "amber" },
-  { "slug": "general-arts", "name_en": "General Arts & Social Science (pass course)", "name_bn": "সাধারণ কলা ও সামাজিক বিজ্ঞান (পাস কোর্স)", "group": "humanities", "tile": "pink" },
-  { "slug": "hsc-science", "name_en": "HSC Science", "name_bn": "এইচএসসি বিজ্ঞান", "group": "natural_sciences", "tile": "indigo" },
-  { "slug": "hsc-business", "name_en": "HSC Business Studies", "name_bn": "এইচএসসি ব্যবসায় শিক্ষা", "group": "business", "tile": "amber" },
-  { "slug": "hsc-humanities", "name_en": "HSC Humanities", "name_bn": "এইচএসসি মানবিক", "group": "humanities", "tile": "pink" }
+  {
+    "slug": "cse",
+    "name_en": "Computer Science & Engineering",
+    "name_bn": "কম্পিউটার সায়েন্স ও ইঞ্জিনিয়ারিং",
+    "group": "computing",
+    "tile": "indigo"
+  },
+  {
+    "slug": "data-science",
+    "name_en": "Data Science",
+    "name_bn": "ডেটা সায়েন্স",
+    "group": "computing",
+    "tile": "indigo"
+  },
+  {
+    "slug": "eee",
+    "name_en": "Electrical & Electronic Engineering",
+    "name_bn": "ইলেকট্রিক্যাল ও ইলেকট্রনিক ইঞ্জিনিয়ারিং",
+    "group": "engineering",
+    "tile": "blue"
+  },
+  {
+    "slug": "civil",
+    "name_en": "Civil Engineering",
+    "name_bn": "সিভিল ইঞ্জিনিয়ারিং",
+    "group": "engineering",
+    "tile": "blue"
+  },
+  {
+    "slug": "mechanical",
+    "name_en": "Mechanical Engineering",
+    "name_bn": "মেকানিক্যাল ইঞ্জিনিয়ারিং",
+    "group": "engineering",
+    "tile": "blue"
+  },
+  {
+    "slug": "textile",
+    "name_en": "Textile Engineering",
+    "name_bn": "টেক্সটাইল ইঞ্জিনিয়ারিং",
+    "group": "engineering",
+    "tile": "blue"
+  },
+  {
+    "slug": "architecture",
+    "name_en": "Architecture",
+    "name_bn": "স্থাপত্য",
+    "group": "design",
+    "tile": "pink"
+  },
+  {
+    "slug": "business",
+    "name_en": "Business Administration",
+    "name_bn": "ব্যবসায় প্রশাসন",
+    "group": "business",
+    "tile": "amber"
+  },
+  {
+    "slug": "finance",
+    "name_en": "Finance & Accounting",
+    "name_bn": "ফিন্যান্স ও অ্যাকাউন্টিং",
+    "group": "business",
+    "tile": "amber"
+  },
+  {
+    "slug": "economics",
+    "name_en": "Economics",
+    "name_bn": "অর্থনীতি",
+    "group": "social",
+    "tile": "teal"
+  },
+  {
+    "slug": "social-sciences",
+    "name_en": "Social Sciences",
+    "name_bn": "সামাজিক বিজ্ঞান",
+    "group": "social",
+    "tile": "teal"
+  },
+  {
+    "slug": "english-humanities",
+    "name_en": "English & Humanities",
+    "name_bn": "ইংরেজি ও মানবিক",
+    "group": "humanities",
+    "tile": "pink"
+  },
+  {
+    "slug": "public-health",
+    "name_en": "Public Health",
+    "name_bn": "জনস্বাস্থ্য",
+    "group": "health",
+    "tile": "green"
+  },
+  {
+    "slug": "medicine",
+    "name_en": "Medicine",
+    "name_bn": "চিকিৎসাবিজ্ঞান",
+    "group": "health",
+    "tile": "green"
+  },
+  {
+    "slug": "pharmacy",
+    "name_en": "Pharmacy",
+    "name_bn": "ফার্মেসি",
+    "group": "health",
+    "tile": "green"
+  },
+  {
+    "slug": "microbiology",
+    "name_en": "Microbiology",
+    "name_bn": "মাইক্রোবায়োলজি",
+    "group": "life_sciences",
+    "tile": "green"
+  },
+  {
+    "slug": "biotechnology",
+    "name_en": "Biotechnology",
+    "name_bn": "বায়োটেকনোলজি",
+    "group": "life_sciences",
+    "tile": "green"
+  },
+  {
+    "slug": "agriculture",
+    "name_en": "Agriculture",
+    "name_bn": "কৃষি",
+    "group": "life_sciences",
+    "tile": "green"
+  },
+  {
+    "slug": "math-physics",
+    "name_en": "Mathematics & Physics",
+    "name_bn": "গণিত ও পদার্থবিজ্ঞান",
+    "group": "natural_sciences",
+    "tile": "indigo"
+  },
+  {
+    "slug": "chemistry",
+    "name_en": "Chemistry",
+    "name_bn": "রসায়ন",
+    "group": "natural_sciences",
+    "tile": "teal"
+  },
+  {
+    "slug": "earth-sciences",
+    "name_en": "Earth Sciences",
+    "name_bn": "ভূবিজ্ঞান",
+    "group": "natural_sciences",
+    "tile": "teal"
+  },
+  {
+    "slug": "general-science",
+    "name_en": "General Science (pass course)",
+    "name_bn": "সাধারণ বিজ্ঞান (পাস কোর্স)",
+    "group": "natural_sciences",
+    "tile": "teal"
+  },
+  {
+    "slug": "general-business",
+    "name_en": "General Business (pass course)",
+    "name_bn": "সাধারণ ব্যবসায় শিক্ষা (পাস কোর্স)",
+    "group": "business",
+    "tile": "amber"
+  },
+  {
+    "slug": "general-arts",
+    "name_en": "General Arts & Social Science (pass course)",
+    "name_bn": "সাধারণ কলা ও সামাজিক বিজ্ঞান (পাস কোর্স)",
+    "group": "humanities",
+    "tile": "pink"
+  },
+  {
+    "slug": "hsc-science",
+    "name_en": "HSC Science",
+    "name_bn": "এইচএসসি বিজ্ঞান",
+    "group": "natural_sciences",
+    "tile": "indigo"
+  },
+  {
+    "slug": "hsc-business",
+    "name_en": "HSC Business Studies",
+    "name_bn": "এইচএসসি ব্যবসায় শিক্ষা",
+    "group": "business",
+    "tile": "amber"
+  },
+  {
+    "slug": "hsc-humanities",
+    "name_en": "HSC Humanities",
+    "name_bn": "এইচএসসি মানবিক",
+    "group": "humanities",
+    "tile": "pink"
+  }
 ]

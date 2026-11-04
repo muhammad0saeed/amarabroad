@@ -933,5 +933,31 @@
     "count": "{count, plural, =0 {No results} one {# result} other {# results}}",
     "viewPrograms": "See programs",
     "ranked": "Ranked {rank}"
+  },
+  "sources": {
+    "title": "Where these facts come from",
+    "intro": "Read automatically from the university's own website, with the exact words each fact was taken from. Always confirm on the official page before you apply.",
+    "checked": "checked {date}",
+    "open": "Open page",
+    "field": {
+      "degree_level": "Degree level",
+      "duration_months": "Length",
+      "ects_credits": "Credits",
+      "language": "Teaching language",
+      "language_requirement_en": "Language level",
+      "tuition_per_year": "Tuition",
+      "currency": "Currency",
+      "other_fees_per_year": "Other fees",
+      "application_fee": "Application fee",
+      "intakes": "Deadlines",
+      "english_tests": "English tests",
+      "accepts_moi": "MOI",
+      "accepts_3yr_bachelor": "3-year degree",
+      "accepts_provisional": "Early application",
+      "min_gpa_requirement": "Minimum grade",
+      "seats_total": "Seats",
+      "seats_non_eu": "Seats for non-EU",
+      "required_documents": "Documents"
+    }
   }
 }

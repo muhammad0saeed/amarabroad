@@ -933,5 +933,31 @@
     "count": "{count, plural, =0 {কিছু নেই} other {# টি ফলাফল}}",
     "viewPrograms": "প্রোগ্রাম দেখুন",
     "ranked": "র‍্যাংক {rank}"
+  },
+  "sources": {
+    "title": "এই তথ্য কোথা থেকে",
+    "intro": "বিশ্ববিদ্যালয়ের নিজের ওয়েবসাইট থেকে স্বয়ংক্রিয়ভাবে পড়া, প্রতিটি তথ্য যে হুবহু শব্দ থেকে নেওয়া সেটিসহ। আবেদনের আগে সবসময় অফিসিয়াল পেজে মিলিয়ে নিন।",
+    "checked": "যাচাই {date}",
+    "open": "পেজ খুলুন",
+    "field": {
+      "degree_level": "ডিগ্রির স্তর",
+      "duration_months": "মেয়াদ",
+      "ects_credits": "ক্রেডিট",
+      "language": "পড়ানোর ভাষা",
+      "language_requirement_en": "ভাষার স্তর",
+      "tuition_per_year": "টিউশন",
+      "currency": "মুদ্রা",
+      "other_fees_per_year": "অন্যান্য ফি",
+      "application_fee": "আবেদন ফি",
+      "intakes": "ডেডলাইন",
+      "english_tests": "ইংরেজি টেস্ট",
+      "accepts_moi": "MOI",
+      "accepts_3yr_bachelor": "৩ বছরের ডিগ্রি",
+      "accepts_provisional": "আগাম আবেদন",
+      "min_gpa_requirement": "ন্যূনতম গ্রেড",
+      "seats_total": "আসন",
+      "seats_non_eu": "নন-ইইউ আসন",
+      "required_documents": "কাগজপত্র"
+    }
   }
 }

@@ -5,7 +5,7 @@
 
 import "server-only";
 import Fuse from "fuse.js";
-import { dataVersion, listCities, listCountries, listFields, listProgramContexts, listScholarships, listUniversities } from "./data";
+import { DATA_SOURCE, dataVersion, listCities, listCountries, listFields, listProgramContexts, listScholarships, listUniversities } from "./data";
 import { applyFilters, facetCounts, PAGE_SIZE, type FacetCounts, type ProgramFilters } from "./filters";
 import { getRates } from "./server";
 import { summarizeProgram, type ProgramSummary } from "./summary";
@@ -21,7 +21,15 @@ export interface SearchOptions {
   intakeMonths: number[];
 }
 
+/** Where a program's official page matched the search words («marked»). */
+export interface PageSnippet {
+  text: string;
+  url: string;
+}
+
 export interface SearchResult {
+  /** Program slug → the matching passage on its official page (live data only). */
+  snippets: Record<string, PageSnippet>;
   items: ProgramSummary[];
   total: number;
   page: number;
@@ -109,8 +117,24 @@ export async function getCatalogue(): Promise<ProgramSummary[]> {
 
 export async function searchPrograms(filters: ProgramFilters, today: string, pageSize = PAGE_SIZE): Promise<SearchResult> {
   const { programs, fuse, fieldNames } = await loadCatalogue();
-  // Fuzzy text match first (typos, Bangla names), ranked by score; filters then narrow it down.
-  const pool = filters.q ? fuse.search(filters.q).map((r) => r.item) : programs;
+  // Fuzzy text match first (typos, Bangla names), ranked by score. With live data, programs whose
+  // official page contains the words come next, with a snippet showing where. Filters then narrow it down.
+  let pool = filters.q ? fuse.search(filters.q).map((r) => r.item) : programs;
+  const snippets: Record<string, PageSnippet> = {};
+  if (filters.q && DATA_SOURCE === "supabase") {
+    const { searchPages } = await import("./supabase/evidence");
+    const bySlug = new Map(programs.map((p) => [p.slug, p]));
+    const inPool = new Set(pool.map((p) => p.slug));
+    for (const hit of await searchPages(filters.q)) {
+      const program = bySlug.get(hit.program);
+      if (!program) continue;
+      snippets[hit.program] ??= { text: hit.snippet, url: hit.url };
+      if (!inPool.has(hit.program)) {
+        pool = [...pool, program];
+        inPool.add(hit.program);
+      }
+    }
+  }
   const options = { today, fieldNames, skipText: Boolean(filters.q) };
   const matched = applyFilters(pool, filters, options);
   const pageCount = Math.max(1, Math.ceil(matched.length / pageSize));
@@ -121,5 +145,6 @@ export async function searchPrograms(filters: ProgramFilters, today: string, pag
     page,
     pageCount,
     facets: facetCounts(pool, filters, options),
+    snippets,
   };
 }

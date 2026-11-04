@@ -4,6 +4,7 @@ import { ExploreTabs } from "@/components/explore/ExploreTabs";
 import { FitBadge } from "@/components/fit/FitScore";
 import { ProgramCard } from "@/components/program/ProgramCard";
 import { FilterPanel } from "@/components/search/FilterPanel";
+import { PageSnippet } from "@/components/search/PageSnippet";
 import { ActiveFilters, MobileFilters, SearchBar, SortSelect } from "@/components/search/SearchControls";
 import { ResultsRegion, SearchProvider } from "@/components/search/SearchState";
 import { Pagination } from "@/components/ui/Pagination";
@@ -85,7 +86,13 @@ export default async function ProgramsPage({ params, searchParams }: Props) {
               <ul className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">
                 {result.items.map((p) => (
                   <li key={p.slug}>
-                    <ProgramCard program={p} field={fields[p.field]} fit={<FitBadge program={p} ctx={fitContext} />} headingLevel="h3" />
+                    <ProgramCard
+                      program={p}
+                      field={fields[p.field]}
+                      fit={<FitBadge program={p} ctx={fitContext} />}
+                      headingLevel="h3"
+                      snippet={result.snippets[p.slug] ? <PageSnippet {...result.snippets[p.slug]!} /> : undefined}
+                    />
                   </li>
                 ))}
               </ul>

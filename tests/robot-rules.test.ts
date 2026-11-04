@@ -145,3 +145,31 @@ describe("subject from the title, not the degree name", () => {
     expect(subjectOf("Mathematics – Bachelor of Science (B.Sc.)")).toBe("math-physics");
   });
 });
+
+describe("programs taught in two languages", () => {
+  it("leads with the non-English language and says both", () => {
+    const f = readFacts([{ url: "https://u.de/x", text: "Robotics (M.Sc.)\nRequired Language Proficiency\n•\nGerman\n•\nEnglish\nCredits\n120 ECTS", meta: pageMeta("<title>Robotics (M.Sc.) - U</title><h1>Robotics (M.Sc.)</h1>") }], "2026-11-05");
+    expect(f.teaching_language?.value).toBe("de");
+    expect(f.language_requirement?.value).toBe("Taught in German and English");
+  });
+
+  it("keeps a single English listing as English", () => {
+    const f = readFacts([{ url: "https://u.de/x", text: "Informatics (M.Sc.)\nRequired Language Proficiency\n•\nEnglish\nCredits\n120 ECTS", meta: pageMeta("<title>Informatics (M.Sc.) - U</title>") }], "2026-11-05");
+    expect(f.teaching_language?.value).toBe("en");
+    expect(f.language_requirement).toBeNull();
+  });
+});
+
+describe("subjects for titles the first TUM run couldn't place", () => {
+  it.each([
+    ["Computational Science and Engineering (CSE) – Master of Science (M.Sc.)", "cse"],
+    ["Information Engineering (at TUM Campus Heilbronn) – Bachelor of Science (B.Sc.)", "cse"],
+    ["Rail and Urban Transport – Master of Science (M.Sc.)", "civil"],
+    ["Geodesy and Geoinformation – Bachelor of Science (B.Sc.)", "civil"],
+    ["Neuroengineering – Master of Science (M.Sc.)", "biotechnology"],
+    ["Engineering Science – Bachelor of Science (B.Sc.)", "mechanical"],
+    ["Geosciences – Bachelor of Science (B.Sc.)", "earth-sciences"],
+  ])("%s → %s", (title, slug) => {
+    expect(subjectOf(title)).toBe(slug);
+  });
+});

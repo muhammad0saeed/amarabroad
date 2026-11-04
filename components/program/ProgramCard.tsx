@@ -17,7 +17,20 @@ export interface FieldInfo {
 }
 
 /** One program in a list. Read top to bottom: what, where, what it costs, does my degree fit, when to apply. */
-export function ProgramCard({ program: p, field, fit, headingLevel = "h3" }: { program: ProgramSummary; field?: FieldInfo; fit?: ReactNode; headingLevel?: "h2" | "h3" }) {
+export function ProgramCard({
+  program: p,
+  field,
+  fit,
+  headingLevel = "h3",
+  snippet,
+}: {
+  program: ProgramSummary;
+  field?: FieldInfo;
+  fit?: ReactNode;
+  headingLevel?: "h2" | "h3";
+  /** Where a search matched the program's official page. */
+  snippet?: ReactNode;
+}) {
   const t = useTranslations("program");
   const labels = useTranslations("labels");
   const common = useTranslations("common");
@@ -123,6 +136,7 @@ export function ProgramCard({ program: p, field, fit, headingLevel = "h3" }: { p
         </ul>
       )}
 
+      {snippet}
       <div className="flex-1" />
       <div className="relative z-10 mt-4 flex items-center justify-between gap-2 border-t border-border pt-3">
         <div className="flex min-w-0 flex-wrap items-center gap-2">

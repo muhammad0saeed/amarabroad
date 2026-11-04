@@ -202,19 +202,33 @@ const LANGS: [RegExp, string][] = [
 ];
 const LANG_KEY = /(language of instruction|teaching language|instruction language|language of the program|taught (entirely |fully )?in|courses? (are )?(held|taught) in|unterrichtssprache|lehrsprache|lingua (di insegnamento|del corso)|oktatási nyelv|required language proficiency|study language)/i;
 
-function teachingLanguage(lines: string[]): ProgramFacts["teaching_language"] {
+/** The teaching language, plus every language named (["de", "en"] for "German and English"). */
+function teachingLanguages(lines: string[]): { fact: NonNullable<ProgramFacts["teaching_language"]>; all: string[] } | null {
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i]!;
-    if (/english[- ]taught|taught (entirely |fully )?in english|100 ?% english/i.test(line)) return { value: "en", quote: line.slice(0, 220) };
+    if (/english[- ]taught|taught (entirely |fully )?in english|100 ?% english/i.test(line)) return { fact: { value: "en", quote: line.slice(0, 220) }, all: ["en"] };
     if (!LANG_KEY.test(line)) continue;
-    for (let j = i; j <= Math.min(i + 3, lines.length - 1); j++) {
-      const langs = LANGS.filter(([re]) => re.test(lines[j]!));
-      // "English and German" is ambiguous for us: report the first, which is how pages list the main one.
-      if (langs.length) return { value: langs[0]![1], quote: quoteOf(lines, i, j) };
+    // Lists split over lines ("Required Language Proficiency / • German / • English"): read a few lines together.
+    for (let j = i; j <= Math.min(i + 5, lines.length - 1); j++) {
+      const window = lines.slice(i, j + 1).join(" ");
+      // In the order the page names them.
+      const langs = LANGS.map(([re, code]) => ({ code, at: window.search(re) }))
+        .filter((x) => x.at >= 0)
+        .sort((a, b) => a.at - b.at)
+        .map((x) => x.code);
+      // Keep reading while one of the next two short lines (bullets in between) names another language.
+      const ahead = lines.slice(j + 1, j + 3).filter((l) => l.length < 40).join(" ");
+      if (langs.length && !(j < i + 5 && LANGS.some(([re]) => re.test(ahead)))) {
+        // Taught partly in another language: that language is what a student must have, so it leads.
+        const lead = langs.find((c) => c !== "en") ?? langs[0]!;
+        return { fact: { value: lead, quote: quoteOf(lines, i, j) }, all: [...new Set(langs)] };
+      }
     }
   }
   return null;
 }
+
+const LANGUAGE_NAMES: Record<string, string> = { en: "English", de: "German", it: "Italian", hu: "Hungarian", fr: "French", es: "Spanish", nl: "Dutch" };
 
 function languageRequirement(lines: string[], lang: string | undefined): ProgramFacts["language_requirement"] {
   if (!lang || lang === "en") return null;
@@ -403,10 +417,10 @@ export const SUBJECTS: [string, RegExp][] = [
   // Electrical before computing ("Electrical Engineering and Information Technology"), and
   // biotechnology before computing ("Bioinformatics").
   ["eee", /electrical|electronic|elektrotechnik|communications? engineering|telecommunication|power engineering|microelectronics|integrated circuit|embedded systems/i],
-  ["biotechnology", /biotechnolog|bioengineering|bioinformatics|biomedical engineering/i],
-  ["cse", /computer science|informatics|informatik|informatica|software|computing|computer engineering|cyber ?security|information (technology|systems)|\bict\b|robotics and ai/i],
-  ["civil", /civil engineering|structural|bauingenieur|construction|geotechnic|transportation|environmental engineering|water/i],
-  ["mechanical", /mechanical|mechatronic|maschinenbau|automotive|aerospace|aeronautic|production|manufacturing|robotics|energy engineering|industrial engineering|materials engineering/i],
+  ["biotechnology", /biotechnolog|bioengineering|bioinformatics|biomedical engineering|neuroengineering|neuro ?technology/i],
+  ["cse", /computer science|informatics|informatik|informatica|software|computing|computational|computer engineering|cyber ?security|information (technology|systems|engineering)|\bict\b|robotics and ai/i],
+  ["civil", /civil engineering|structural|bauingenieur|construction|geotechnic|transport|geodesy|geoinformat|surveying|environmental engineering|water/i],
+  ["mechanical", /mechanical|mechatronic|maschinenbau|automotive|aerospace|aeronautic|production|manufacturing|robotics|energy engineering|industrial engineering|materials engineering|engineering science/i],
   ["textile", /textile|fashion/i],
   ["architecture", /architect|urban (planning|design)|landscape|interior design|spatial planning/i],
   ["public-health", /public health|global health|epidemiolog|health (management|policy|economics|sciences)/i],
@@ -418,6 +432,7 @@ export const SUBJECTS: [string, RegExp][] = [
   ["microbiology", /microbio|molecular|biology|biolog|life sciences?|neuroscience|biochem|genetics/i],
   ["agriculture", /agricult|agronom|food|forest|horticult|nutrition|veterinary/i],
   ["chemistry", /chemi|materials science|polymer/i],
+  ["earth-sciences", /geoscien|geolog|earth science|geophysic|meteorolog|climate science|oceanograph/i],
   ["math-physics", /mathemat|physics|statistic|astro|quantum/i],
   ["social-sciences", /responsibility|ethics|society|science and technology studies|sociolog|political|politics|international relations|psycholog|public policy|social|communication|media|journalism|law|legal|education/i],
   ["english-humanities", /english|literature|linguistic|history|philosoph|language|cultural|humanities|arts|music|theolog/i],
@@ -471,8 +486,13 @@ export function readFacts(pages: RulePage[], today: string): ProgramFacts {
   f.title = programTitle(main.meta);
   f.duration_months = duration(lines);
   f.ects_credits = ects(lines);
-  f.teaching_language = teachingLanguage(lines);
+  const languages = teachingLanguages(lines);
+  f.teaching_language = languages?.fact ?? null;
   f.language_requirement = languageRequirement(lines, f.teaching_language?.value);
+  // "German and English" with no level stated: say so, since the student needs both.
+  if (!f.language_requirement && languages && languages.all.length > 1) {
+    f.language_requirement = { value: `Taught in ${languages.all.map((c) => LANGUAGE_NAMES[c] ?? c).join(" and ")}`, quote: languages.fact.quote };
+  }
   f.tuition = tuition(lines);
   f.other_fees_per_year = otherFees(lines);
   f.application_fee = applicationFee(lines);
