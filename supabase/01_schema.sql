@@ -5,8 +5,8 @@
 --   published    only published rows reach the public site
 --   origin       where the row came from: 'sample' (Stage 1), 'robot' (the data robot), 'admin' (typed in /admin)
 --   updated_at   set automatically on every change
--- Columns the robot may not find yet are nullable; a row can only be published once it's complete
--- (see the *_complete checks), so the site never shows a half-filled program.
+-- Columns the robot may not find yet are nullable. The *_complete checks set the minimum a row needs
+-- before it can be published.
 
 -- Trigram search (typo-tolerant title search), kept in Supabase's extensions schema.
 create schema if not exists extensions;
@@ -210,10 +210,10 @@ create table if not exists public.programs (
   -- Filled in by trigger from english_tests / intakes, so filters can use plain indexes.
   ielts_min numeric(3,1),
   intake_months smallint[] not null default '{}',
+  -- A directory listing needs a subject and a check date; facts the robot couldn't find stay empty and
+  -- the site shows "Not found, check the official page". Tuition needs its currency.
   constraint programs_complete check (not published or (
-    field is not null and language is not null and duration_months is not null and currency is not null
-    and tuition_per_year is not null and jsonb_array_length(intakes) > 0
-    and last_verified is not null
+    field is not null and last_verified is not null and (tuition_per_year is null or currency is not null)
   ))
 );
 create index if not exists programs_university_idx on public.programs (university);

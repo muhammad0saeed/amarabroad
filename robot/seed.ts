@@ -60,7 +60,8 @@ export async function wikidataUniversities(iso: string, limit: number): Promise<
     FILTER NOT EXISTS { ?uni wdt:P576 [] }
     ?uni rdfs:label ?name FILTER(lang(?name) = "en")
     BIND(IF(EXISTS { ?uni wdt:P31 wd:Q902104 }, "1", "0") AS ?private)
-    OPTIONAL { ?uni wdt:P131 ?city. ?city rdfs:label ?cityEn FILTER(lang(?cityEn) = "en") OPTIONAL { ?city rdfs:label ?cityBn FILTER(lang(?cityBn) = "bn") } }
+    # The city must be in this country: schools with campuses abroad (e.g. ESCP) list foreign cities too.
+    OPTIONAL { ?uni wdt:P131 ?city. ?city wdt:P17 wd:${qid}. ?city rdfs:label ?cityEn FILTER(lang(?cityEn) = "en") OPTIONAL { ?city rdfs:label ?cityBn FILTER(lang(?cityBn) = "bn") } }
   }`)
   ).map((r) => ({ ...r, links: links.get(r.uni!.value)! }));
   // Most Wikipedia languages first: a decent stand-in for how well known a university is.

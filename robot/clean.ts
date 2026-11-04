@@ -107,6 +107,8 @@ export interface PageMeta {
   jsonLd: Record<string, unknown>[];
   /** The English version of this page, when the page lists one (<link rel="alternate" hreflang="en">). */
   english: string | null;
+  /** The page's own clean address (<link rel="canonical">), without tracking parameters. */
+  canonical: string | null;
 }
 
 function englishAlternate(html: string): string | null {
@@ -150,5 +152,6 @@ export function pageMeta(html: string): PageMeta {
     lang: (html.match(/<html[^>]*\blang=["']([a-zA-Z-]+)["']/i)?.[1] ?? "").toLowerCase().slice(0, 2),
     jsonLd,
     english: englishAlternate(html),
+    canonical: html.match(/<link\b[^>]*rel=["']canonical["'][^>]*href=["'](https?:\/\/[^"']+)["']/i)?.[1] ?? html.match(/<link\b[^>]*href=["'](https?:\/\/[^"']+)["'][^>]*rel=["']canonical["']/i)?.[1] ?? null,
   };
 }

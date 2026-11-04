@@ -163,7 +163,8 @@ function duration(lines: string[]): ProgramFacts["duration_months"] {
   for (let i = 0; i < lines.length; i++) {
     if (!DURATION_KEY.test(lines[i]!)) continue;
     for (let j = i; j <= Math.min(i + 4, lines.length - 1); j++) {
-      const m = lines[j]!.match(DURATION);
+      // Pages split "4" and "semesters" over lines (bullets, table cells): read the lines so far as one.
+      const m = lines.slice(i, j + 1).join(" ").match(DURATION);
       if (!m) continue;
       const n = WORD_NUMBERS[m[1]!.toLowerCase()] ?? Number(m[1]!.replace(",", "."));
       const unit = m[2]!.toLowerCase();
@@ -464,10 +465,9 @@ export function readFacts(pages: RulePage[], today: string): ProgramFacts {
   f.tuition = tuition(lines);
   f.other_fees_per_year = otherFees(lines);
   f.application_fee = applicationFee(lines);
-  // The program's own page wins; general university pages only fill in start months it doesn't mention.
-  const own = intakes(lineWindows(main.text), today);
-  const general = intakes(pages.slice(1).flatMap((p) => lineWindows(p.text)), today).filter((x) => !own.some((o) => o.start_month === x.start_month));
-  f.intakes = [...own, ...general].sort((a, b) => (a.deadline! < b.deadline! ? -1 : 1));
+  // Deadlines come only from the program's own page. General university pages list dates that may not apply
+  // (TU Munich's Singapore programs have their own); a missing deadline shows as "Not found", never as a guess.
+  f.intakes = intakes(lineWindows(main.text), today);
   f.english_tests = englishTests(lines);
   f.accepts_moi = yesNo(
     lines,

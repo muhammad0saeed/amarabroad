@@ -30,8 +30,11 @@ export async function fetchPageDetailed(url: string): Promise<FetchOutcome> {
     if (res.status >= 400) return { page: null, status: res.status, reason: `HTTP ${res.status}` };
     if (res.kind !== "html") return { page: null, status: res.status, reason: "not an HTML page" };
     const text = htmlToText(res.body);
+    const meta = pageMeta(res.body);
+    // Use the page's own clean address when it gives one on the same site (drops ?cHash=… and similar).
+    const canonical = meta.canonical && new URL(meta.canonical).hostname === new URL(res.finalUrl).hostname ? meta.canonical : res.finalUrl;
     return {
-      page: { url: res.finalUrl, status: res.status, text, hash: contentHash(text), links: extractLinks(res.body, res.finalUrl), meta: pageMeta(res.body), etag: res.etag, lastModified: res.lastModified },
+      page: { url: canonical, status: res.status, text, hash: contentHash(text), links: extractLinks(res.body, res.finalUrl), meta, etag: res.etag, lastModified: res.lastModified },
     };
   } catch (e) {
     if (e instanceof RobotsDisallowed) return { page: null, status: null, reason: e.message };

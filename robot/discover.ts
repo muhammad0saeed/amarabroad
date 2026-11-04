@@ -86,7 +86,10 @@ export interface FoundProgram {
  * Best-first crawl of a university website for program pages, confirmed by their content.
  * Stops after `maxPages` fetched pages or `maxMinutes`.
  */
-export async function crawlForPrograms(website: string, { maxPages = 400, maxMinutes = 40, today = new Date().toISOString().slice(0, 10) } = {}): Promise<{ programs: FoundProgram[]; fetched: number }> {
+export async function crawlForPrograms(
+  website: string,
+  { maxPages = 400, maxMinutes = 40, today = new Date().toISOString().slice(0, 10), seeds = [] as string[] } = {},
+): Promise<{ programs: FoundProgram[]; fetched: number }> {
   const site = registrable(new URL(website).hostname);
   const seen = new Set<string>();
   const frontier: { url: string; score: number; depth: number }[] = [];
@@ -108,6 +111,7 @@ export async function crawlForPrograms(website: string, { maxPages = 400, maxMin
   };
   push(website, "", 0, 10);
   push(new URL("/en/", website).toString(), "english", 0, 8);
+  for (const s of seeds) push(s, "", 1, 6);
 
   const programs = new Map<string, FoundProgram>();
   const deadline = Date.now() + maxMinutes * 60_000;
@@ -138,11 +142,13 @@ export async function crawlForPrograms(website: string, { maxPages = 400, maxMin
 
 /** Sitemap first; if that finds fewer than 10 program-shaped URLs, crawl. */
 export async function discoverPrograms(website: string, options: { maxPages?: number; maxMinutes?: number } = {}): Promise<{ programs: FoundProgram[]; method: "sitemap" | "crawl"; fetched: number }> {
+  // Ten or more program-shaped URLs in a sitemap (TU Munich has 180) are trusted as a list; the daily
+  // check still reads each one and drops pages that turn out not to be programs.
   const fromSitemap = await sitemapPrograms(website);
   if (fromSitemap.length >= 10) return { programs: fromSitemap.map((url) => ({ url, title: null, level: levelOf(url) })), method: "sitemap", fetched: 0 };
-  const crawl = await crawlForPrograms(website, options);
-  const urls = new Set(crawl.programs.map((p) => p.url));
-  for (const url of fromSitemap) if (!urls.has(url)) crawl.programs.push({ url, title: null, level: levelOf(url) });
+  // A few sitemap guesses aren't trusted on their own (they were thesis and project pages at Debrecen):
+  // the crawl starts from them, and only pages whose content confirms them count.
+  const crawl = await crawlForPrograms(website, { ...options, seeds: fromSitemap });
   return { programs: crawl.programs, method: "crawl", fetched: crawl.fetched };
 }
 
