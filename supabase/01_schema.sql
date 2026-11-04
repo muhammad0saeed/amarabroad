@@ -156,6 +156,8 @@ create table if not exists public.universities (
   is_sample boolean not null default false,
   origin text not null default 'admin' check (origin in ('sample','robot','admin')),
   published boolean not null default false,
+  discovered_at timestamptz,                       -- when the robot last searched its website for program pages
+  program_pages_found integer,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   constraint universities_complete check (not published or last_verified is not null)
@@ -183,7 +185,7 @@ create table if not exists public.programs (
   intakes jsonb not null default '[]',           -- [{month, year, deadline}]
   seats_total integer,
   seats_non_eu integer,
-  min_gpa_requirement jsonb,                       -- {value, scale, local_note_en?, local_note_bn?}
+  min_gpa_requirement jsonb,                       -- {value, scale, local_note_en?, local_note_bn?}; null = not stated
   accepts_3yr_bachelor boolean not null default false,
   accepts_moi boolean not null default false,
   accepts_provisional boolean not null default false,
@@ -208,7 +210,7 @@ create table if not exists public.programs (
   intake_months smallint[] not null default '{}',
   constraint programs_complete check (not published or (
     field is not null and language is not null and duration_months is not null and currency is not null
-    and tuition_per_year is not null and min_gpa_requirement is not null and jsonb_array_length(intakes) > 0
+    and tuition_per_year is not null and jsonb_array_length(intakes) > 0
     and last_verified is not null
   ))
 );
@@ -351,8 +353,12 @@ create table if not exists public.page_snapshots (
   http_status smallint not null,
   content_hash text not null,
   text_content text not null,
+  -- Full-text index of the page, so students can search what every program page says ('simple' = any language).
+  tsv tsvector generated always as (to_tsvector('simple', left(text_content, 200000))) stored,
   unique (source, content_hash)
 );
+create index if not exists page_snapshots_tsv_idx on public.page_snapshots using gin (tsv);
+create index if not exists page_snapshots_latest_idx on public.page_snapshots (source, fetched_at desc);
 
 create table if not exists public.extractions (
   id bigint generated always as identity primary key,
@@ -411,6 +417,33 @@ begin
     execute format('create trigger touch_updated_at before update on public.%I for each row execute function public.touch_updated_at()', t);
   end loop;
 end $$;
+
+-- ---------------------------------------------------------------- search engine
+-- Searches the latest copy of every published program's official page and returns the best matches
+-- with a highlighted snippet, like a search engine result. Words can be in any language.
+
+create or replace function public.search_program_pages(q text, max_results integer default 50)
+returns table (program text, url text, snippet text, rank real, checked_at timestamptz)
+language sql stable security definer set search_path = '' as $$
+  with query as (select websearch_to_tsquery('simple', q) as tsq),
+  latest as (
+    select distinct on (s.id) s.entity_slug, s.url, s.last_checked_at, ps.text_content, ps.tsv
+    from public.sources s
+    join public.page_snapshots ps on ps.source = s.id
+    where s.entity_type = 'program' and s.status = 'active'
+    order by s.id, ps.fetched_at desc
+  )
+  select l.entity_slug, l.url,
+         ts_headline('simple', l.text_content, query.tsq, 'MaxFragments=2, MinWords=6, MaxWords=22, StartSel=«, StopSel=»'),
+         ts_rank(l.tsv, query.tsq),
+         l.last_checked_at
+  from latest l
+  cross join query
+  join public.programs p on p.slug = l.entity_slug and p.published
+  where l.tsv @@ query.tsq
+  order by 4 desc
+  limit least(max_results, 200);
+$$;
 
 drop trigger if exists programs_derive on public.programs;
 create trigger programs_derive before insert or update of english_tests, intakes on public.programs

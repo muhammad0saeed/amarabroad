@@ -103,3 +103,20 @@ describe("seed file", () => {
     expect(sqlFile("03_seed.sql")).toBe(before);
   });
 });
+
+describe("page search", () => {
+  it("finds published programs by what their official page says, with a snippet", async () => {
+    await db.exec(`
+      insert into sources (url, kind, entity_type, entity_slug, university, status)
+        values ('https://uni.example/ds', 'program_page', 'program', 'stub-msc-data-science', 'sample-technical-university-of-berlin', 'active');
+      insert into page_snapshots (source, http_status, content_hash, text_content)
+        select id, 200, 'h1', 'Data Science. Tuition fees for international students: 1,500 euros per semester. Machine learning and statistics.' from sources where url = 'https://uni.example/ds';
+    `);
+    await as("anon", null, async () => {
+      const res = await db.query<{ program: string; snippet: string }>("select * from search_program_pages('machine learning')");
+      expect(res.rows.map((r) => r.program)).toEqual(["stub-msc-data-science"]);
+      expect(res.rows[0]!.snippet).toMatch(/«Machine» «learning»/);
+      expect((await db.query("select * from search_program_pages('quantum chromodynamics')")).rows).toHaveLength(0);
+    });
+  });
+});

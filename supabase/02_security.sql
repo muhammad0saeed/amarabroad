@@ -42,6 +42,10 @@ begin
   end loop;
 end $$;
 
+-- The page search only ever returns published programs, so visitors may call it.
+revoke all on function public.search_program_pages(text, integer) from public;
+grant execute on function public.search_program_pages(text, integer) to anon, authenticated;
+
 alter table public.admins enable row level security;
 drop policy if exists "admins read" on public.admins;
 create policy "admins read" on public.admins for select to authenticated using (public.is_admin());

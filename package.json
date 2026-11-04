@@ -13,7 +13,12 @@
     "test:watch": "vitest",
     "start": "next start",
     "check:supabase": "node --env-file=.env.local scripts/check-supabase.mjs",
-    "db:seed": "node scripts/build-seed.mjs"
+    "db:seed": "node scripts/build-seed.mjs",
+    "robot": "node --env-file-if-exists=.env.local robot/run.ts",
+    "robot:try": "node robot/try.ts",
+    "robot:peek": "node robot/peek.ts",
+    "robot:wikidata": "node robot/wikidata-peek.ts",
+    "robot:discover-try": "node robot/discover-try.ts"
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",

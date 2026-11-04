@@ -1,0 +1,34 @@
+# The data robot's daily round. Runs on GitHub's servers (free for this use), not on your PC.
+# Needs two repository secrets (Settings → Secrets and variables → Actions): SUPABASE_URL, SUPABASE_SECRET_KEY.
+# No AI or paid service is used.
+name: Data robot
+
+on:
+  schedule:
+    - cron: "30 1 * * *" # every day at 07:30 Bangladesh time
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: "How many program pages to check"
+        default: "300"
+
+concurrency:
+  group: data-robot
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run robot -- check --limit ${{ inputs.limit || '300' }}
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          ROBOT_CONTACT_URL: ${{ vars.ROBOT_CONTACT_URL }}
