@@ -8,12 +8,14 @@
 -- Columns the robot may not find yet are nullable; a row can only be published once it's complete
 -- (see the *_complete checks), so the site never shows a half-filled program.
 
-create extension if not exists pg_trgm;
+-- Trigram search (typo-tolerant title search), kept in Supabase's extensions schema.
+create schema if not exists extensions;
+create extension if not exists pg_trgm with schema extensions;
 
 -- ---------------------------------------------------------------- helpers
 
 create or replace function public.touch_updated_at() returns trigger
-language plpgsql as $$
+language plpgsql set search_path = '' as $$
 begin
   new.updated_at := now();
   return new;
@@ -163,7 +165,7 @@ create table if not exists public.universities (
   constraint universities_complete check (not published or last_verified is not null)
 );
 create index if not exists universities_city_idx on public.universities (city);
-create index if not exists universities_name_trgm on public.universities using gin (name gin_trgm_ops);
+create index if not exists universities_name_trgm on public.universities using gin (name extensions.gin_trgm_ops);
 
 -- ---------------------------------------------------------------- programs
 
@@ -219,11 +221,11 @@ create index if not exists programs_field_idx on public.programs (field);
 create index if not exists programs_level_idx on public.programs (degree_level);
 create index if not exists programs_tuition_idx on public.programs (tuition_per_year);
 create index if not exists programs_published_idx on public.programs (published) where published;
-create index if not exists programs_title_trgm on public.programs using gin (title gin_trgm_ops);
+create index if not exists programs_title_trgm on public.programs using gin (title extensions.gin_trgm_ops);
 create index if not exists programs_intake_months_idx on public.programs using gin (intake_months);
 
 create or replace function public.programs_derive() returns trigger
-language plpgsql as $$
+language plpgsql set search_path = '' as $$
 begin
   new.ielts_min := (select min((t->>'min_score')::numeric) from jsonb_array_elements(new.english_tests) t where t->>'test' = 'ielts');
   new.intake_months := coalesce((select array_agg(distinct (i->>'month')::smallint) from jsonb_array_elements(new.intakes) i), '{}');
@@ -320,8 +322,8 @@ create table if not exists public.admins (
 
 -- ---------------------------------------------------------------- the data robot
 -- sources: every web page the robot watches. page_snapshots: the cleaned text each time it changed.
--- extractions: what Claude read from a snapshot. field_changes: every value the robot changed or held back,
--- with the exact sentence from the page as evidence. crawl_runs: one row per run, with counts and cost.
+-- extractions: what the reading rules found in a snapshot. field_changes: every value the robot changed or held back,
+-- with the exact sentence from the page as evidence. crawl_runs: one row per run, with counts.
 
 create table if not exists public.sources (
   id uuid primary key default gen_random_uuid(),
@@ -404,6 +406,15 @@ create table if not exists public.crawl_runs (
   cost_usd numeric(10,4) not null default 0,
   notes text
 );
+
+-- Indexes for the links between tables (deletes and joins stay fast as the tables grow).
+create index if not exists degree_mappings_field_idx on public.degree_mappings (field);
+create index if not exists extractions_source_idx on public.extractions (source);
+create index if not exists extractions_snapshot_idx on public.extractions (snapshot);
+create index if not exists field_changes_extraction_idx on public.field_changes (extraction);
+create index if not exists outcome_reports_program_idx on public.outcome_reports (program);
+create index if not exists sources_university_idx on public.sources (university);
+create index if not exists wrong_info_reports_program_idx on public.wrong_info_reports (program);
 
 -- ---------------------------------------------------------------- triggers
 

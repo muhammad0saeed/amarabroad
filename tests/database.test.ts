@@ -10,7 +10,7 @@ import { beforeAll, describe, expect, it } from "vitest";
 const sqlFile = (name: string) => readFileSync(new URL(`../supabase/${name}`, import.meta.url), "utf8");
 let db: PGlite;
 const count = async (sql: string) => Number((await db.query<{ n: string }>(sql)).rows[0]!.n);
-async function as(role: "anon" | "authenticated" | "owner", email: string | null, fn: () => Promise<void>) {
+async function as(role: "anon" | "authenticated" | "service_role" | "owner", email: string | null, fn: () => Promise<void>) {
   if (role !== "owner") await db.exec(`set role ${role}; set test.jwt = '${email ? JSON.stringify({ email }) : ""}'`);
   try {
     await fn();
@@ -22,7 +22,7 @@ async function as(role: "anon" | "authenticated" | "owner", email: string | null
 beforeAll(async () => {
   db = new PGlite({ extensions: { pg_trgm } });
   await db.exec(`
-    create role anon nologin; create role authenticated nologin;
+    create role anon nologin; create role authenticated nologin; create role service_role nologin bypassrls;
     grant usage on schema public to anon, authenticated;
     alter default privileges in schema public grant all on tables to anon, authenticated;
     create schema auth; grant usage on schema auth to anon, authenticated;
@@ -55,7 +55,7 @@ describe("schema and seed", () => {
   });
 
   it("finds titles with typos (trigram search)", async () => {
-    expect(await count("select count(*) n from programs where title % 'data sciense'")).toBeGreaterThan(0);
+    expect(await count("select count(*) n from programs where extensions.similarity(title, 'data sciense') > 0.3")).toBeGreaterThan(0);
   });
 });
 
@@ -113,6 +113,9 @@ describe("page search", () => {
         select id, 200, 'h1', 'Data Science. Tuition fees for international students: 1,500 euros per semester. Machine learning and statistics.' from sources where url = 'https://uni.example/ds';
     `);
     await as("anon", null, async () => {
+      await expect(db.query("select * from search_program_pages('machine learning')")).rejects.toThrow();
+    });
+    await as("service_role", null, async () => {
       const res = await db.query<{ program: string; snippet: string }>("select * from search_program_pages('machine learning')");
       expect(res.rows.map((r) => r.program)).toEqual(["stub-msc-data-science"]);
       expect(res.rows[0]!.snippet).toMatch(/«Machine» «learning»/);
