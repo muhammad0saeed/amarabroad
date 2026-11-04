@@ -15,7 +15,7 @@ let base: ProgramContext;
 
 beforeAll(async () => {
   rates = rateTable(await listExchangeRates());
-  base = (await listProgramContexts()).find((c) => c.program.tuition_per_year > 0 && c.program.min_gpa_requirement)!;
+  base = (await listProgramContexts()).find((c) => c.program.tuition_per_year !== null && c.program.tuition_per_year > 0 && c.program.min_gpa_requirement)!;
 });
 
 const withProgram = (patch: Partial<ProgramContext["program"]>): ProgramContext => ({ ...base, program: { ...base.program, ...patch } });
@@ -75,7 +75,7 @@ describe("Fit Score with missing facts", () => {
     expect(eligibilityGate(profile, program).map((r) => r.code)).not.toContain("grade_below_minimum");
     expect(eligibilityGate(profile, program).map((r) => r.code)).not.toContain("grade_missing");
     const fit = computeFit(profile, program, { fieldGroups: {} });
-    expect(fit.parts.find((p) => p.key === "academics")?.scored).toBe(false);
+    expect(fit.eligible && fit.parts.find((part) => part.key === "academics")?.scored).toBe(false);
   });
 
   it("no listed qualifying subjects: the subject check can't rule anyone out", () => {
