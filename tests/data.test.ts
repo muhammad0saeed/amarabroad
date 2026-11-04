@@ -69,12 +69,17 @@ describe("seed data rules", () => {
     for (const s of scholarships) expect(s.name).toMatch(/^Sample /);
   });
 
-  it("links only to example.org placeholders, never a real site", () => {
+  it("links only to example.org placeholders, never a real site (photo credits aside)", () => {
     for (const [file, rows] of Object.entries(records)) {
-      for (const text of allStrings(rows)) {
+      // Photo credits point at the stock photo's page; they're not facts about a university.
+      const withoutPhotos = (rows as Record<string, unknown>[]).map((row) => ({ ...row, photo: undefined }));
+      for (const text of allStrings(withoutPhotos)) {
         for (const url of text.match(/https?:\/\/[^\s"]+/g) ?? []) {
           expect(url, file).toMatch(/^https:\/\/example\.org\/sample\//);
         }
+      }
+      for (const row of rows as { photo?: { source_url: string } }[]) {
+        if (row.photo) expect(row.photo.source_url).toMatch(/^https:\/\/www\.pexels\.com\/photo\//);
       }
     }
   });

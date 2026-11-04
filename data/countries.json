@@ -23,7 +23,12 @@
     "embassy_url": "https://example.org/sample/embassy/italy",
     "source_url": "https://example.org/sample/countries/italy",
     "last_verified": "2026-10-28",
-    "is_sample": true
+    "is_sample": true,
+    "photo": {
+      "src": "/photos/italy.webp",
+      "credit": "Pexels",
+      "source_url": "https://www.pexels.com/photo/aerial-view-of-florence-with-historic-architecture-31357708/"
+    }
   },
   {
     "slug": "germany",
@@ -49,7 +54,12 @@
     "embassy_url": "https://example.org/sample/embassy/germany",
     "source_url": "https://example.org/sample/countries/germany",
     "last_verified": "2026-10-12",
-    "is_sample": true
+    "is_sample": true,
+    "photo": {
+      "src": "/photos/germany.webp",
+      "credit": "Pexels",
+      "source_url": "https://www.pexels.com/photo/sommerabend-am-rhein-27831541/"
+    }
   },
   {
     "slug": "hungary",
@@ -75,6 +85,11 @@
     "embassy_url": "https://example.org/sample/embassy/hungary",
     "source_url": "https://example.org/sample/countries/hungary",
     "last_verified": "2026-09-20",
-    "is_sample": true
+    "is_sample": true,
+    "photo": {
+      "src": "/photos/hungary.webp",
+      "credit": "Pexels",
+      "source_url": "https://www.pexels.com/photo/scenic-view-of-esztergom-by-the-danube-river-38440205/"
+    }
   }
 ]

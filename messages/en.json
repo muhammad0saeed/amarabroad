@@ -14,7 +14,8 @@
     "calendarNote": "Check the official page before you apply; this date comes from sample data.",
     "englishOnly": "Not available in Bangla yet, so it's shown in English.",
     "notForBd": "Not for BD citizens",
-    "verifiedOn": "Last verified {date}"
+    "verifiedOn": "Last verified {date}",
+    "photoCredit": "Photo: {credit}"
   },
   "header": {
     "skipToContent": "Skip to content",
@@ -57,9 +58,9 @@
     "about": "About {name}"
   },
   "home": {
-    "eyebrow": "Study abroad, made for Bangladesh",
-    "title": "Find your program abroad",
-    "subtitle": "Search programs, check if you're eligible and see the full cost in taka. You decide.",
+    "eyebrow": "Made for students and parents in Bangladesh",
+    "title": "Study abroad, with the real cost in taka",
+    "subtitle": "Search programs in Europe, check whether your Bangladeshi degree fits, and see what the whole thing costs before you apply.",
     "quickFilters": "Quick filters",
     "matchEyebrow": "Match me",
     "matchTitle": "Which programs fit your profile?",
@@ -80,7 +81,32 @@
     "alertsBody": "Get new scholarships and closing deadlines on a free channel.",
     "comingSoon": "Coming soon",
     "toolsLink": "Grade converter and cost tools",
-    "guidesLink": "Guides and Bangla glossary"
+    "guidesLink": "Guides and Bangla glossary",
+    "popular": "Popular searches",
+    "popularMaster30": "Master's under 30 lakh",
+    "popular3yr": "Takes a 3-year degree",
+    "popularMoi": "No IELTS (MOI)",
+    "popularFree": "Tuition-free",
+    "browseTitle": "Browse",
+    "browseHint": {
+      "programs": "Search and filter every program",
+      "universities": "Public and private",
+      "cities": "Rent, jobs, community",
+      "countries": "Cost and visa basics",
+      "scholarships": "Deadlines and eligibility"
+    },
+    "subjectsTitle": "Pick a subject",
+    "trust": {
+      "taka": "Full cost in taka",
+      "rules": "3-year degree and MOI checks",
+      "bangla": "English and বাংলা"
+    },
+    "guidesTitle": "New to applying?",
+    "guidesBody": "Short guides on documents, visas and grades, plus a Bangla glossary of every term.",
+    "guidesCta": "Read the guides",
+    "toolsTitle": "Tools",
+    "toolsBody": "Grade converter, cost calculator and an application timeline.",
+    "toolsCta": "Open tools"
   },
   "search": {
     "title": "Find programs",
@@ -867,5 +893,26 @@
     "cities": "Cities",
     "countries": "Countries",
     "scholarships": "Scholarships"
+  },
+  "browse": {
+    "countriesTitle": "Countries",
+    "countriesSubtitle": "Where Bangladeshi students study, with the full cost in taka for each.",
+    "citiesTitle": "Cities",
+    "citiesSubtitle": "Rent, part-time work and the Bangladeshi community, city by city.",
+    "universitiesTitle": "Universities",
+    "universitiesSubtitle": "Public and private universities with programs open to Bangladeshi applicants.",
+    "searchUniversities": "Search universities",
+    "universityPlaceholder": "University or city name",
+    "all": "All",
+    "programs": "{count, plural, one {# program} other {# programs}}",
+    "universities": "{count, plural, one {# university} other {# universities}}",
+    "cities": "{count, plural, one {# city} other {# cities}}",
+    "from": "From {amount}",
+    "photo": "Photo: {credit}",
+    "noneFound": "Nothing found",
+    "noneFoundBody": "Try another name or clear the country filter.",
+    "count": "{count, plural, =0 {No results} one {# result} other {# results}}",
+    "viewPrograms": "See programs",
+    "ranked": "Ranked {rank}"
   }
 }

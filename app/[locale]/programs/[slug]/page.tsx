@@ -3,13 +3,13 @@ import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { FitScoreCard, ScholarshipFitBadge } from "@/components/fit/FitScore";
 import { OutcomeReport, WrongInfoReport } from "@/components/forms/ReportForms";
-import { Icon } from "@/components/icons";
+import { GROUP_ICON, Icon } from "@/components/icons";
 import { ParentSummary } from "@/components/program/ParentSummary";
 import { ProgramPageActions } from "@/components/program/ProgramActions";
 import { ProgramChat } from "@/components/program/ProgramChat";
 import { AddToCalendar } from "@/components/ui/AddToCalendar";
 import { DaysLeft } from "@/components/ui/DaysLeft";
-import { Badge, Breadcrumbs, Card, Disclosure, ExternalLink, Fact, IconTile, Section, YesNoTag } from "@/components/ui/primitives";
+import { Badge, Breadcrumbs, Card, Disclosure, ExternalLink, Section } from "@/components/ui/primitives";
 import { SampleBadge } from "@/components/ui/SampleBadge";
 import { Link } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
@@ -81,7 +81,7 @@ export default async function ProgramPage({ params }: Props) {
 
   return (
     <div className="space-y-6 pb-4">
-      <div className="pt-2">
+      <header className="pt-2">
         <Breadcrumbs
           label={common("breadcrumb")}
           items={[
@@ -90,45 +90,80 @@ export default async function ProgramPage({ params }: Props) {
             { href: `/universities/${u.slug}`, label: u.name },
           ]}
         />
-        <div className="mt-2 flex items-start gap-3">
-          <span className="lite:hidden">
-            <IconTile tile={field?.tile} group={field?.group} size="lg" />
-          </span>
-          <div>
-            <h1 className="text-title font-bold sm:text-display">{p.title}</h1>
-            <p className="mt-1 text-ink-muted">
-              <Link href={`/universities/${u.slug}`} className="font-semibold text-ink hover:underline">
-                {u.name}
-              </Link>{" "}
-              · {cityName}, {countryName}
+        {city.photo && (
+          <div className="relative mt-2 aspect-[16/7] overflow-hidden rounded-card bg-surface-2 sm:aspect-[21/7] lite:hidden">
+            {/* eslint-disable-next-line @next/next/no-img-element -- pre-sized WebP */}
+            <img src={city.photo.src} alt="" width={960} height={640} fetchPriority="high" className="absolute inset-0 size-full object-cover" />
+            <div aria-hidden="true" className="absolute inset-0 bg-linear-to-t from-black/45 to-transparent" />
+            <p className="absolute right-3 bottom-2 text-[0.6875rem] text-white/80">
+              {cityName} · {common("photoCredit", { credit: city.photo.credit })}
             </p>
           </div>
+        )}
+        <div className="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-meta text-ink-muted">
+          {field && (
+            <span aria-hidden="true" className="grid size-7 place-items-center rounded-full bg-surface-2 text-ink">
+              <Icon name={GROUP_ICON[field.group]} className="size-4" />
+            </span>
+          )}
+          <span>
+            {labels(`level.${p.degree_level}`)}
+            {field && ` · ${L === "bn" ? field.name.bn : field.name.en}`}
+          </span>
+          <SampleBadge className="ml-auto" />
         </div>
-        <div className="mt-3 flex flex-wrap items-center gap-2">
-          <SampleBadge />
-          <Badge tone="primary">{labels(`level.${p.degree_level}`)}</Badge>
-          {field && <Badge>{L === "bn" ? field.name.bn : field.name.en}</Badge>}
-          <Badge icon="clock">{t("verifiedOn", { date: formatDate(p.last_verified, L) })}</Badge>
+        <h1 className="mt-2 text-title leading-tight font-bold tracking-tight text-balance sm:text-display">{p.title}</h1>
+        <p className="mt-2 text-ink-muted">
+          <Link href={`/universities/${u.slug}`} className="font-semibold text-ink hover:underline">
+            {u.name}
+          </Link>{" "}
+          · {cityName}, {countryName}
+        </p>
+        <p className="mt-1 inline-flex items-center gap-1 text-meta text-ink-muted">
+          <Icon name="clock" className="size-4" /> {t("verifiedOn", { date: formatDate(p.last_verified, L) })}
+        </p>
+      </header>
+
+      <section aria-label={t("totalCost")} className="overflow-hidden rounded-card bg-surface shadow-card">
+        <div className="p-5">
+          <p className="text-meta text-ink-muted">{t("totalCost")}</p>
+          <p className="mt-1 text-[2.25rem] leading-none font-bold tracking-[-0.03em] tabular-nums">{formatBDT(cost.bdt.total, L)}</p>
+          <p className="mt-2 text-meta text-ink-muted">{t("firstYear", { amount: formatBDT(cost.bdt.firstYear, L) })}</p>
         </div>
-      </div>
+        <dl className="grid grid-cols-3 divide-x divide-border border-t border-border text-meta">
+          <div className="p-3 sm:p-4">
+            <dt className="text-ink-muted">{t("tuitionPerYear")}</dt>
+            <dd className="mt-0.5 font-semibold">{p.tuition_per_year === 0 ? t("tuitionFree") : formatBDT(cost.bdt.tuitionPerYear, L)}</dd>
+            {p.tuition_per_year !== 0 && <dd className="text-ink-muted">{formatMoney(p.tuition_per_year, p.currency, L)}</dd>}
+          </div>
+          <div className="p-3 sm:p-4">
+            <dt className="text-ink-muted">{t("duration")}</dt>
+            <dd className="mt-0.5 font-semibold">{t("months", { count: p.duration_months })}</dd>
+            <dd className="text-ink-muted">{localizeDigits(String(p.ects_credits), L)} ECTS</dd>
+          </div>
+          <div className="p-3 sm:p-4">
+            <dt className="text-ink-muted">{t("teaching")}</dt>
+            <dd className="mt-0.5 font-semibold">{labels(`lang.${p.language}`)}</dd>
+            {langReq && <dd className="line-clamp-2 text-ink-muted">{langReq}</dd>}
+          </div>
+        </dl>
+      </section>
 
-      <dl className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-        <Fact label={t("totalCost")} value={formatBDT(cost.bdt.total, L)} hint={t("firstYear", { amount: formatBDT(cost.bdt.firstYear, L) })} />
-        <Fact
-          label={t("tuitionPerYear")}
-          value={p.tuition_per_year === 0 ? t("tuitionFree") : formatBDT(cost.bdt.tuitionPerYear, L)}
-          hint={p.tuition_per_year === 0 ? undefined : formatMoney(p.tuition_per_year, p.currency, L)}
-        />
-        <Fact label={t("duration")} value={t("months", { count: p.duration_months })} hint={`${localizeDigits(String(p.ects_credits), L)} ECTS`} />
-        <Fact label={t("teaching")} value={labels(`lang.${p.language}`)} hint={langReq} />
-      </dl>
-
-      <div className="flex flex-wrap gap-2">
-        {p.degree_level === "master" && <YesNoTag yes={p.accepts_3yr_bachelor}>{t(p.accepts_3yr_bachelor ? "tag3yr" : "tagNo3yr")}</YesNoTag>}
-        <YesNoTag yes={p.accepts_moi}>{t(p.accepts_moi ? "tagMoi" : "tagNoMoi")}</YesNoTag>
-        <YesNoTag yes={p.accepts_provisional}>{t(p.accepts_provisional ? "tagProvisional" : "tagNoProvisional")}</YesNoTag>
-        <YesNoTag yes={p.open_to_bd_citizens}>{t(p.open_to_bd_citizens ? "tagBd" : "tagNotBd")}</YesNoTag>
-      </div>
+      <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+        {[
+          ...(p.degree_level === "master" ? [{ ok: p.accepts_3yr_bachelor, label: t(p.accepts_3yr_bachelor ? "tag3yr" : "tagNo3yr") }] : []),
+          { ok: p.accepts_moi, label: t(p.accepts_moi ? "tagMoi" : "tagNoMoi") },
+          { ok: p.accepts_provisional, label: t(p.accepts_provisional ? "tagProvisional" : "tagNoProvisional") },
+          { ok: p.open_to_bd_citizens, label: t(p.open_to_bd_citizens ? "tagBd" : "tagNotBd") },
+        ].map((r) => (
+          <li key={r.label} className="flex min-h-tap items-center gap-3 rounded-tile bg-surface px-3 py-2 shadow-card">
+            <span className={`grid size-7 shrink-0 place-items-center rounded-full ${r.ok ? "bg-success-soft text-success" : "bg-surface-2 text-ink-muted"}`}>
+              <Icon name={r.ok ? "check" : "close"} className="size-4" weight="bold" />
+            </span>
+            <span className={r.ok ? "font-medium" : "text-ink-muted"}>{r.label}</span>
+          </li>
+        ))}
+      </ul>
 
       <ProgramPageActions slug={p.slug} title={p.title} />
 

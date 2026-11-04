@@ -17,6 +17,13 @@ export interface Provenance {
   is_sample: boolean;
 }
 
+/** A self-hosted photo (see public/photos/CREDITS.md). */
+export interface Photo {
+  src: string;
+  credit: string;
+  source_url: string;
+}
+
 /** A short text in both languages. */
 export interface Bilingual {
   en: string;
@@ -25,6 +32,7 @@ export interface Bilingual {
 
 export interface Country extends Provenance {
   slug: string;
+  photo?: Photo;
   name_en: string;
   name_bn: string;
   currency: CurrencyCode;
@@ -53,6 +61,7 @@ export type LanguageNeed = "essential" | "helpful" | "not_needed";
 
 export interface City extends Provenance {
   slug: string;
+  photo?: Photo;
   name_en: string;
   name_bn: string;
   /** Country slug. */

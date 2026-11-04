@@ -48,7 +48,12 @@
     ],
     "source_url": "https://example.org/sample/cities/milan",
     "last_verified": "2026-08-24",
-    "is_sample": true
+    "is_sample": true,
+    "photo": {
+      "src": "/photos/milan.webp",
+      "credit": "Pexels",
+      "source_url": "https://www.pexels.com/photo/majestic-milan-cathedral-under-clear-blue-sky-32721581/"
+    }
   },
   {
     "slug": "bologna",
@@ -95,7 +100,12 @@
     ],
     "source_url": "https://example.org/sample/cities/bologna",
     "last_verified": "2026-10-28",
-    "is_sample": true
+    "is_sample": true,
+    "photo": {
+      "src": "/photos/bologna.webp",
+      "credit": "Pexels",
+      "source_url": "https://www.pexels.com/photo/stunning-aerial-view-of-bologna-italy-at-dusk-36799900/"
+    }
   },
   {
     "slug": "berlin",
@@ -146,7 +156,12 @@
     ],
     "source_url": "https://example.org/sample/cities/berlin",
     "last_verified": "2026-10-12",
-    "is_sample": true
+    "is_sample": true,
+    "photo": {
+      "src": "/photos/berlin.webp",
+      "credit": "Pexels",
+      "source_url": "https://www.pexels.com/photo/brandenburg-gate-in-summer-berlin-germany-37468367/"
+    }
   },
   {
     "slug": "munich",
@@ -193,7 +208,12 @@
     ],
     "source_url": "https://example.org/sample/cities/munich",
     "last_verified": "2026-09-20",
-    "is_sample": true
+    "is_sample": true,
+    "photo": {
+      "src": "/photos/munich.webp",
+      "credit": "Pexels",
+      "source_url": "https://www.pexels.com/photo/munich-27721888/"
+    }
   },
   {
     "slug": "budapest",
@@ -240,7 +260,12 @@
     ],
     "source_url": "https://example.org/sample/cities/budapest",
     "last_verified": "2026-08-24",
-    "is_sample": true
+    "is_sample": true,
+    "photo": {
+      "src": "/photos/budapest.webp",
+      "credit": "Pexels",
+      "source_url": "https://www.pexels.com/photo/parliament-building-in-budapest-18815996/"
+    }
   },
   {
     "slug": "debrecen",
@@ -287,6 +312,11 @@
     ],
     "source_url": "https://example.org/sample/cities/debrecen",
     "last_verified": "2026-10-28",
-    "is_sample": true
+    "is_sample": true,
+    "photo": {
+      "src": "/photos/debrecen.webp",
+      "credit": "Pexels",
+      "source_url": "https://www.pexels.com/photo/festive-night-scene-at-debrecen-reformed-church-35441101/"
+    }
   }
 ]
