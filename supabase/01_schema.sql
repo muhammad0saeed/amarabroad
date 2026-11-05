@@ -277,6 +277,7 @@ create table if not exists public.wrong_info_reports (
   source_url text,
   email text,
   status text not null default 'new' check (status in ('new','working','fixed','rejected')),
+  ip_hash text,                                    -- one-way hash of the sender's IP, only for the rate limit
   admin_note text,
   updated_at timestamptz not null default now()
 );
@@ -291,6 +292,7 @@ create table if not exists public.problem_reports (
   app_version text,
   email text,
   status text not null default 'new' check (status in ('new','working','fixed','rejected')),
+  ip_hash text,                                    -- one-way hash of the sender's IP, only for the rate limit
   admin_note text,
   updated_at timestamptz not null default now()
 );
@@ -310,9 +312,14 @@ create table if not exists public.outcome_reports (
   experience_months smallint,
   tips text check (tips is null or length(tips) <= 1000),
   status text not null default 'pending' check (status in ('pending','approved','rejected')),
+  ip_hash text,                                    -- one-way hash of the sender's IP, only for the rate limit
   admin_note text,
   updated_at timestamptz not null default now()
 );
+
+create index if not exists wrong_info_reports_rate_idx on public.wrong_info_reports (ip_hash, created_at desc);
+create index if not exists problem_reports_rate_idx on public.problem_reports (ip_hash, created_at desc);
+create index if not exists outcome_reports_rate_idx on public.outcome_reports (ip_hash, created_at desc);
 
 -- ---------------------------------------------------------------- admins
 

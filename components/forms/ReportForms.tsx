@@ -1,10 +1,11 @@
 "use client";
 
-// The three report forms. Full UI and validation; on submit they show "Preview mode: not sent".
-// Stage 2 connects them to the backend (with Turnstile).
+// The three report forms. Checked in the browser, then sent to the server (app/actions/reports.ts), which
+// checks again, stops spam (Turnstile, a hidden trap field, a rate limit), saves the report and tells Said on Telegram.
 
 import { useLocale, useTranslations } from "next-intl";
-import { useEffect, useState, type FormEvent, type ReactNode } from "react";
+import { useEffect, useState, useTransition, type FormEvent, type ReactNode } from "react";
+import { sendOutcome, sendProblem, sendWrongInfo, type ReportResult } from "@/app/actions/reports";
 import { Icon } from "@/components/icons";
 import { SelectField, TextArea, TextField } from "@/components/ui/fields";
 import { buttonClass } from "@/components/ui/primitives";
@@ -26,17 +27,21 @@ import {
   type ProblemForm,
   type WrongInfoForm,
 } from "@/lib/validation";
+import { Turnstile } from "./Turnstile";
 
-const APP_VERSION = "stage-1-preview";
+const APP_VERSION = "stage-2";
 
-function PreviewNotice({ onReset }: { onReset: () => void }) {
+type Kind = "wrong" | "problem" | "outcome";
+type Failure = "spam" | "rate_limited" | "server" | "not_configured";
+
+function SentNotice({ kind, onReset }: { kind: Kind; onReset: () => void }) {
   const t = useTranslations("forms");
   return (
-    <div role="status" className="rounded-tile bg-warning-soft p-4 text-warning">
+    <div role="status" className="rounded-tile bg-success-soft p-4 text-success">
       <p className="flex items-center gap-2 font-semibold">
-        <Icon name="info" /> {t("previewTitle")}
+        <Icon name="checkCircle" /> {t("sentTitle")}
       </p>
-      <p className="mt-1 text-meta">{t("previewBody")}</p>
+      <p className="mt-1 text-meta">{t(`sent.${kind}`)}</p>
       <button type="button" onClick={onReset} className={`${buttonClass("ghost", "sm")} mt-2 -ml-3`}>
         {t("again")}
       </button>
@@ -44,34 +49,82 @@ function PreviewNotice({ onReset }: { onReset: () => void }) {
   );
 }
 
-function useForm<T extends object>(initial: T, validate: (v: T) => Errors<T>) {
+interface Envelope {
+  token?: string;
+  website?: string;
+}
+
+function useForm<T extends object>(initial: T, validate: (v: T) => Errors<T>, send: (values: T, env: Envelope) => Promise<ReportResult<T>>) {
   const [values, setValues] = useState(initial);
   const [errors, setErrors] = useState<Errors<T>>({});
   const [sent, setSent] = useState(false);
+  const [failure, setFailure] = useState<Failure | null>(null);
+  const [pending, startTransition] = useTransition();
+  const [token, setToken] = useState<string | null>(null);
+  const [trap, setTrap] = useState("");
+  // Turnstile tokens work once: a new widget after every attempt.
+  const [attempt, setAttempt] = useState(0);
   const set = (key: keyof T) => (value: string) => setValues((v) => ({ ...v, [key]: value }));
+
   function submit(e: FormEvent) {
     e.preventDefault();
     const found = validate(values);
     setErrors(found);
-    if (isValid(found)) setSent(true);
-    else document.getElementById(String(Object.keys(found)[0]))?.focus();
+    setFailure(null);
+    if (!isValid(found)) {
+      document.getElementById(String(Object.keys(found)[0]))?.focus();
+      return;
+    }
+    startTransition(async () => {
+      const result = await send(values, { token: token ?? undefined, website: trap });
+      setAttempt((n) => n + 1);
+      setToken(null);
+      if (result.ok) setSent(true);
+      else if (result.error === "invalid") setErrors(result.fields);
+      else setFailure(result.error);
+    });
   }
   const reset = () => {
     setValues(initial);
     setErrors({});
     setSent(false);
+    setFailure(null);
   };
-  return { values, errors, set, submit, sent, reset };
+  return { values, errors, set, submit, sent, reset, pending, failure, attempt, setToken, trap, setTrap };
 }
 
-function FormShell({ onSubmit, children, submitLabel }: { onSubmit: (e: FormEvent) => void; children: ReactNode; submitLabel: string }) {
+/** What the shared form frame needs from useForm. */
+interface ShellState {
+  submit: (e: FormEvent) => void;
+  pending: boolean;
+  failure: Failure | null;
+  attempt: number;
+  setToken: (token: string | null) => void;
+  trap: string;
+  setTrap: (value: string) => void;
+}
+
+function FormShell({ form, children, submitLabel }: { form: ShellState; children: ReactNode; submitLabel: string }) {
   const t = useTranslations("forms");
   return (
-    <form noValidate onSubmit={onSubmit} className="space-y-4">
-      <p className="text-meta text-ink-muted">{t("previewHint")}</p>
+    <form noValidate onSubmit={form.submit} className="space-y-4" aria-busy={form.pending}>
+      <p className="text-meta text-ink-muted">{t("privacyHint")}</p>
       {children}
-      <button type="submit" className={buttonClass("primary", "md", true)}>
-        {submitLabel}
+      {/* A field people never see; bots that fill in every field give themselves away. */}
+      <div aria-hidden="true" className="absolute -left-[9999px] h-px w-px overflow-hidden">
+        <label>
+          Website
+          <input type="text" name="website" tabIndex={-1} autoComplete="off" value={form.trap} onChange={(e) => form.setTrap(e.target.value)} />
+        </label>
+      </div>
+      <Turnstile key={form.attempt} onToken={form.setToken} />
+      {form.failure && (
+        <p role="alert" className="rounded-tile bg-danger-soft p-3 text-meta font-semibold text-danger">
+          {t(`failed.${form.failure}`)}
+        </p>
+      )}
+      <button type="submit" disabled={form.pending} className={buttonClass("primary", "md", true)}>
+        {form.pending ? t("sending") : submitLabel}
       </button>
     </form>
   );
@@ -82,10 +135,10 @@ function FormShell({ onSubmit, children, submitLabel }: { onSubmit: (e: FormEven
 export function WrongInfoReport({ programSlug }: { programSlug: string }) {
   const t = useTranslations("forms");
   const err = (code?: string) => (code ? t(`error.${code}`, { min: LIMITS.minDescription, max: LIMITS.description }) : undefined);
-  const f = useForm<WrongInfoForm>({ topic: "", correction: "", sourceUrl: "", email: "" }, validateWrongInfo);
-  if (f.sent) return <PreviewNotice onReset={f.reset} />;
+  const f = useForm<WrongInfoForm>({ topic: "", correction: "", sourceUrl: "", email: "" }, validateWrongInfo, (v, env) => sendWrongInfo(programSlug, v, env));
+  if (f.sent) return <SentNotice kind="wrong" onReset={f.reset} />;
   return (
-    <FormShell onSubmit={f.submit} submitLabel={t("sendReport")}>
+    <FormShell form={f} submitLabel={t("sendReport")}>
       <input type="hidden" name="program" value={programSlug} />
       <SelectField
         id="topic"
@@ -113,10 +166,11 @@ export function OutcomeReport({ programSlug }: { programSlug: string }) {
   const f = useForm<OutcomeForm>(
     { intake: "", result: "", cgpa: "", cgpaScale: "4", degree: "", universityType: "", englishTest: "", englishScore: "", experienceMonths: "", tips: "" },
     validateOutcome,
+    (v, env) => sendOutcome(programSlug, v, env),
   );
-  if (f.sent) return <PreviewNotice onReset={f.reset} />;
+  if (f.sent) return <SentNotice kind="outcome" onReset={f.reset} />;
   return (
-    <FormShell onSubmit={f.submit} submitLabel={t("sendResult")}>
+    <FormShell form={f} submitLabel={t("sendResult")}>
       <input type="hidden" name="program" value={programSlug} />
       <p className="text-meta text-ink-muted">{t("outcome.anonymous")}</p>
       <div className="grid gap-4 sm:grid-cols-2">
@@ -143,17 +197,19 @@ export function ProblemReport() {
   const t = useTranslations("forms");
   const pathname = usePathname();
   const err = (code?: string) => (code ? t(`error.${code}`, { min: LIMITS.minDescription, max: LIMITS.description }) : undefined);
-  const f = useForm<ProblemForm>({ type: "", description: "", email: "" }, validateProblem);
   const [device, setDevice] = useState("");
+  const f = useForm<ProblemForm>({ type: "", description: "", email: "" }, validateProblem, (v, env) =>
+    sendProblem(v, { pageUrl: typeof window === "undefined" ? pathname : window.location.href, userAgent: device, appVersion: APP_VERSION }, env),
+  );
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setDevice(navigator.userAgent);
   }, []);
 
-  if (f.sent) return <PreviewNotice onReset={f.reset} />;
+  if (f.sent) return <SentNotice kind="problem" onReset={f.reset} />;
   return (
-    <FormShell onSubmit={f.submit} submitLabel={t("sendReport")}>
+    <FormShell form={f} submitLabel={t("sendReport")}>
       <SelectField id="type" label={t("problem.type")} value={f.values.type} onChange={f.set("type")} placeholder={t("choose")} options={PROBLEM_TYPES.map((v) => ({ value: v, label: t(`problem.types.${v}`) }))} error={err(f.errors.type)} />
       <TextArea id="description" label={t("problem.description")} value={f.values.description} onChange={f.set("description")} maxLength={LIMITS.description} error={err(f.errors.description)} />
       <TextField id="email" type="email" inputMode="email" autoComplete="email" label={t("email")} hint={t("emailHint")} value={f.values.email} onChange={f.set("email")} error={err(f.errors.email)} />

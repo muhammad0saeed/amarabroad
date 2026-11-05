@@ -67,7 +67,8 @@
     "disclaimerLink": "Disclaimer",
     "privacyLink": "Privacy",
     "reportProblem": "Report a problem",
-    "about": "About {name}"
+    "about": "About {name}",
+    "live": "Program facts are read automatically from each university's own website and checked daily. Each fact links to its source."
   },
   "home": {
     "eyebrow": "Made for students and parents in Bangladesh",
@@ -472,6 +473,20 @@
       "page": "Page",
       "device": "Device and browser",
       "version": "App version"
+    },
+    "privacyHint": "We store what you send so we can fix the site. Your email is optional and only used to reply.",
+    "sending": "Sending…",
+    "sentTitle": "Thank you, it's sent",
+    "sent": {
+      "wrong": "We'll check it against the official page and correct the program.",
+      "problem": "We'll look into it. If you left your email, we'll reply.",
+      "outcome": "It's anonymous. Results appear once a program has 5 or more approved reports."
+    },
+    "failed": {
+      "spam": "We couldn't confirm you're a person. Please try again.",
+      "rate_limited": "You've sent several reports in a short time. Please try again in 10 minutes.",
+      "server": "Something went wrong on our side. Please try again later.",
+      "not_configured": "Sending isn't switched on for this copy of the site yet."
     }
   },
   "labels": {
@@ -880,7 +895,7 @@
       "count": "3",
       "p1": "There's no login, no cookies, no analytics, no tracking pixels and no session replay.",
       "p2": "Your profile, saved programs and settings stay in this browser's local storage. Nothing is sent to us or anyone else.",
-      "p3": "Forms check your answers but don't send them in this preview.",
+      "p3": "When you send a report, we store what you wrote, the page, your browser type and, only if you give it, your email. To stop spam we also keep a one-way code made from your internet address (the address itself isn't kept) and use Cloudflare Turnstile, which checks you're a person and loads only on the report forms. Reports go to the site owner and are never sold or shared.",
       "storedTitle": "What this browser stores",
       "keys": {
         "locale": "your language choice",
