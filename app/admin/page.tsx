@@ -27,7 +27,7 @@ export default async function AdminOverview() {
   const run = lastRun.data;
 
   const todo = [
-    { href: "/admin/reports/", label: "New reports", value: wrongNew + problemNew, note: `${wrongNew} wrong info · ${problemNew} problems` },
+    { href: "/admin/reports/", label: "New reports", value: wrongNew + problemNew, note: `${wrongNew} wrong info · ${problemNew} ${problemNew === 1 ? "problem" : "problems"}` },
     { href: "/admin/outcomes/", label: "Outcomes to check", value: outcomesPending, note: "Shown on the site only after you approve" },
     { href: "/admin/changes/", label: "Robot changes on hold", value: held, note: "Big or odd changes wait for you" },
   ];
