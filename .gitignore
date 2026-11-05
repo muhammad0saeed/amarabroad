@@ -15,3 +15,6 @@ npm-debug.log*
 .DS_Store
 Thumbs.db
 .env*.local
+
+# One-off file for Vercel's "Import .env" button. Delete after importing.
+vercel-secrets.env
