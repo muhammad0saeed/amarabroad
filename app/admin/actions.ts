@@ -7,6 +7,7 @@ import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/admin/auth";
+import { siteOrigin } from "@/lib/admin/origin";
 import { invalidateData } from "@/lib/data";
 import { serviceClient, sessionClient } from "@/lib/supabase/clients";
 
@@ -21,8 +22,7 @@ export async function sendSignInLink(_: SignInState, form: FormData): Promise<Si
   // Only admins get a link. Everyone sees the same answer, so the form doesn't reveal who is an admin.
   const { data: admin } = await serviceClient().from("admins").select("email").eq("email", email).maybeSingle();
   if (admin) {
-    const h = await headers();
-    const origin = process.env.SITE_URL?.replace(/\/$/, "") || `${h.get("x-forwarded-proto") ?? "http"}://${h.get("host")}`;
+    const origin = siteOrigin(await headers());
     const db = await sessionClient();
     const { error } = await db.auth.signInWithOtp({ email, options: { emailRedirectTo: `${origin}/admin/auth/callback/`, shouldCreateUser: true } });
     if (error) {
