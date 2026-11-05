@@ -18,3 +18,4 @@ Thumbs.db
 
 # One-off file for Vercel's "Import .env" button. Delete after importing.
 vercel-secrets.env
+copy-me.txt
