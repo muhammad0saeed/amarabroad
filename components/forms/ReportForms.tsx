@@ -4,7 +4,7 @@
 // checks again, stops spam (Turnstile, a hidden trap field, a rate limit), saves the report and tells Said on Telegram.
 
 import { useLocale, useTranslations } from "next-intl";
-import { useEffect, useState, useTransition, type FormEvent, type ReactNode } from "react";
+import { useEffect, useRef, useState, useTransition, type FormEvent, type ReactNode } from "react";
 import { sendOutcome, sendProblem, sendWrongInfo, type ReportResult } from "@/app/actions/reports";
 import { Icon } from "@/components/icons";
 import { SelectField, TextArea, TextField } from "@/components/ui/fields";
@@ -27,7 +27,7 @@ import {
   type ProblemForm,
   type WrongInfoForm,
 } from "@/lib/validation";
-import { Turnstile } from "./Turnstile";
+import { Turnstile, TURNSTILE_ENABLED } from "./Turnstile";
 
 const APP_VERSION = "stage-2";
 
@@ -60,7 +60,13 @@ function useForm<T extends object>(initial: T, validate: (v: T) => Errors<T>, se
   const [sent, setSent] = useState(false);
   const [failure, setFailure] = useState<Failure | null>(null);
   const [pending, startTransition] = useTransition();
-  const [token, setToken] = useState<string | null>(null);
+  const [token, setTokenState] = useState<string | null>(null);
+  // The latest token, readable while waiting for it inside submit().
+  const tokenRef = useRef<string | null>(null);
+  const setToken = (t: string | null) => {
+    tokenRef.current = t;
+    setTokenState(t);
+  };
   const [trap, setTrap] = useState("");
   // Turnstile tokens work once: a new widget after every attempt.
   const [attempt, setAttempt] = useState(0);
@@ -76,7 +82,9 @@ function useForm<T extends object>(initial: T, validate: (v: T) => Errors<T>, se
       return;
     }
     startTransition(async () => {
-      const result = await send(values, { token: token ?? undefined, website: trap });
+      // Pressed Send before the bot check finished? Give it up to 10 seconds instead of failing.
+      if (TURNSTILE_ENABLED) for (let i = 0; i < 40 && !tokenRef.current; i++) await new Promise((r) => setTimeout(r, 250));
+      const result = await send(values, { token: tokenRef.current ?? token ?? undefined, website: trap });
       setAttempt((n) => n + 1);
       setToken(null);
       if (result.ok) setSent(true);

@@ -32,13 +32,20 @@ export type GuardFailure = "spam" | "rate_limited";
 export async function verifyTurnstile(token: string | undefined): Promise<boolean> {
   const secret = process.env.TURNSTILE_SECRET_KEY;
   if (!secret) return process.env.NODE_ENV !== "production";
-  if (!token) return false;
+  if (!token) {
+    console.warn("turnstile: no token was sent with the form");
+    return false;
+  }
   try {
     const body = new URLSearchParams({ secret, response: token, remoteip: await clientIp() });
     const res = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", { method: "POST", body, signal: AbortSignal.timeout(8000) });
-    const json = (await res.json()) as { success?: boolean };
+    const json = (await res.json()) as { success?: boolean; "error-codes"?: string[]; hostname?: string };
+    // Cloudflare's reason, for the Vercel logs: "invalid-input-secret" = wrong TURNSTILE_SECRET_KEY,
+    // "timeout-or-duplicate" = token too old or already used, "invalid-input-response" = bad token.
+    if (json.success !== true) console.warn("turnstile: check failed", { codes: json["error-codes"], hostname: json.hostname });
     return json.success === true;
-  } catch {
+  } catch (error) {
+    console.warn("turnstile: couldn't reach Cloudflare", error instanceof Error ? error.message : error);
     return false;
   }
 }
