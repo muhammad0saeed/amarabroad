@@ -211,6 +211,8 @@ create table if not exists public.programs (
   -- Filled in by trigger from english_tests / intakes, so filters can use plain indexes.
   ielts_min numeric(3,1),
   intake_months smallint[] not null default '{}',
+  -- Fields an admin set by hand. The robot never overwrites them; a different value on the page is held for review.
+  locked_fields text[] not null default '{}',
   -- A directory listing needs a subject and a check date; facts the robot couldn't find stay empty and
   -- the site shows "Not found, check the official page". Tuition needs its currency.
   constraint programs_complete check (not published or (

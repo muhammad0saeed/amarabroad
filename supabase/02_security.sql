@@ -53,6 +53,10 @@ begin
   end loop;
 end $$;
 
+-- Edits made in the content manager are logged next to the robot's (history on each edit page).
+drop policy if exists "admins insert" on public.field_changes;
+create policy "admins insert" on public.field_changes for insert to authenticated with check ((select private.is_admin()));
+
 alter table public.admins enable row level security;
 drop policy if exists "admins read" on public.admins;
 create policy "admins read" on public.admins for select to authenticated using ((select private.is_admin()));

@@ -9,6 +9,7 @@ import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/admin/auth";
 import { siteOrigin } from "@/lib/admin/origin";
 import { invalidateData } from "@/lib/data";
+import { ROBOT_FIELDS } from "@/lib/admin/content";
 import { serviceClient, sessionClient } from "@/lib/supabase/clients";
 
 // ---------------------------------------------------------------- sign in / out
@@ -67,13 +68,8 @@ export async function moderateOutcome(form: FormData) {
 
 // ---------------------------------------------------------------- the robot's held changes
 
-/** Columns an approved change may write (the same ones the robot maintains). */
-const PROGRAM_FIELDS = new Set([
-  "degree_level", "field", "related_bachelor_fields", "duration_months", "ects_credits", "language", "language_requirement_en",
-  "currency", "tuition_per_year", "other_fees_per_year", "application_fee", "intakes", "english_tests", "accepts_moi",
-  "accepts_3yr_bachelor", "accepts_provisional", "min_gpa_requirement", "seats_total", "seats_non_eu", "required_documents",
-  "overview_en", "career_paths_en", "published",
-]);
+/** Columns an approved change may write (the ones the robot maintains, plus showing/hiding). */
+const PROGRAM_FIELDS = new Set([...ROBOT_FIELDS, "published"]);
 
 export async function decideChange(form: FormData) {
   const { db, email } = await requireAdmin();
@@ -84,7 +80,10 @@ export async function decideChange(form: FormData) {
 
   if (approve) {
     if (change.entity_type !== "program" || !PROGRAM_FIELDS.has(change.field)) return;
-    const { error } = await db.from("programs").update({ [change.field]: change.new_value }).eq("slug", change.entity_slug);
+    // Agreeing with the robot hands the field back to it (unlocks it, if you had set it by hand).
+    const { data: prog } = await db.from("programs").select("locked_fields").eq("slug", change.entity_slug).maybeSingle();
+    const locked = ((prog?.locked_fields as string[] | null) ?? []).filter((f) => f !== change.field);
+    const { error } = await db.from("programs").update({ [change.field]: change.new_value, locked_fields: locked }).eq("slug", change.entity_slug);
     if (error) {
       console.error("applying change failed:", error.message);
       return;

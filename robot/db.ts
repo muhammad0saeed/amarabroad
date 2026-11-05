@@ -1,7 +1,7 @@
 // The robot's reads and writes in Supabase, with the secret key (server-only: never shipped to browsers).
 
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
-import type { PlannedChange, ProgramRow } from "./checks.ts";
+import { stable, type PlannedChange, type ProgramRow } from "./checks.ts";
 import type { FetchedPage } from "./pipeline.ts";
 
 let client: SupabaseClient | null = null;
@@ -123,7 +123,7 @@ const PROGRAM_COLUMNS =
   "slug, title, degree_level, field, related_bachelor_fields, duration_months, ects_credits, language, language_requirement_en, currency, tuition_per_year, other_fees_per_year, application_fee, intakes, english_tests, accepts_moi, accepts_3yr_bachelor, accepts_provisional, min_gpa_requirement, seats_total, seats_non_eu, required_documents, overview_en, career_paths_en";
 
 export async function loadProgram(slug: string): Promise<(ProgramRow & { published: boolean; origin: string }) | null> {
-  const { data, error } = await db().from("programs").select(`${PROGRAM_COLUMNS}, published, origin`).eq("slug", slug).maybeSingle();
+  const { data, error } = await db().from("programs").select(`${PROGRAM_COLUMNS}, published, origin, locked_fields`).eq("slug", slug).maybeSingle();
   if (error) throw new Error(`load program: ${error.message}`);
   if (!data) return null;
   const row = data as Record<string, unknown>;
@@ -162,12 +162,17 @@ export async function applyProgram(args: {
   update.is_sample = false;
   must(await db().from("programs").update(update).eq("slug", slug), "update program");
 
-  if (changes.length) {
+  // A held reading already waiting, or one an admin already said no to, isn't logged again.
+  const { data: waiting } = await db().from("field_changes").select("field, new_value").eq("entity_type", "program").eq("entity_slug", slug).in("status", ["held", "rejected"]);
+  const key = (field: string, value: unknown) => `${field}=${stable(value)}`;
+  const seen = new Set(((waiting ?? []) as { field: string; new_value: unknown }[]).map((w) => key(w.field, w.new_value)));
+  const toLog = changes.filter((c) => !c.hold || !seen.has(key(c.field, c.newValue)));
+  if (toLog.length) {
     must(
       await db()
         .from("field_changes")
         .insert(
-          changes.map((c) => ({
+          toLog.map((c) => ({
             entity_type: "program",
             entity_slug: slug,
             field: c.field,

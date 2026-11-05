@@ -132,6 +132,8 @@ export interface ProgramRow {
   required_documents: string[];
   overview_en: string;
   career_paths_en: string[];
+  /** Fields an admin set by hand: never overwritten, a different reading is held for review. */
+  locked_fields?: string[];
 }
 
 export interface PlannedChange {
@@ -145,7 +147,7 @@ export interface PlannedChange {
 
 const RANGES: Record<string, [number, number]> = { ielts: [4, 9], toefl_ibt: [30, 120], pte: [30, 90], duolingo: [60, 160] };
 /** JSON with object keys sorted: the database returns {"year","month","deadline"} in its own key order. */
-function stable(value: unknown): string {
+export function stable(value: unknown): string {
   if (Array.isArray(value)) return `[${value.map(stable).join(",")}]`;
   if (value && typeof value === "object") return `{${Object.keys(value).sort().map((k) => `${JSON.stringify(k)}:${stable((value as Record<string, unknown>)[k])}`).join(",")}}`;
   return JSON.stringify(value ?? null);
@@ -161,7 +163,9 @@ export function planChanges(old: ProgramRow | null, f: ProgramFacts, today: stri
   const changes: PlannedChange[] = [];
   const propose = (field: keyof ProgramRow, value: unknown, evidence: string, hold: string | null = null) => {
     const before = old ? old[field] : null;
-    if (!same(before, value)) changes.push({ field, oldValue: before, newValue: value, evidence, hold });
+    if (same(before, value)) return;
+    if (old?.locked_fields?.includes(field)) hold = "you set this by hand; the page now says something else";
+    changes.push({ field, oldValue: before, newValue: value, evidence, hold });
   };
   const isNew = old === null;
 

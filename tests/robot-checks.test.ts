@@ -100,6 +100,16 @@ describe("planning changes", () => {
     expect(planChanges(OLD, { ...EMPTY, overview_en: "New summary" }, "2026-11-05")).toEqual([]);
   });
 
+  it("never overwrites a field an admin set by hand, but tells them the page disagrees", () => {
+    const locked = { ...OLD, locked_fields: ["tuition_per_year", "currency"] };
+    const c = planChanges(locked, tuition(3500), "2026-11-05");
+    expect(c).toEqual([{ field: "tuition_per_year", oldValue: 3000, newValue: 3500, evidence: "q", hold: expect.stringMatching(/by hand/) }]);
+    // The page agreeing with the admin is no change at all.
+    expect(planChanges(locked, tuition(3000), "2026-11-05")).toEqual([]);
+    // Unlocked fields still update.
+    expect(planChanges(locked, { ...EMPTY, ects_credits: { value: 90, quote: "90 ECTS" } }, "2026-11-05")[0]?.hold).toBeNull();
+  });
+
   it("holds grades on scales the app can't compare yet", () => {
     const c = planChanges(OLD, { ...EMPTY, min_grade: { value: 2.5, scale: 1, note: "German grade 2.5", quote: "q" } }, "2026-11-05");
     expect(c[0]?.hold).toMatch(/converting/);
