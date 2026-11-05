@@ -59,7 +59,11 @@ async function checkOne(source: store.SourceRow, validFields: Set<string>, stats
     const english = await preferEnglish(main);
     if (english.url !== main.url) {
       log("  switching to the English page", english.url);
-      await store.moveSource(source.id, english.url);
+      // Already watched under its English address: this entry was a duplicate and is gone; the other one covers it.
+      if ((await store.moveSource(source.id, english.url)) === "duplicate") {
+        log("  already watched in English, skipped");
+        return;
+      }
       main = english;
     }
   }

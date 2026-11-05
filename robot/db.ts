@@ -212,10 +212,14 @@ export async function retireProgram(slug: string, url: string) {
 }
 
 /** Watches a different URL for this source (its English version). Drops it if that URL is already watched. */
-export async function moveSource(sourceId: string, url: string) {
+export async function moveSource(sourceId: string, url: string): Promise<"moved" | "duplicate"> {
   const { error } = await db().from("sources").update({ url }).eq("id", sourceId);
-  if (error?.code === "23505") await db().from("sources").delete().eq("id", sourceId);
-  else if (error) throw new Error(`move source: ${error.message}`);
+  if (error?.code === "23505") {
+    await db().from("sources").delete().eq("id", sourceId);
+    return "duplicate";
+  }
+  if (error) throw new Error(`move source: ${error.message}`);
+  return "moved";
 }
 
 /** Universities whose program pages haven't been searched for yet (biggest first, as seeded). */
