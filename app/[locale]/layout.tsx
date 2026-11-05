@@ -17,8 +17,8 @@ type Props = {
   params: Promise<{ locale: string }>;
 };
 
-export const dynamicParams = false;
-
+// Both languages are built ahead; an unknown one is sent to "not found" below. (No dynamicParams = false here:
+// in a layout it also applies to every page under it, and the live-data pages are made on first visit.)
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }
