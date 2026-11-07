@@ -33,6 +33,7 @@ export interface SourceRow {
   http_last_modified: string | null;
   consecutive_errors: number;
   next_check_at: string;
+  last_changed_at: string | null;
 }
 
 /** Program pages due for a visit, longest-waiting first; `after` continues from the previous batch. */
@@ -61,11 +62,12 @@ export async function addSource(row: { url: string; kind: string; university: st
   if (error) throw new Error(`add source: ${error.message}`);
 }
 
-/** Next visit: daily by default, later after errors (1, 2, 4 … days, at most 14). */
-export async function markChecked(source: SourceRow, result: { hash?: string; etag?: string | null; lastModified?: string | null; changed?: boolean; error?: string; gone?: boolean }) {
+/** Next visit: after `hours` (see schedule.ts; daily by default), later after errors (1, 2, 4 … days, at most 14). */
+export async function markChecked(source: SourceRow, result: { hash?: string; etag?: string | null; lastModified?: string | null; changed?: boolean; error?: string; gone?: boolean; hours?: number }) {
   const errors = result.error ? source.consecutive_errors + 1 : 0;
-  const days = result.error ? Math.min(2 ** (errors - 1), 14) : 1;
-  const next = new Date(Date.now() + days * 86_400_000 + Math.random() * 3_600_000);
+  const hours = result.error ? Math.min(2 ** (errors - 1), 14) * 24 : (result.hours ?? 24);
+  // A little random spread, so pages found together don't all fall due in the same minute.
+  const next = new Date(Date.now() + hours * 3_600_000 + Math.random() * Math.min(hours, 24) * 150_000);
   const update: Record<string, unknown> = {
     last_checked_at: new Date().toISOString(),
     next_check_at: next.toISOString(),
@@ -81,15 +83,32 @@ export async function markChecked(source: SourceRow, result: { hash?: string; et
   must(await db().from("sources").update(update).eq("id", source.id), "mark checked");
 }
 
+/** Longest page text kept for page search: enough for a program page's facts, small enough for the free plan. */
+const SNAPSHOT_MAX_CHARS = 12_000;
+
 export async function saveSnapshot(sourceId: string, page: FetchedPage): Promise<number | null> {
   const { data, error } = await db()
     .from("page_snapshots")
-    .upsert({ source: sourceId, http_status: page.status, content_hash: page.hash, text_content: page.text }, { onConflict: "source,content_hash" })
+    .upsert({ source: sourceId, http_status: page.status, content_hash: page.hash, text_content: page.text.slice(0, SNAPSHOT_MAX_CHARS) }, { onConflict: "source,content_hash" })
     .select("id")
     .single();
   if (error) throw new Error(`snapshot: ${error.message}`);
   return (data as { id: number } | null)?.id ?? null;
 }
+
+/** Keep only the latest saved copy and reading of a page (supabase/05_robot_storage.sql). Skipped if that SQL isn't applied yet. */
+export async function pruneSource(sourceId: string) {
+  await db().rpc("robot_prune_source", { p_source: sourceId });
+}
+
+/** Database size in MB, or null when supabase/05_robot_storage.sql isn't applied yet. */
+export async function databaseMB(): Promise<number | null> {
+  const { data, error } = await db().rpc("robot_db_size");
+  return error || typeof data !== "number" ? null : Math.round(data / 1_048_576);
+}
+
+/** Stop adding new pages and universities above this size (free plan: 500 MB, read-only when full). */
+export const DATABASE_BRAKE_MB = Number(process.env.ROBOT_DB_LIMIT_MB ?? 430);
 
 export async function saveExtraction(row: { source: string; snapshot: number | null; model: string; result: unknown; input_tokens: number; output_tokens: number; cost_usd: number }): Promise<number> {
   return (must(await db().from("extractions").insert(row).select("id").single(), "extraction") as { id: number }).id;
@@ -221,15 +240,48 @@ export async function moveSource(sourceId: string, url: string): Promise<"moved"
   return "moved";
 }
 
-/** Universities whose program pages haven't been searched for yet (biggest first, as seeded). */
-export async function undiscoveredUniversities(limit: number): Promise<string[]> {
-  // Best ranked first, so the universities students look for most get their programs soonest.
-  const res = await db().from("universities").select("slug").is("discovered_at", null).order("ranking->rank", { ascending: true, nullsFirst: false }).order("created_at").limit(limit);
+/** Universities are searched again this often, to find programs they added since. */
+export const REDISCOVER_DAYS = 30;
+const DAY = 86_400_000;
+
+/**
+ * Universities due for a search: never searched first (best ranked first), then the longest ago.
+ * Rows that failed are dated so they come back after a few days (see markDiscoveryFailed).
+ */
+export async function undiscoveredUniversities(limit: number, offset = 0): Promise<string[]> {
+  const due = new Date(Date.now() - REDISCOVER_DAYS * DAY).toISOString();
+  const res = await db()
+    .from("universities")
+    .select("slug")
+    .or(`discovered_at.is.null,discovered_at.lt.${due}`)
+    .order("discovered_at", { ascending: true, nullsFirst: true })
+    .order("ranking->rank", { ascending: true, nullsFirst: false })
+    .range(offset, offset + limit - 1);
   return (must(res, "undiscovered") as { slug: string }[]).map((u) => u.slug);
+}
+
+/** How many universities came from the ranked list (they have a rank). */
+export async function rankedCount(): Promise<number> {
+  const { count, error } = await db().from("universities").select("slug", { count: "exact", head: true }).not("ranking", "is", null);
+  if (error) throw new Error(`count ranked: ${error.message}`);
+  return count ?? 0;
+}
+
+/** How many universities are waiting for their first search. */
+export async function neverSearchedCount(): Promise<number> {
+  const { count, error } = await db().from("universities").select("slug", { count: "exact", head: true }).is("discovered_at", null);
+  if (error) throw new Error(`count unsearched: ${error.message}`);
+  return count ?? 0;
 }
 
 export async function markDiscovered(slug: string, programPages: number) {
   must(await db().from("universities").update({ discovered_at: new Date().toISOString(), program_pages_found: programPages }).eq("slug", slug), "mark discovered");
+}
+
+/** The website failed (down, blocked, too slow): try again in 3 days, not every shift. */
+export async function markDiscoveryFailed(slug: string) {
+  const retry = new Date(Date.now() - (REDISCOVER_DAYS - 3) * DAY).toISOString();
+  must(await db().from("universities").update({ discovered_at: retry }).eq("slug", slug), "mark discovery failed");
 }
 
 export async function linkSource(sourceId: string, programSlug: string) {

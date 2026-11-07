@@ -231,7 +231,7 @@ export async function seedTop(opts: { total: number; floor: number; fresh: boole
 
   // 4. Cities and universities.
   const cities = await all<{ slug: string; country: string }>("cities", "slug, country");
-  const unis = await all<{ slug: string; website: string; source_url: string; origin: string }>("universities", "slug, website, source_url, origin");
+  const unis = await all<{ slug: string; website: string; source_url: string; origin: string; city: string; ranking: { rank?: number; country_rank?: number } | null }>("universities", "slug, website, source_url, origin, city, ranking");
   const cityCountry = new Map(cities.map((c) => [c.slug, c.country]));
   const bySlug = new Map(unis.map((u) => [u.slug, u]));
   const byQid = new Map(unis.map((u) => [qidOf(u.source_url), u]).filter(([q]) => q) as [string, (typeof unis)[number]][]);
@@ -264,7 +264,10 @@ export async function seedTop(opts: { total: number; floor: number; fresh: boole
     const existing = (qid && byQid.get(qid)) || byHost.get(host(i.homepage_url!));
     if (existing) {
       // Robot rows get the corrected city too; rows you made or edited only get the rank.
-      updates.push({ slug: existing.slug, patch: existing.origin === "robot" ? { ranking, city } : { ranking } });
+      // Only rows whose rank or city really changed are written (growing the list shifts some ranks).
+      const sameRank = existing.ranking?.rank === ranking.rank && existing.ranking?.country_rank === ranking.country_rank;
+      const sameCity = existing.origin !== "robot" || existing.city === city;
+      if (!sameRank || !sameCity) updates.push({ slug: existing.slug, patch: existing.origin === "robot" ? { ranking, city } : { ranking } });
       continue;
     }
     let slug = slugify(i.display_name);

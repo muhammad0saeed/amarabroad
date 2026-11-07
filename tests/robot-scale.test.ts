@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { interleave, pool, shardOf } from "@/robot/pool";
 import { choose } from "@/robot/seed-top";
+import { HOURS, nextCheckHours } from "@/robot/schedule";
 
 const inst = (id: string, h: number) => ({
   id,
@@ -58,5 +59,27 @@ describe("sharing the daily check between jobs", () => {
     const late: number[] = [];
     await pool([1, 2, 3], 2, Date.now() - 1, async (n) => void late.push(n));
     expect(late).toEqual([]);
+  });
+});
+
+describe("when to visit a page next", () => {
+  const now = new Date("2026-11-07T00:00:00Z");
+  const ago = (days: number) => new Date(now.getTime() - days * 86_400_000).toISOString();
+  const ahead = (days: number) => new Date(now.getTime() + days * 86_400_000).toISOString().slice(0, 10);
+
+  it("visits pages that just changed or changed this week every 6 hours", () => {
+    expect(nextCheckHours({ changedNow: true, lastChangedAt: null, deadlines: [], now })).toBe(HOURS.hot);
+    expect(nextCheckHours({ changedNow: false, lastChangedAt: ago(3), deadlines: [], now })).toBe(HOURS.hot);
+  });
+
+  it("visits pages with a deadline in the next 45 days every 6 hours", () => {
+    expect(nextCheckHours({ changedNow: false, lastChangedAt: ago(200), deadlines: [ahead(20)], now })).toBe(HOURS.hot);
+    expect(nextCheckHours({ changedNow: false, lastChangedAt: ago(30), deadlines: [ahead(120)], now })).toBe(HOURS.normal);
+  });
+
+  it("visits long-quiet pages every 2 days, the rest daily", () => {
+    expect(nextCheckHours({ changedNow: false, lastChangedAt: ago(120), deadlines: [ahead(-30)], now })).toBe(HOURS.quiet);
+    expect(nextCheckHours({ changedNow: false, lastChangedAt: ago(30), deadlines: [], now })).toBe(HOURS.normal);
+    expect(nextCheckHours({ changedNow: false, lastChangedAt: null, deadlines: [], now })).toBe(HOURS.normal);
   });
 });

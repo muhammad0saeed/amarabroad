@@ -4,9 +4,11 @@
 //   npm run robot -- seed-top [--total 5000] [--floor 50] [--fresh] [--dry]   add the top universities of all our countries (OpenAlex rank)
 //   npm run robot -- seed <country code> [--limit 30]   add a country's universities from Wikidata
 //   npm run robot -- discover <university-slug>          find a university's program pages and watch them
-//   npm run robot -- discover-all [--limit 20]           the same for every university not yet searched
+//   npm run robot -- discover-all [--limit 20] [--parallel 10] [--minutes M] [--shard i/n]
+//                                                        the same for universities never searched, then each again every 30 days
+//   npm run robot -- grow [--step 500] [--when-below 500] add the next universities by rank when the search queue runs low
 //   npm run robot -- add <url> --university <slug>       watch one program page
-//   npm run robot -- check [--limit 300] [--reread]      visit due program pages, update what changed
+//   npm run robot -- check [--parallel 50] [--minutes M] [--shard i/n] [--reread]   visit due program pages, update what changed
 //                                                        (--reread: read known pages again after a rule improvement)
 
 import { planChanges } from "./checks.ts";
@@ -16,6 +18,7 @@ import { fetchPage, fetchPageDetailed, preferEnglish, readPages, relatedCandidat
 import { seedCountry, slugify } from "./seed.ts";
 import { seedTop } from "./seed-top.ts";
 import { interleave, pool, shardOf } from "./pool.ts";
+import { nextCheckHours } from "./schedule.ts";
 
 const [command, ...rest] = process.argv.slice(2);
 const flag = (name: string, fallback?: string) => {
@@ -47,6 +50,32 @@ interface Stats {
 async function checkOne(source: store.SourceRow, validFields: Set<string>, stats: Stats, reread = false) {
   const uni = source.university ? await store.universityContext(source.university) : null;
   if (!uni) throw new Error(`source ${source.url} has no university`);
+
+  // Shortcut for pages we already read: ask "changed since last time?" (ETag / Last-Modified).
+  // If the program page and its fee/deadline pages all say no, confirm the facts without downloading anything.
+  if (source.entity_slug && !reread && (source.http_etag || source.http_last_modified)) {
+    const first = await fetchPageDetailed(source.url, { etag: source.http_etag, lastModified: source.http_last_modified });
+    stats.pages_checked++;
+    if (!first.page && first.notModified) {
+      let childChanged = false;
+      for (const c of await store.childSources(source.entity_slug)) {
+        const r = await fetchPageDetailed(c.url, { etag: c.http_etag, lastModified: c.http_last_modified });
+        stats.pages_checked++;
+        if (!(r.page ? r.page.hash === c.content_hash : r.notModified)) {
+          childChanged = true;
+          break;
+        }
+      }
+      const existing = childChanged ? null : await store.loadProgram(source.entity_slug);
+      if (existing) {
+        await store.confirmProgram(existing.slug, today());
+        await store.markChecked(source, { hours: nextCheckHours({ changedNow: false, lastChangedAt: source.last_changed_at, deadlines: existing.intakes.map((i) => i.deadline) }) });
+        log("  not modified, confirmed");
+        return;
+      }
+    }
+  }
+
   const fetched = await fetchPageDetailed(source.url);
   stats.pages_checked++;
   if (!fetched.page) {
@@ -84,8 +113,9 @@ async function checkOne(source: store.SourceRow, validFields: Set<string>, stats
 
   if (!changed && existing) {
     await store.confirmProgram(existing.slug, today());
-    await store.markChecked(source, { hash: main.hash, etag: main.etag, lastModified: main.lastModified });
-    for (const c of childPages) await store.markChecked(c.source!, { hash: c.page.hash });
+    const hours = nextCheckHours({ changedNow: false, lastChangedAt: source.last_changed_at, deadlines: existing.intakes.map((i) => i.deadline) });
+    await store.markChecked(source, { hash: main.hash, etag: main.etag, lastModified: main.lastModified, hours });
+    for (const c of childPages) await store.markChecked(c.source!, { hash: c.page.hash, etag: c.page.etag, lastModified: c.page.lastModified });
     log("  unchanged, confirmed");
     return;
   }
@@ -99,14 +129,15 @@ async function checkOne(source: store.SourceRow, validFields: Set<string>, stats
     }
   }
   const read = readPages([main, ...childPages.map((c) => c.page)], today());
-  const snapshot = await store.saveSnapshot(source.id, main);
-  const extraction = await store.saveExtraction({ source: source.id, snapshot, model: RULES_VERSION, result: { raw: read.raw, dropped: read.dropped }, input_tokens: 0, output_tokens: 0, cost_usd: 0 });
-
+  // Pages that aren't a program are not stored at all (saves database space).
   if (!read.facts.is_program_page || !read.facts.title || (!existing && !read.facts.degree_level)) {
     await store.markChecked(source, { hash: main.hash, error: "not a single program page" });
     log("  not a program page");
     return;
   }
+  const snapshot = await store.saveSnapshot(source.id, main);
+  const extraction = await store.saveExtraction({ source: source.id, snapshot, model: RULES_VERSION, result: { raw: read.raw, dropped: read.dropped }, input_tokens: 0, output_tokens: 0, cost_usd: 0 });
+  await store.pruneSource(source.id);
 
   const slug = existing?.slug ?? (await newProgramSlug(read.facts.title, uni.name));
   const changes = planChanges(existing, read.facts, today(), validFields);
@@ -122,12 +153,20 @@ async function checkOne(source: store.SourceRow, validFields: Set<string>, stats
   stats.changes_applied += result.applied;
   stats.changes_held += result.held;
   if (!existing) await store.linkSource(source.id, slug);
-  await store.markChecked(source, { hash: main.hash, etag: main.etag, lastModified: main.lastModified, changed: true });
+  await store.markChecked(source, { hash: main.hash, etag: main.etag, lastModified: main.lastModified, changed: true, hours: nextCheckHours({ changedNow: true, lastChangedAt: null, deadlines: [] }) });
   for (const c of childPages) {
-    if (c.source) await store.markChecked(c.source, { hash: c.page.hash, changed: true });
+    if (c.source) await store.markChecked(c.source, { hash: c.page.hash, etag: c.page.etag, lastModified: c.page.lastModified, changed: true });
     else await store.addSource({ url: c.page.url, kind: "fees_page", university: uni.slug, entity_slug: slug });
   }
   log(`  ${existing ? "updated" : "new"} ${slug}: ${result.applied} applied, ${result.held} held, ${read.dropped.length} dropped${result.published ? ", published" : ", not complete yet"}`);
+}
+
+/** True (and says so) when the database is near the plan limit: then the robot only updates what it already has. */
+async function databaseFull(): Promise<boolean> {
+  const mb = await store.databaseMB();
+  if (mb === null || mb < store.DATABASE_BRAKE_MB) return false;
+  log(`Database is ${mb} MB (brake at ${store.DATABASE_BRAKE_MB} MB): updating known programs only, adding nothing new. More room: Supabase Pro, or raise ROBOT_DB_LIMIT_MB.`);
+  return true;
 }
 
 /**
@@ -171,13 +210,16 @@ async function check() {
       const batch = await store.dueProgramSources(1000, after);
       if (!batch.length) break;
       after = batch.at(-1)!.next_check_at;
-      const mine = batch.filter((s) => shardOf(s.university ?? s.url, shards) === shard).slice(0, limit - taken);
+      // Near the database limit: keep known programs up to date, but don't read new pages.
+      const full = await databaseFull();
+      const mine = batch.filter((s) => shardOf(s.university ?? s.url, shards) === shard && (!full || s.entity_slug)).slice(0, limit - taken);
       taken += mine.length;
       await pool(interleave(mine), parallel, deadline, one);
     }
     if (Date.now() >= deadline) log("Time budget used up; the rest are first in line tomorrow.");
   }
-  await store.finishRun(run, stats);
+  const mb = await store.databaseMB();
+  await store.finishRun(run, { ...stats, notes: mb === null ? undefined : `database ${mb} MB` });
   log(`Done: ${stats.pages_checked} pages, ${stats.pages_changed} changed, ${stats.changes_applied} values applied, ${stats.changes_held} held, ${stats.errors} errors`);
 }
 
@@ -185,7 +227,7 @@ async function discoverOne(slug: string): Promise<number> {
   const uni = await store.universityContext(slug);
   if (!uni) throw new Error(`No university ${slug}`);
   log(`Looking for program pages on ${uni.website}`);
-  const { programs, method, fetched } = await discoverPrograms(uni.website, { maxPages: Number(flag("pages", "400")) });
+  const { programs, method, fetched } = await discoverPrograms(uni.website, { maxPages: Number(flag("pages", "400")), maxMinutes: Number(flag("uni-minutes", "40")) });
   for (const p of programs) await store.addSource({ url: p.url, kind: "program_page", university: slug, status: "discovered" });
   await store.markDiscovered(slug, programs.length);
   log(`  ${uni.name}: ${programs.length} program pages (${method}${fetched ? `, ${fetched} pages read` : ""})`);
@@ -201,30 +243,62 @@ async function discover() {
 
 /** Several universities at once: each website still gets one request at a time, a few seconds apart. */
 /** Best-ranked first. --minutes stops taking new universities after that long (each one takes at most 40 minutes). */
+/**
+ * Searches universities for program pages: never-searched ones first (best ranked first), then each
+ * one again every 30 days to catch new programs. --shard i/n splits the work between jobs.
+ * --minutes stops taking new universities after that long (each one takes at most 40 minutes).
+ */
 async function discoverAll() {
   const limit = Number(flag("limit", "20"));
   const parallel = Number(flag("parallel", "10"));
   const minutes = Number(flag("minutes", "0"));
   const deadline = minutes > 0 ? Date.now() + minutes * 60_000 : Infinity;
-  log(`Searching up to ${limit} universities, ${parallel} at a time${minutes ? `, for ${minutes} minutes` : ""}`);
+  const [shard, shards] = (flag("shard", "0/1") ?? "0/1").split("/").map(Number) as [number, number];
+  log(`Searching up to ${limit} universities, ${parallel} at a time${minutes ? `, for ${minutes} minutes` : ""}${shards > 1 ? `, shard ${shard}/${shards}` : ""}`);
   let total = 0;
   let searched = 0;
+  let offset = 0; // rows ahead of ours that stay in the list (other shards' turn)
   const tried = new Set<string>();
   while (searched < limit && Date.now() < deadline) {
-    // Ones that failed today stay unsearched (retried tomorrow), so skip them in this run.
-    const slugs = (await store.undiscoveredUniversities(Math.min(1000, limit - searched + tried.size))).filter((s) => !tried.has(s)).slice(0, limit - searched);
-    if (!slugs.length) break;
-    for (const s of slugs) tried.add(s);
-    searched += slugs.length;
-    await pool(slugs, parallel, deadline, async (slug) => {
+    if (await databaseFull()) break;
+    const batch = await store.undiscoveredUniversities(1000, offset);
+    if (!batch.length) break;
+    const mine = batch.filter((s) => shardOf(s, shards) === shard && !tried.has(s)).slice(0, limit - searched);
+    offset += batch.filter((s) => shardOf(s, shards) !== shard || tried.has(s)).length;
+    if (!mine.length) {
+      if (batch.length < 1000) break;
+      continue;
+    }
+    for (const s of mine) tried.add(s);
+    searched += mine.length;
+    await pool(mine, parallel, deadline, async (slug) => {
       try {
         total += await discoverOne(slug);
       } catch (e) {
         log(`  ${slug}: ${e instanceof Error ? e.message : String(e)}`);
+        await store.markDiscoveryFailed(slug).catch(() => {});
       }
     });
   }
   log(`${total} program pages added. They'll be read on the next check.`);
+}
+
+/**
+ * Keeps the list growing: when fewer than --when-below universities wait for their first search,
+ * adds the next --step universities by rank (OpenAlex), so discovery never runs out of work.
+ */
+async function grow() {
+  const step = Number(flag("step", "500"));
+  const below = Number(flag("when-below", "500"));
+  if (await databaseFull()) return;
+  const waiting = await store.neverSearchedCount();
+  if (waiting >= below) {
+    log(`${waiting} universities still wait for their first search; adding more once that drops below ${below}.`);
+    return;
+  }
+  const ranked = await store.rankedCount();
+  log(`Only ${waiting} wait for a first search: growing the ranked list from ${ranked} to ${ranked + step}`);
+  await seedTop({ total: ranked + step, floor: Number(flag("floor", "50")), fresh: false, dry: false });
 }
 
 async function add() {
@@ -239,6 +313,7 @@ const commands: Record<string, () => Promise<void>> = {
   check,
   discover,
   "discover-all": discoverAll,
+  grow,
   add,
   seed: () => seedCountry(rest[0] ?? "", Number(flag("limit", "30"))),
   "seed-top": () => seedTop({ total: Number(flag("total", "5000")), floor: Number(flag("floor", "50")), fresh: rest.includes("--fresh"), dry: rest.includes("--dry") }),

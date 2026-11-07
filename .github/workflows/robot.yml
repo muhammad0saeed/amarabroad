@@ -1,34 +1,60 @@
 # The data robot, on GitHub's servers, not on your PC. No AI or paid service is used.
 # Needs two repository secrets (Settings → Secrets and variables → Actions): SUPABASE_URL, SUPABASE_SECRET_KEY.
 #
-# Every day, at the same time:
-#   check (4 jobs side by side)  visit every due program page and update what changed
-#   discover (1 job)             search universities not searched yet for program pages, best ranked first
-# Each job works for up to 5 hours. Free and unlimited only while the repository is PUBLIC
-# (a private repository gets 2,000 free minutes a month, which this would use up in about a week).
+# It works non-stop: a new shift starts every 6 hours and each job works for about 5½ hours.
+#   check     6 jobs × 50 websites at once  visit due program pages and update what changed
+#                                           (hot pages every 6 h, normal daily, quiet every 2 days; see robot/schedule.ts)
+#   discover  4 jobs × 40 universities      search universities for program pages: new ones first (best ranked first),
+#                                           then each again every 30 days; adds the next 500 by rank when few are left
+#
+# Full speed is free only while the repository is PUBLIC. While it is private, GitHub gives 2,000 minutes
+# a month, so the "plan" job switches to a small version (a few minutes per shift) that fits inside that.
 name: Data robot
 
 on:
   schedule:
-    - cron: "30 1 * * *" # daily, 07:30 Bangladesh time
+    - cron: "0 0,6,12,18 * * *" # every 6 hours (06:00, 12:00, 18:00, 00:00 Bangladesh time)
   workflow_dispatch:
-    inputs:
-      task:
-        description: "check, discover or both"
-        default: "both"
-      minutes:
-        description: "Minutes each job works before stopping"
-        default: "300"
 
 jobs:
-  check:
-    if: github.event_name == 'schedule' || inputs.task == 'check' || inputs.task == 'both'
+  plan:
     runs-on: ubuntu-latest
-    timeout-minutes: 350
+    timeout-minutes: 5
+    outputs:
+      check_shards: ${{ steps.size.outputs.check_shards }}
+      discover_shards: ${{ steps.size.outputs.discover_shards }}
+      check_minutes: ${{ steps.size.outputs.check_minutes }}
+      discover_minutes: ${{ steps.size.outputs.discover_minutes }}
+      uni_minutes: ${{ steps.size.outputs.uni_minutes }}
+    steps:
+      - id: size
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ "$(gh api repos/${{ github.repository }} --jq .private)" = "false" ]; then
+            echo "Public repository: full speed"
+            echo 'check_shards=[0,1,2,3,4,5]' >> "$GITHUB_OUTPUT"
+            echo 'discover_shards=[0,1,2,3]' >> "$GITHUB_OUTPUT"
+            echo 'check_minutes=330' >> "$GITHUB_OUTPUT"
+            echo 'discover_minutes=300' >> "$GITHUB_OUTPUT"
+            echo 'uni_minutes=40' >> "$GITHUB_OUTPUT"
+          else
+            echo "Private repository: small version to stay inside the free minutes. Make the repository public for full speed."
+            echo 'check_shards=[0]' >> "$GITHUB_OUTPUT"
+            echo 'discover_shards=[0]' >> "$GITHUB_OUTPUT"
+            echo 'check_minutes=6' >> "$GITHUB_OUTPUT"
+            echo 'discover_minutes=3' >> "$GITHUB_OUTPUT"
+            echo 'uni_minutes=4' >> "$GITHUB_OUTPUT"
+          fi
+
+  check:
+    needs: plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
     strategy:
       fail-fast: false
       matrix:
-        shard: [0, 1, 2, 3]
+        shard: ${{ fromJSON(needs.plan.outputs.check_shards) }}
     concurrency:
       group: robot-check-${{ matrix.shard }}
       cancel-in-progress: false
@@ -39,19 +65,23 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      - name: Check program pages (shard ${{ matrix.shard }} of 4)
-        run: npm run robot -- check --parallel 40 --minutes ${{ inputs.minutes || '300' }} --shard ${{ matrix.shard }}/4
+      - name: Check program pages
+        run: npm run robot -- check --parallel 50 --minutes ${{ needs.plan.outputs.check_minutes }} --shard ${{ matrix.shard }}/${{ strategy.job-total }}
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
           ROBOT_CONTACT_URL: ${{ vars.ROBOT_CONTACT_URL }}
 
   discover:
-    if: github.event_name == 'schedule' || inputs.task == 'discover' || inputs.task == 'both'
+    needs: plan
     runs-on: ubuntu-latest
-    timeout-minutes: 350
+    timeout-minutes: 355
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: ${{ fromJSON(needs.plan.outputs.discover_shards) }}
     concurrency:
-      group: robot-discover
+      group: robot-discover-${{ matrix.shard }}
       cancel-in-progress: false
     steps:
       - uses: actions/checkout@v4
@@ -60,8 +90,14 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
+      - name: Add more universities when few are left to search
+        if: matrix.shard == 0
+        run: npm run robot -- grow --step 500 --when-below 500
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
       - name: Discover program pages
-        run: npm run robot -- discover-all --limit 100000 --parallel 30 --minutes ${{ inputs.minutes || '290' }}
+        run: npm run robot -- discover-all --limit 100000 --parallel 40 --minutes ${{ needs.plan.outputs.discover_minutes }} --uni-minutes ${{ needs.plan.outputs.uni_minutes }} --shard ${{ matrix.shard }}/${{ strategy.job-total }}
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}

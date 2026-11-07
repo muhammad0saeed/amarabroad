@@ -21,12 +21,16 @@ export interface FetchedPage {
 
 const RELATED = /(fee|tuition|cost|deadline|dates|apply|application|admission|requirement|language|english|entry|eligib|bewerb|gebühr|zulassung|tasse|ammission)/i;
 
-export type FetchOutcome = { page: FetchedPage } | { page: null; status: number | null; reason: string };
+export type FetchOutcome = { page: FetchedPage } | { page: null; status: number | null; reason: string; notModified?: boolean };
 
-/** Fetches and cleans a page, saying why when there's nothing to read. */
-export async function fetchPageDetailed(url: string): Promise<FetchOutcome> {
+/**
+ * Fetches and cleans a page, saying why when there's nothing to read. With `previous` (the last visit's
+ * ETag / Last-Modified) the site can answer "not modified" without sending the page: notModified is then true.
+ */
+export async function fetchPageDetailed(url: string, previous: { etag?: string | null; lastModified?: string | null } = {}): Promise<FetchOutcome> {
   try {
-    const res = await politeFetch(url);
+    const res = await politeFetch(url, previous);
+    if (res.notModified) return { page: null, status: 304, reason: "not modified", notModified: true };
     if (res.status >= 400) return { page: null, status: res.status, reason: `HTTP ${res.status}` };
     if (res.kind !== "html") return { page: null, status: res.status, reason: "not an HTML page" };
     const text = htmlToText(res.body);

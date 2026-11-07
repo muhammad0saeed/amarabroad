@@ -13,6 +13,16 @@ OpenAlex ─seed-top─► universities ─discover─► program pages ─check
                                        plausible → published      surprising → held for you in /admin
 ```
 
+## How it runs (non-stop, .github/workflows/robot.yml)
+
+A new shift starts every 6 hours; each job works about 5½ hours, so the robot is practically always working:
+
+- **check**: 6 jobs × 50 websites at once. Asks each site "changed since last time?" (ETag / Last-Modified) and skips unchanged pages without downloading. Hot pages (changed this week, or a deadline within 45 days) every 6 hours, normal pages daily, pages quiet for 90 days every 2 days (`schedule.ts`).
+- **discover**: 4 jobs × 40 universities at once. Never-searched universities first, best ranked first; then each university again every 30 days to catch new programs. Failed websites are retried after 3 days.
+- **grow**: when fewer than 500 universities wait for a first search, adds the next 500 by rank.
+- **Database brake**: above 430 MB (free plan: 500 MB) it only updates known programs and adds nothing new. Only program pages are stored, one latest copy each (`supabase/05_robot_storage.sql`).
+- **Private repository**: the plan job switches to a small version that fits GitHub's 2,000 free minutes. Public = full speed.
+
 ## Commands
 
 | Command | What it does | Needs |
@@ -24,7 +34,8 @@ OpenAlex ─seed-top─► universities ─discover─► program pages ─check
 | `npm run robot -- seed-top --total 5000 --floor 50` | Add the top universities of all 30 countries, ranked by OpenAlex research h-index (every country gets at least the floor), with real cities | Supabase |
 | `npm run robot -- seed DE --limit 30` | Add a country's universities (and their cities) from Wikidata | Supabase |
 | `npm run robot -- discover <university-slug>` | Find that university's program pages and start watching them | Supabase |
-| `npm run robot -- discover-all --limit 50 --parallel 10` | The same for every university not searched yet | Supabase |
+| `npm run robot -- discover-all --limit 50 --parallel 10 [--shard 0/4] [--minutes 300]` | The same for universities never searched, then each again every 30 days | Supabase |
+| `npm run robot -- grow --step 500 --when-below 500` | Add the next universities by rank when few are left to search | Supabase |
 | `npm run robot -- add <url> --university <slug>` | Watch one program page by hand | Supabase |
 | `npm run robot -- check --parallel 40 --minutes 300 --shard 0/4` | Visit due pages and update what changed (runs daily as 4 shards side by side) | Supabase |
 
