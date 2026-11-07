@@ -23,6 +23,10 @@ export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }
 
+// Every public page is rebuilt from the database at most 10 minutes after the robot changes something
+// (home, match, compare, countries… were otherwise frozen at the last deploy).
+export const revalidate = 600;
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "meta" });

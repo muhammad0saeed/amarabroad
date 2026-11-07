@@ -76,6 +76,16 @@ export async function sendWrongInfo(programSlug: string, form: WrongInfoForm, en
   return { ok: true, notified };
 }
 
+/** The page a problem was reported on, kept only if it is a normal web address (shown as a link in /admin). */
+function safePageUrl(raw: string): string {
+  try {
+    const u = new URL(raw);
+    return u.protocol === "https:" || u.protocol === "http:" ? u.toString().slice(0, 500) : "";
+  } catch {
+    return "";
+  }
+}
+
 export async function sendProblem(form: ProblemForm, context: { pageUrl: string; userAgent: string; appVersion: string }, env: Envelope): Promise<ReportResult<ProblemForm>> {
   const fields = validateProblem(form);
   if (!isValid(fields)) return { ok: false, error: "invalid", fields };
@@ -88,7 +98,7 @@ export async function sendProblem(form: ProblemForm, context: { pageUrl: string;
     {
       type: form.type,
       description: form.description.trim(),
-      page_url: context.pageUrl.slice(0, 500),
+      page_url: safePageUrl(context.pageUrl),
       user_agent: context.userAgent.slice(0, 500),
       app_version: context.appVersion.slice(0, 50),
       email: clean(form.email),
