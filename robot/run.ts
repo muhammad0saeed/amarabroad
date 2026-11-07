@@ -228,6 +228,9 @@ async function discoverOne(slug: string): Promise<number> {
   if (!uni) throw new Error(`No university ${slug}`);
   log(`Looking for program pages on ${uni.website}`);
   const { programs, method, fetched } = await discoverPrograms(uni.website, { maxPages: Number(flag("pages", "400")), maxMinutes: Number(flag("uni-minutes", "40")) });
+  // Nothing readable past the home page: the site blocked the robot (403) or is down. That is a failure
+  // (retried in a few days), not "this university has no programs".
+  if (!programs.length && method === "crawl" && fetched <= 2) throw new Error("website blocked the robot or did not answer");
   for (const p of programs) await store.addSource({ url: p.url, kind: "program_page", university: slug, status: "discovered" });
   await store.markDiscovered(slug, programs.length);
   log(`  ${uni.name}: ${programs.length} program pages (${method}${fetched ? `, ${fetched} pages read` : ""})`);

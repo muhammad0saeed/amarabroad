@@ -8,7 +8,8 @@
 #                                           then each again every 30 days; adds the next 500 by rank when few are left
 #
 # Full speed is free only while the repository is PUBLIC. While it is private, GitHub gives 2,000 minutes
-# a month, so the "plan" job switches to a small version (a few minutes per shift) that fits inside that.
+# a month, so the "plan" job switches to a small version that fits inside that: a few minutes of page checks per
+# shift and no discovery (a rushed search would mark universities as searched after only a shallow look).
 name: Data robot
 
 on:
@@ -21,6 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
+      full: ${{ steps.size.outputs.full }}
       check_shards: ${{ steps.size.outputs.check_shards }}
       discover_shards: ${{ steps.size.outputs.discover_shards }}
       check_minutes: ${{ steps.size.outputs.check_minutes }}
@@ -33,13 +35,15 @@ jobs:
         run: |
           if [ "$(gh api repos/${{ github.repository }} --jq .private)" = "false" ]; then
             echo "Public repository: full speed"
+            echo 'full=true' >> "$GITHUB_OUTPUT"
             echo 'check_shards=[0,1,2,3,4,5]' >> "$GITHUB_OUTPUT"
             echo 'discover_shards=[0,1,2,3]' >> "$GITHUB_OUTPUT"
             echo 'check_minutes=330' >> "$GITHUB_OUTPUT"
             echo 'discover_minutes=300' >> "$GITHUB_OUTPUT"
             echo 'uni_minutes=40' >> "$GITHUB_OUTPUT"
           else
-            echo "Private repository: small version to stay inside the free minutes. Make the repository public for full speed."
+            echo "Private repository: small version (page checks only) to stay inside the free minutes. Make the repository public for full speed and discovery."
+            echo 'full=false' >> "$GITHUB_OUTPUT"
             echo 'check_shards=[0]' >> "$GITHUB_OUTPUT"
             echo 'discover_shards=[0]' >> "$GITHUB_OUTPUT"
             echo 'check_minutes=6' >> "$GITHUB_OUTPUT"
@@ -74,6 +78,7 @@ jobs:
 
   discover:
     needs: plan
+    if: needs.plan.outputs.full == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 355
     strategy:
