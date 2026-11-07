@@ -38,6 +38,7 @@ A new shift starts every 6 hours; each job works about 5½ hours, so the robot i
 | `npm run robot -- grow --step 500 --when-below 500` | Add the next universities by rank when few are left to search | Supabase |
 | `npm run robot -- add <url> --university <slug>` | Watch one program page by hand | Supabase |
 | `npm run robot -- check --parallel 40 --minutes 300 --shard 0/4` | Visit due pages and update what changed (runs daily as 4 shards side by side) | Supabase |
+| `npm run robot -- official <au\|us\|uk> [--file F] [--dry] [--all] [--university slug]` | Programs from an official government course list, for universities whose websites block the robot (see below). `--dry` only shows the matches | Supabase |
 
 "Supabase" means `SUPABASE_URL` and `SUPABASE_SECRET_KEY` in `.env.local` (or GitHub secrets for the daily run).
 
@@ -69,6 +70,33 @@ The lines a fact was found in are saved as its **evidence**, shown on the site w
 4. **Complete or invisible.** The database refuses to publish a program without subject, language, length, tuition, intakes and a check date.
 5. **Logged.** `field_changes` keeps every change with old value, new value, evidence and page.
 6. **Facts it can't find** are shown as "Not found, check the official page", never guessed.
+
+## Universities that block the robot: official course lists (official-data.ts)
+
+Some big universities (Oxford, UCL, Melbourne, Monash, Johns Hopkins…) refuse robots (HTTP 403). The robot never pretends to be a browser to get around that. For these it uses the course lists governments publish for free reuse:
+
+| Country | Dataset | Licence | What it gives | Download |
+| --- | --- | --- | --- | --- |
+| Australia | [CRICOS register](https://data.gov.au/data/dataset/cricos), Department of Education | CC BY 2.5 AU | every course for student-visa holders: name, level, weeks, language, whole-course tuition | automatic, monthly updates |
+| US | [College Scorecard](https://collegescorecard.ed.gov/data/), Department of Education | US government data, public domain | each university's subjects with bachelor's/master's graduates (CIP codes), out-of-state tuition | automatic, no key needed |
+| UK | [Discover Uni dataset](https://www.hesa.ac.uk/data-and-analysis/discover-uni-dataset), HESA / Office for Students | CC BY 4.0 | every course with the university's own course page | **by hand** (see below) |
+| Canada | none: there is no national list of university programs (only provincial statistics) | | | |
+
+How it works:
+
+1. **Match** each dataset provider to our universities by name or by the main part of the website (`www.monash.edu.au` = `monash.edu`). One provider goes to one university; unclear matches are left out and listed.
+2. **Pick the blocked ones**: universities whose search failed, or whose program pages mostly refuse to load, and that have no program read from their own pages. (`--all` takes every matched university, `--university` one.)
+3. **Save programs** through the same checks as page reading (`planChanges`, `applyProgram`). Each value's evidence is the dataset's own row (`CRICOS course 001447E "Bachelor of Economics": Duration 156 weeks`) linking to the dataset page, so the site shows "data.gov.au" or "collegescorecard.ed.gov" as the source. "Apply" goes to the university's course page (UK) or website (AU, US).
+4. **UK course pages** are also added as `program_page` sources: the daily check reads them when the website allows, and adds what the page says (fees, deadlines) to the same program.
+5. A program the robot already read from the university's own page always wins; the importer never overwrites it. Re-runs update earlier imports (surprising changes are held for you, as usual).
+6. When the robot later reads a course page whose title matches an imported program at the same university, it adds the page's facts to that program instead of making a second one (`datasetTwin` in `db.ts`).
+
+Weekly: the `official` job in `.github/workflows/robot.yml` runs every Monday (03:30 Bangladesh time): **Australia for every matched university** (`--all`, about 8,000 programs), **the US for blocked universities only**. All ~820 matched US universities would be about 80,000 programs (≈600 MB), more than the free database (500 MB) holds; with Supabase Pro, add `--all` to the US line too.
+
+**UK, by hand (once a year is enough; courses change yearly):** HESA's download page has an "are you a robot?" check, which the robot must not get around. Open the link above in your browser, download the latest zip, then run
+`npm run robot -- official uk --file "C:\path\to\the.zip"` (a folder with the unzipped CSV files works too).
+
+Limits: CRICOS fees are the whole-course fee registered with the government, divided by the years; universities' current fees can be a little different. Scorecard programs are subject areas ("Computer Science – Bachelor's degree"), not each course's exact name, and have no length. Datasets have no deadlines or English test scores; those show "Not found, check the official page". Programs without a clear subject stay hidden, as always.
 
 ## Being a good guest on university websites
 

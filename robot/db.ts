@@ -3,6 +3,7 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { stable, type PlannedChange, type ProgramRow } from "./checks.ts";
 import type { FetchedPage } from "./pipeline.ts";
+import { fromDataset } from "./official-data.ts";
 
 let client: SupabaseClient | null = null;
 export function db(): SupabaseClient {
@@ -144,6 +145,13 @@ export async function loadProgram(slug: string): Promise<(ProgramRow & { publish
   return row as unknown as ProgramRow & { published: boolean; origin: string };
 }
 
+/** A program at this university with the same title whose facts came from an official dataset (official-data.ts). */
+export async function datasetTwin(university: string, title: string): Promise<string | null> {
+  const pattern = title.trim().replace(/[\\%_]/g, (c) => `\\${c}`);
+  const { data } = await db().from("programs").select("slug, source_url").eq("university", university).ilike("title", pattern).limit(5);
+  return ((data ?? []) as { slug: string; source_url: string }[]).find((p) => fromDataset(p.source_url))?.slug ?? null;
+}
+
 export async function slugTaken(slug: string): Promise<boolean> {
   const { count } = await db().from("programs").select("slug", { count: "exact", head: true }).eq("slug", slug);
   return (count ?? 0) > 0;
@@ -159,8 +167,11 @@ export async function applyProgram(args: {
   isNew: boolean;
   create?: { title: string; university: string; degree_level: string; official_url: string };
   changes: PlannedChange[];
-  extraction: number;
+  /** The saved page reading; null when the facts came from an official dataset, not a page. */
+  extraction: number | null;
   sourceUrl: string;
+  /** Where students apply (defaults to sourceUrl, the page the facts were read from). */
+  officialUrl?: string;
   today: string;
 }): Promise<{ applied: number; held: number; published: boolean }> {
   const { slug, changes, today } = args;
@@ -171,7 +182,7 @@ export async function applyProgram(args: {
   const update: Record<string, unknown> = Object.fromEntries(applied.map((c) => [c.field, c.newValue]));
   update.last_verified = today;
   update.source_url = args.sourceUrl;
-  update.official_url = args.sourceUrl;
+  update.official_url = args.officialUrl ?? args.sourceUrl;
   update.is_sample = false;
   must(await db().from("programs").update(update).eq("slug", slug), "update program");
 

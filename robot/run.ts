@@ -10,6 +10,8 @@
 //   npm run robot -- add <url> --university <slug>       watch one program page
 //   npm run robot -- check [--parallel 50] [--minutes M] [--shard i/n] [--reread]   visit due program pages, update what changed
 //                                                        (--reread: read known pages again after a rule improvement)
+//   npm run robot -- official <au|us|uk> [--file F] [--all] [--dry]   programs from official government course lists
+//                                                        for universities whose websites block the robot
 
 import { planChanges } from "./checks.ts";
 import * as store from "./db.ts";
@@ -19,6 +21,7 @@ import { seedCountry, slugify } from "./seed.ts";
 import { seedTop } from "./seed-top.ts";
 import { interleave, pool, shardOf } from "./pool.ts";
 import { nextCheckHours } from "./schedule.ts";
+import { importOfficial } from "./official-data.ts";
 
 const [command, ...rest] = process.argv.slice(2);
 const flag = (name: string, fallback?: string) => {
@@ -139,12 +142,15 @@ async function checkOne(source: store.SourceRow, validFields: Set<string>, stats
   const extraction = await store.saveExtraction({ source: source.id, snapshot, model: RULES_VERSION, result: { raw: read.raw, dropped: read.dropped }, input_tokens: 0, output_tokens: 0, cost_usd: 0 });
   await store.pruneSource(source.id);
 
-  const slug = existing?.slug ?? (await newProgramSlug(read.facts.title, uni.name));
-  const changes = planChanges(existing, read.facts, today(), validFields);
+  // The same course imported earlier from an official government list: the page adds its facts to that program.
+  const twin = existing ? null : await store.datasetTwin(uni.slug, read.facts.title);
+  const current = existing ?? (twin ? await store.loadProgram(twin) : null);
+  const slug = current?.slug ?? (await newProgramSlug(read.facts.title, uni.name));
+  const changes = planChanges(current, read.facts, today(), validFields);
   const result = await store.applyProgram({
     slug,
-    isNew: !existing,
-    create: existing ? undefined : { title: read.facts.title, university: uni.slug, degree_level: read.facts.degree_level!.value, official_url: main.url },
+    isNew: !current,
+    create: current ? undefined : { title: read.facts.title, university: uni.slug, degree_level: read.facts.degree_level!.value, official_url: main.url },
     changes,
     extraction,
     sourceUrl: main.url,
@@ -158,7 +164,7 @@ async function checkOne(source: store.SourceRow, validFields: Set<string>, stats
     if (c.source) await store.markChecked(c.source, { hash: c.page.hash, etag: c.page.etag, lastModified: c.page.lastModified, changed: true });
     else await store.addSource({ url: c.page.url, kind: "fees_page", university: uni.slug, entity_slug: slug });
   }
-  log(`  ${existing ? "updated" : "new"} ${slug}: ${result.applied} applied, ${result.held} held, ${read.dropped.length} dropped${result.published ? ", published" : ", not complete yet"}`);
+  log(`  ${existing ? "updated" : current ? "joined the official-list program" : "new"} ${slug}: ${result.applied} applied, ${result.held} held, ${read.dropped.length} dropped${result.published ? ", published" : ", not complete yet"}`);
 }
 
 /** True (and says so) when the database is near the plan limit: then the robot only updates what it already has. */
@@ -312,8 +318,16 @@ async function add() {
   log("Added. It will be read on the next check.");
 }
 
+/** Programs from official government course lists, for universities whose websites block the robot (official-data.ts). */
+async function official() {
+  const country = rest[0];
+  if (country !== "au" && country !== "us" && country !== "uk") throw new Error("Usage: npm run robot -- official <au|us|uk> [--file <zip or folder>] [--university <slug>] [--all] [--dry]");
+  await importOfficial(country, { file: flag("file"), university: flag("university"), all: rest.includes("--all"), dry: rest.includes("--dry"), parallel: Number(flag("parallel", "8")), log });
+}
+
 const commands: Record<string, () => Promise<void>> = {
   check,
+  official,
   discover,
   "discover-all": discoverAll,
   grow,
@@ -323,7 +337,7 @@ const commands: Record<string, () => Promise<void>> = {
 };
 const run = command ? commands[command] : undefined;
 if (!run) {
-  console.log("Commands: seed, discover, discover-all, add, check. See robot/README.md.");
+  console.log("Commands: seed, seed-top, discover, discover-all, grow, add, check, official. See robot/README.md.");
   process.exitCode = 1;
 } else {
   await run();

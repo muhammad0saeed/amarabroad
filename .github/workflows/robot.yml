@@ -6,6 +6,10 @@
 #                                           (hot pages every 6 h, normal daily, quiet every 2 days; see robot/schedule.ts)
 #   discover  4 jobs × 40 universities      search universities for program pages: new ones first (best ranked first),
 #                                           then each again every 30 days; adds the next 500 by rank when few are left
+#   official  weekly (Monday 03:30 Bangladesh time): programs from official government course lists. Australia
+#                                           (CRICOS): every matched university. US (College Scorecard): universities whose
+#                                           websites block the robot (all of them would overfill the free database).
+#                                           The UK list is downloaded by a person; see robot/README.md.
 #
 # Full speed is free only while the repository is PUBLIC. While it is private, GitHub gives 2,000 minutes
 # a month, so the "plan" job switches to a small version that fits inside that: a few minutes of page checks per
@@ -15,10 +19,17 @@ name: Data robot
 on:
   schedule:
     - cron: "0 0,6,12,18 * * *" # every 6 hours (06:00, 12:00, 18:00, 00:00 Bangladesh time)
+    - cron: "30 21 * * 0" # official course lists, weekly (Monday 03:30 Bangladesh time)
   workflow_dispatch:
+    inputs:
+      official:
+        description: "Only import the official course lists (Australia, US)"
+        type: boolean
+        default: false
 
 jobs:
   plan:
+    if: github.event.schedule != '30 21 * * 0' && inputs.official != true
     runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
@@ -103,6 +114,35 @@ jobs:
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
       - name: Discover program pages
         run: npm run robot -- discover-all --limit 100000 --parallel 40 --minutes ${{ needs.plan.outputs.discover_minutes }} --uni-minutes ${{ needs.plan.outputs.uni_minutes }} --shard ${{ matrix.shard }}/${{ strategy.job-total }}
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          ROBOT_CONTACT_URL: ${{ vars.ROBOT_CONTACT_URL }}
+
+  official:
+    if: github.event.schedule == '30 21 * * 0' || inputs.official == true
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - country: au
+            scope: --all
+          - country: us
+            scope: ""
+    concurrency:
+      group: robot-official-${{ matrix.country }}
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Programs from the official course list
+        run: npm run robot -- official ${{ matrix.country }} ${{ matrix.scope }} --parallel 10
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}

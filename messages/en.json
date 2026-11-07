@@ -954,7 +954,7 @@
   },
   "sources": {
     "title": "Where these facts come from",
-    "intro": "Read automatically from the university's own website, with the exact words each fact was taken from. Always confirm on the official page before you apply.",
+    "intro": "Read automatically from the university's own website, or from an official government course list when the website can't be read, with the exact words each fact was taken from. Always confirm on the official page before you apply.",
     "checked": "checked {date}",
     "open": "Open page",
     "field": {
