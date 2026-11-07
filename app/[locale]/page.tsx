@@ -6,7 +6,7 @@ import { PlaceCard } from "@/components/place/PlaceCard";
 import { ClosingSoon } from "@/components/scholarship/ClosingSoon";
 import { SampleBadge } from "@/components/ui/SampleBadge";
 import { Link } from "@/i18n/navigation";
-import { getCoverage, listCities, listCountries, listScholarships, listUniversities } from "@/lib/data";
+import { getCoverage, listCountries, listScholarships, listUniversities } from "@/lib/data";
 import { localizeDigits } from "@/lib/localize";
 import { formatBDT } from "@/lib/money";
 import { getCatalogue, getSearchOptions } from "@/lib/search";
@@ -20,9 +20,8 @@ export default async function HomePage({ params }: LocaleParams) {
   const explore = await getTranslations("explore");
   const search = await getTranslations("search");
   const browse = await getTranslations("browse");
-  const [countries, cities, universities, scholarships, programs, coverage, options] = await Promise.all([
+  const [countries, universities, scholarships, programs, coverage, options] = await Promise.all([
     listCountries(),
-    listCities(),
     listUniversities(),
     listScholarships(),
     getCatalogue(),
@@ -39,11 +38,23 @@ export default async function HomePage({ params }: LocaleParams) {
     { href: "/programs?free=1", label: t("popularFree") },
   ];
 
+  // Only places that have programs: the database also holds every city the robot will search later.
+  const programCount = new Map<string, number>();
+  const citiesWithPrograms = new Map<string, { slug: string; name_en: string; name_bn: string; country: string }>();
+  for (const p of programs) {
+    programCount.set(p.country.slug, (programCount.get(p.country.slug) ?? 0) + 1);
+    citiesWithPrograms.set(p.city.slug, { ...p.city, country: p.country.slug });
+  }
+  const activeCountries = countries.filter((c) => programCount.has(c.slug)).sort((a, b) => programCount.get(b.slug)! - programCount.get(a.slug)!);
+  const updatedAt = coverage.lastUpdated
+    ? new Intl.DateTimeFormat(locale === "bn" ? "bn-BD" : "en-GB", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Dhaka" }).format(new Date(coverage.lastUpdated))
+    : null;
+
   const tiles: { key: "programs" | "universities" | "cities" | "countries" | "scholarships"; href: string; icon: IconName; count: number }[] = [
     { key: "programs", href: "/programs", icon: "cap", count: programs.length },
     { key: "universities", href: "/universities", icon: "building", count: universities.length },
-    { key: "cities", href: "/cities", icon: "pin", count: cities.length },
-    { key: "countries", href: "/countries", icon: "globe", count: countries.length },
+    { key: "cities", href: "/cities", icon: "pin", count: citiesWithPrograms.size },
+    { key: "countries", href: "/countries", icon: "globe", count: activeCountries.length },
     { key: "scholarships", href: "/scholarships", icon: "scholarship", count: scholarships.length },
   ];
 
@@ -102,9 +113,18 @@ export default async function HomePage({ params }: LocaleParams) {
 
         {/* Browse: bento of the five ways in. */}
         <section aria-labelledby="browse-title">
-          <h2 id="browse-title" className="mb-3 text-heading font-semibold">
+          <h2 id="browse-title" className="text-heading font-semibold">
             {t("browseTitle")}
           </h2>
+          {/* Proof the data is alive: when the robot last checked a program, and what it added this week. */}
+          {updatedAt ? (
+            <p className="mt-1 mb-3 flex flex-wrap items-center gap-x-1.5 text-meta text-ink-muted">
+              <span aria-hidden="true" className="size-2 rounded-full bg-success" />
+              {t("freshness", { time: updatedAt, count: n(coverage.newThisWeek) })}
+            </p>
+          ) : (
+            <div className="mb-3" />
+          )}
           <ul className="grid grid-cols-2 gap-3 lg:grid-cols-5">
             {tiles.map((tile, i) => (
               <li key={tile.key} className={i === 0 ? "col-span-2 lg:col-span-1" : ""}>
@@ -158,14 +178,15 @@ export default async function HomePage({ params }: LocaleParams) {
             </Link>
           </div>
           <ul className="-mx-4 flex snap-x snap-mandatory scroll-px-4 gap-3 overflow-x-auto px-4 pb-2 no-scrollbar sm:mx-0 sm:grid sm:grid-cols-3 sm:overflow-visible sm:px-0">
-            {countries.map((c) => {
+            {activeCountries.map((c) => {
               const inCountry = programs.filter((p) => p.country.slug === c.slug);
+              const places = [...citiesWithPrograms.values()].filter((x) => x.country === c.slug).map(name);
               return (
                 <li key={c.slug} className="w-[78%] shrink-0 snap-start sm:w-auto">
                   <PlaceCard
                     href={countryHref(c)}
                     title={name(c)}
-                    subtitle={cities.filter((x) => x.country === c.slug).map(name).join(" · ")}
+                    subtitle={places.slice(0, 6).join(" · ") + (places.length > 6 ? ` · +${n(places.length - 6)}` : "")}
                     photo={c.photo}
                     stats={[
                       browse("programs", { count: inCountry.length }),

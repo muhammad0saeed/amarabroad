@@ -261,5 +261,13 @@ export async function getCoverage() {
     programs: s.programs.length,
     scholarships: s.scholarships.length,
     allSample: [s.universities, s.programs].every((rows) => rows.length > 0 && rows.every((row) => row.is_sample)),
+    ...freshness(s.programs as unknown as { updated_at?: string; created_at?: string }[]),
   };
+}
+
+/** When the robot last checked or changed a program, and how many programs it added this week (live data only). */
+export function freshness(rows: { updated_at?: string; created_at?: string }[], now = Date.now()) {
+  const lastUpdated = rows.reduce<string | null>((max, r) => (r.updated_at && (!max || r.updated_at > max) ? r.updated_at : max), null);
+  const newThisWeek = rows.filter((r) => r.created_at && now - Date.parse(r.created_at) < 7 * 86_400_000).length;
+  return { lastUpdated, newThisWeek };
 }

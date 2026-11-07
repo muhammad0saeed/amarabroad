@@ -249,6 +249,23 @@ describe("lib/data", () => {
   });
 
   it("reports an honest coverage count", async () => {
-    expect(await getCoverage()).toEqual({ countries: 3, universities: 12, programs: 42, scholarships: 6, allSample: true });
+    expect(await getCoverage()).toEqual({ countries: 3, universities: 12, programs: 42, scholarships: 6, allSample: true, lastUpdated: null, newThisWeek: 0 });
+  });
+});
+
+describe("freshness line", () => {
+  it("finds the latest update and counts programs added in the last 7 days", async () => {
+    const { freshness } = await import("@/lib/data");
+    const now = Date.parse("2026-11-08T12:00:00Z");
+    expect(
+      freshness(
+        [
+          { updated_at: "2026-11-08T10:00:00Z", created_at: "2026-11-08T09:00:00Z" },
+          { updated_at: "2026-11-07T10:00:00Z", created_at: "2026-10-01T09:00:00Z" },
+          {},
+        ],
+        now,
+      ),
+    ).toEqual({ lastUpdated: "2026-11-08T10:00:00Z", newThisWeek: 1 });
   });
 });

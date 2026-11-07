@@ -71,9 +71,10 @@
     "live": "Program facts are read automatically from each university's own website and checked daily. Each fact links to its source."
   },
   "home": {
+    "freshness": "Updated by our robot {time} (Dhaka time) · {count} new programs this week",
     "eyebrow": "Made for students and parents in Bangladesh",
     "title": "Study abroad, with the real cost in taka",
-    "subtitle": "Search programs in Europe, check whether your Bangladeshi degree fits, and see what the whole thing costs before you apply.",
+    "subtitle": "Search programs in 30 countries, check whether your Bangladeshi degree fits, and see what the whole thing costs before you apply.",
     "quickFilters": "Quick filters",
     "matchEyebrow": "Match me",
     "matchTitle": "Which programs fit your profile?",
@@ -88,7 +89,7 @@
     "programCount": "{count, plural, one {# program} other {# programs}}",
     "fromTotal": "From {amount} in total",
     "coverageTitle": "What's covered",
-    "coverage": "{countries} countries, {universities} universities, {programs} programs and {scholarships} scholarships. We add countries one at a time and cover each one fully.",
+    "coverage": "{countries} countries, {universities} universities, {programs} programs and {scholarships} scholarships. Our robot adds more universities and programs every day, from each university's own website.",
     "coverageSample": "All of it is sample data in this preview.",
     "alertsTitle": "Deadline alerts on Telegram",
     "alertsBody": "Get new scholarships and closing deadlines on a free channel.",
