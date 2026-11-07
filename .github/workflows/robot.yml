@@ -1,30 +1,37 @@
-# The data robot, on GitHub's servers (free for this use), not on your PC. No AI or paid service is used.
+# The data robot, on GitHub's servers, not on your PC. No AI or paid service is used.
 # Needs two repository secrets (Settings → Secrets and variables → Actions): SUPABASE_URL, SUPABASE_SECRET_KEY.
-#   every day:    check the watched program pages and update what changed
-#   every Sunday: search universities not searched yet for their program pages
+#
+# Every day, at the same time:
+#   check (4 jobs side by side)  visit every due program page and update what changed
+#   discover (1 job)             search universities not searched yet for program pages, best ranked first
+# Each job works for up to 5 hours. Free and unlimited only while the repository is PUBLIC
+# (a private repository gets 2,000 free minutes a month, which this would use up in about a week).
 name: Data robot
 
 on:
   schedule:
     - cron: "30 1 * * *" # daily, 07:30 Bangladesh time
-    - cron: "0 20 * * 6" # Sunday 02:00 Bangladesh time
   workflow_dispatch:
     inputs:
       task:
-        description: "check or discover"
-        default: "check"
-      limit:
-        description: "Pages to check / universities to search"
+        description: "check, discover or both"
+        default: "both"
+      minutes:
+        description: "Minutes each job works before stopping"
         default: "300"
 
-concurrency:
-  group: data-robot
-  cancel-in-progress: false
-
 jobs:
-  robot:
+  check:
+    if: github.event_name == 'schedule' || inputs.task == 'check' || inputs.task == 'both'
     runs-on: ubuntu-latest
     timeout-minutes: 350
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3]
+    concurrency:
+      group: robot-check-${{ matrix.shard }}
+      cancel-in-progress: false
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -32,16 +39,29 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      - name: Check program pages
-        if: github.event.schedule == '30 1 * * *' || (github.event_name == 'workflow_dispatch' && inputs.task == 'check')
-        run: npm run robot -- check --limit ${{ inputs.limit || '300' }}
+      - name: Check program pages (shard ${{ matrix.shard }} of 4)
+        run: npm run robot -- check --parallel 40 --minutes ${{ inputs.minutes || '300' }} --shard ${{ matrix.shard }}/4
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
           ROBOT_CONTACT_URL: ${{ vars.ROBOT_CONTACT_URL }}
+
+  discover:
+    if: github.event_name == 'schedule' || inputs.task == 'discover' || inputs.task == 'both'
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    concurrency:
+      group: robot-discover
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
       - name: Discover program pages
-        if: github.event.schedule == '0 20 * * 6' || (github.event_name == 'workflow_dispatch' && inputs.task == 'discover')
-        run: npm run robot -- discover-all --limit ${{ inputs.limit || '40' }} --parallel 12
+        run: npm run robot -- discover-all --limit 100000 --parallel 30 --minutes ${{ inputs.minutes || '290' }}
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}

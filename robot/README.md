@@ -4,7 +4,7 @@ Finds universities' programs and keeps them up to date by reading the universiti
 **No AI and no paid service:** plain rules, run on free GitHub servers, saved in Supabase.
 
 ```
-Wikidata ─seed─► universities ─discover─► program pages ─check (daily)─► programs on the site + page search
+OpenAlex ─seed-top─► universities ─discover─► program pages ─check (daily)─► programs on the site + page search
                                   │                          │
                  sitemap, or a focused crawl     fetch politely → clean text → changed?
                  that reads each page and keeps            │ yes
@@ -21,11 +21,12 @@ Wikidata ─seed─► universities ─discover─► program pages ─check (da
 | `npm run robot:try -- <url>` | Read one program page and print what would be published, held, or wasn't found | nothing |
 | `npm run robot:discover-try -- <website> [pages]` | Show which program pages discovery finds on a website | nothing |
 | `npm run robot:wikidata -- DE 20` | List a country's best-known universities on Wikidata | nothing |
+| `npm run robot -- seed-top --total 5000 --floor 50` | Add the top universities of all 30 countries, ranked by OpenAlex research h-index (every country gets at least the floor), with real cities | Supabase |
 | `npm run robot -- seed DE --limit 30` | Add a country's universities (and their cities) from Wikidata | Supabase |
 | `npm run robot -- discover <university-slug>` | Find that university's program pages and start watching them | Supabase |
 | `npm run robot -- discover-all --limit 50 --parallel 10` | The same for every university not searched yet | Supabase |
 | `npm run robot -- add <url> --university <slug>` | Watch one program page by hand | Supabase |
-| `npm run robot -- check --limit 300` | Visit due pages and update what changed (runs daily) | Supabase |
+| `npm run robot -- check --parallel 40 --minutes 300 --shard 0/4` | Visit due pages and update what changed (runs daily as 4 shards side by side) | Supabase |
 
 "Supabase" means `SUPABASE_URL` and `SUPABASE_SECRET_KEY` in `.env.local` (or GitHub secrets for the daily run).
 

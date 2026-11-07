@@ -1,6 +1,7 @@
 // The data robot's commands. No AI and no paid service: it needs only SUPABASE_URL and
 // SUPABASE_SECRET_KEY in .env.local (to save what it finds).
 //
+//   npm run robot -- seed-top [--total 5000] [--floor 50] [--fresh] [--dry]   add the top universities of all our countries (OpenAlex rank)
 //   npm run robot -- seed <country code> [--limit 30]   add a country's universities from Wikidata
 //   npm run robot -- discover <university-slug>          find a university's program pages and watch them
 //   npm run robot -- discover-all [--limit 20]           the same for every university not yet searched
@@ -13,6 +14,8 @@ import * as store from "./db.ts";
 import { discoverPrograms } from "./discover.ts";
 import { fetchPage, fetchPageDetailed, preferEnglish, readPages, relatedCandidates, type FetchedPage } from "./pipeline.ts";
 import { seedCountry, slugify } from "./seed.ts";
+import { seedTop } from "./seed-top.ts";
+import { interleave, pool, shardOf } from "./pool.ts";
 
 const [command, ...rest] = process.argv.slice(2);
 const flag = (name: string, fallback?: string) => {
@@ -127,24 +130,52 @@ async function checkOne(source: store.SourceRow, validFields: Set<string>, stats
   log(`  ${existing ? "updated" : "new"} ${slug}: ${result.applied} applied, ${result.held} held, ${read.dropped.length} dropped${result.published ? ", published" : ", not complete yet"}`);
 }
 
+/**
+ * Visits due program pages and updates what changed. Built for thousands of universities:
+ *   --parallel 40   websites visited at the same time (each website still gets one request every few seconds)
+ *   --minutes 300   stop taking new pages after this long (GitHub stops a job at 6 hours)
+ *   --shard 2/4     only universities in shard 2 of 4, so several jobs can share the work
+ * Pages are taken longest-waiting first, so if there are ever more pages than time, every page still gets its turn.
+ */
 async function check() {
-  const limit = Number(flag("limit", "300"));
+  const limit = Number(flag("limit", "100000"));
   const reread = rest.includes("--reread");
-  const due = reread ? await store.knownProgramSources(limit) : await store.dueProgramSources(limit);
+  const parallel = Number(flag("parallel", "1"));
+  const minutes = Number(flag("minutes", "0"));
+  const deadline = minutes > 0 ? Date.now() + minutes * 60_000 : Infinity;
+  const [shard, shards] = (flag("shard", "0/1") ?? "0/1").split("/").map(Number) as [number, number];
   const validFields = new Set((await store.fieldList()).map((f) => f.split(":")[0]!));
   const run = await store.startRun(process.env.GITHUB_ACTIONS ? "schedule" : "manual");
   const stats: Stats = { pages_checked: 0, pages_changed: 0, changes_applied: 0, changes_held: 0, errors: 0, cost_usd: 0 };
-  log(`Checking ${due.length} program pages`);
-  for (const source of due) {
+  log(`Checking up to ${limit} program pages, ${parallel} websites at a time${minutes ? `, for ${minutes} minutes` : ""}${shards > 1 ? `, shard ${shard}/${shards}` : ""}`);
+
+  const one = async (source: store.SourceRow) => {
     log(source.url);
     try {
       await checkOne(source, validFields, stats, reread);
     } catch (e) {
       stats.errors++;
       const message = e instanceof Error ? e.message : String(e);
-      log("  error:", message);
+      log("  error:", message, `(${source.url})`);
       await store.markChecked(source, { error: message.slice(0, 500) }).catch(() => {});
     }
+  };
+
+  if (reread) {
+    await pool(interleave(await store.knownProgramSources(Math.min(limit, 1000))), parallel, deadline, one);
+  } else {
+    // Batches of 1000, oldest due first; a checked page moves to tomorrow, so the next batch starts after the last one seen.
+    let after: string | undefined;
+    let taken = 0;
+    while (taken < limit && Date.now() < deadline) {
+      const batch = await store.dueProgramSources(1000, after);
+      if (!batch.length) break;
+      after = batch.at(-1)!.next_check_at;
+      const mine = batch.filter((s) => shardOf(s.university ?? s.url, shards) === shard).slice(0, limit - taken);
+      taken += mine.length;
+      await pool(interleave(mine), parallel, deadline, one);
+    }
+    if (Date.now() >= deadline) log("Time budget used up; the rest are first in line tomorrow.");
   }
   await store.finishRun(run, stats);
   log(`Done: ${stats.pages_checked} pages, ${stats.pages_changed} changed, ${stats.changes_applied} values applied, ${stats.changes_held} held, ${stats.errors} errors`);
@@ -169,23 +200,30 @@ async function discover() {
 }
 
 /** Several universities at once: each website still gets one request at a time, a few seconds apart. */
+/** Best-ranked first. --minutes stops taking new universities after that long (each one takes at most 40 minutes). */
 async function discoverAll() {
-  const slugs = await store.undiscoveredUniversities(Number(flag("limit", "20")));
+  const limit = Number(flag("limit", "20"));
   const parallel = Number(flag("parallel", "10"));
-  log(`Searching ${slugs.length} universities, ${parallel} at a time`);
+  const minutes = Number(flag("minutes", "0"));
+  const deadline = minutes > 0 ? Date.now() + minutes * 60_000 : Infinity;
+  log(`Searching up to ${limit} universities, ${parallel} at a time${minutes ? `, for ${minutes} minutes` : ""}`);
   let total = 0;
-  const queue = [...slugs];
-  await Promise.all(
-    Array.from({ length: Math.min(parallel, queue.length) }, async () => {
-      for (let slug = queue.shift(); slug; slug = queue.shift()) {
-        try {
-          total += await discoverOne(slug);
-        } catch (e) {
-          log(`  ${slug}: ${e instanceof Error ? e.message : String(e)}`);
-        }
+  let searched = 0;
+  const tried = new Set<string>();
+  while (searched < limit && Date.now() < deadline) {
+    // Ones that failed today stay unsearched (retried tomorrow), so skip them in this run.
+    const slugs = (await store.undiscoveredUniversities(Math.min(1000, limit - searched + tried.size))).filter((s) => !tried.has(s)).slice(0, limit - searched);
+    if (!slugs.length) break;
+    for (const s of slugs) tried.add(s);
+    searched += slugs.length;
+    await pool(slugs, parallel, deadline, async (slug) => {
+      try {
+        total += await discoverOne(slug);
+      } catch (e) {
+        log(`  ${slug}: ${e instanceof Error ? e.message : String(e)}`);
       }
-    }),
-  );
+    });
+  }
   log(`${total} program pages added. They'll be read on the next check.`);
 }
 
@@ -203,6 +241,7 @@ const commands: Record<string, () => Promise<void>> = {
   "discover-all": discoverAll,
   add,
   seed: () => seedCountry(rest[0] ?? "", Number(flag("limit", "30"))),
+  "seed-top": () => seedTop({ total: Number(flag("total", "5000")), floor: Number(flag("floor", "50")), fresh: rest.includes("--fresh"), dry: rest.includes("--dry") }),
 };
 const run = command ? commands[command] : undefined;
 if (!run) {

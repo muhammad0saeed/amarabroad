@@ -234,6 +234,8 @@
     "inCompare": "In compare",
     "share": "Share",
     "linkCopied": "Link copied",
+    "applyCta": "Apply at the university",
+    "applyNote": "Opens the official program page on {host}. You apply directly with the university.",
     "verifiedOn": "Last verified {date}",
     "firstYear": "First year {amount}",
     "tuitionPerYear": "Tuition per year",

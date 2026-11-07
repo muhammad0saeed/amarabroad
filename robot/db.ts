@@ -32,20 +32,14 @@ export interface SourceRow {
   http_etag: string | null;
   http_last_modified: string | null;
   consecutive_errors: number;
+  next_check_at: string;
 }
 
-export async function dueProgramSources(limit: number): Promise<SourceRow[]> {
-  return must(
-    await db()
-      .from("sources")
-      .select("*")
-      .eq("kind", "program_page")
-      .in("status", ["active", "discovered"])
-      .lte("next_check_at", new Date().toISOString())
-      .order("next_check_at")
-      .limit(limit),
-    "due sources",
-  ) as SourceRow[];
+/** Program pages due for a visit, longest-waiting first; `after` continues from the previous batch. */
+export async function dueProgramSources(limit: number, after?: string): Promise<SourceRow[]> {
+  let q = db().from("sources").select("*").eq("kind", "program_page").in("status", ["active", "discovered"]).lte("next_check_at", new Date().toISOString());
+  if (after) q = q.gt("next_check_at", after);
+  return must(await q.order("next_check_at").limit(limit), "due sources") as SourceRow[];
 }
 
 /** Program pages already read, longest-unread first: for re-reading them after the rules improved. */
@@ -229,7 +223,9 @@ export async function moveSource(sourceId: string, url: string): Promise<"moved"
 
 /** Universities whose program pages haven't been searched for yet (biggest first, as seeded). */
 export async function undiscoveredUniversities(limit: number): Promise<string[]> {
-  return (must(await db().from("universities").select("slug").is("discovered_at", null).order("created_at").limit(limit), "undiscovered") as { slug: string }[]).map((u) => u.slug);
+  // Best ranked first, so the universities students look for most get their programs soonest.
+  const res = await db().from("universities").select("slug").is("discovered_at", null).order("ranking->rank", { ascending: true, nullsFirst: false }).order("created_at").limit(limit);
+  return (must(res, "undiscovered") as { slug: string }[]).map((u) => u.slug);
 }
 
 export async function markDiscovered(slug: string, programPages: number) {

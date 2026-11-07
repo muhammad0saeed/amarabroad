@@ -9,7 +9,7 @@ import { ProgramPageActions } from "@/components/program/ProgramActions";
 import { ProgramChat } from "@/components/program/ProgramChat";
 import { AddToCalendar } from "@/components/ui/AddToCalendar";
 import { DaysLeft } from "@/components/ui/DaysLeft";
-import { Badge, Breadcrumbs, Card, Disclosure, ExternalLink, Section } from "@/components/ui/primitives";
+import { Badge, Breadcrumbs, buttonClass, Card, Disclosure, ExternalLink, Section } from "@/components/ui/primitives";
 import { NotFound } from "@/components/ui/NotFound";
 import { SampleBadge } from "@/components/ui/SampleBadge";
 import { Link } from "@/i18n/navigation";
@@ -225,6 +225,15 @@ export default async function ProgramPage({ params }: Props) {
           </dl>
         </Disclosure>
       )}
+
+      {/* Main action: students apply on the university's own program page, never through us. */}
+      <div className="space-y-1.5">
+        <a href={p.official_url} target="_blank" rel="noopener noreferrer" className={buttonClass("primary", "md", true)}>
+          {t("applyCta")}
+          <Icon name="external" className="size-4" />
+        </a>
+        <p className="text-center text-meta text-ink-muted">{t("applyNote", { host: new URL(p.official_url).hostname.replace(/^www\./, "") })}</p>
+      </div>
 
       <ProgramPageActions slug={p.slug} title={p.title} />
 
