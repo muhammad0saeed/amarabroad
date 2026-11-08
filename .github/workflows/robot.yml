@@ -6,6 +6,7 @@
 #                                           (hot pages every 6 h, normal daily, quiet every 2 days; see robot/schedule.ts)
 #   discover  4 jobs × 40 universities      search universities for program pages: new ones first (best ranked first),
 #                                           then each again every 30 days; adds the next 500 by rank when few are left
+#   rates     every shift: exchange rates to taka for every currency (free public-domain dataset)
 #   official  weekly (Monday 03:30 Bangladesh time): programs from official government course lists. Australia
 #                                           (CRICOS): every matched university. US (College Scorecard): universities whose
 #                                           websites block the robot (all of them would overfill the free database).
@@ -80,6 +81,14 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
+      - name: Exchange rates to taka (once per shift)
+        if: matrix.shard == 0
+        continue-on-error: true
+        run: npm run robot -- rates
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          ROBOT_CONTACT_URL: ${{ vars.ROBOT_CONTACT_URL }}
       - name: Check program pages
         run: npm run robot -- check --parallel 50 --minutes ${{ needs.plan.outputs.check_minutes }} --shard ${{ matrix.shard }}/${{ strategy.job-total }}
         env:

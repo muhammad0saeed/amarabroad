@@ -22,6 +22,7 @@ import { seedTop } from "./seed-top.ts";
 import { interleave, pool, shardOf } from "./pool.ts";
 import { nextCheckHours } from "./schedule.ts";
 import { importOfficial } from "./official-data.ts";
+import { updateRates } from "./rates.ts";
 
 const [command, ...rest] = process.argv.slice(2);
 const flag = (name: string, fallback?: string) => {
@@ -340,6 +341,7 @@ async function official() {
 
 const commands: Record<string, () => Promise<void>> = {
   check,
+  rates: () => updateRates(log),
   official,
   discover,
   "discover-all": discoverAll,
@@ -362,7 +364,7 @@ process.on("unhandledRejection", (e) => {
 
 const run = command ? commands[command] : undefined;
 if (!run) {
-  console.log("Commands: seed, seed-top, discover, discover-all, grow, add, check, official. See robot/README.md.");
+  console.log("Commands: seed, seed-top, discover, discover-all, grow, add, check, official, rates. See robot/README.md.");
   process.exitCode = 1;
 } else {
   try {
