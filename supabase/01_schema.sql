@@ -102,6 +102,16 @@ create table if not exists public.countries (
   published boolean not null default false,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
+  -- Monthly living-cost range for a careful student, in the country's currency (see 07_living_costs.sql).
+  living_cost_min numeric(12,2),
+  living_cost_max numeric(12,2),
+  living_cost_min_basis_en text,
+  living_cost_min_basis_bn text,
+  living_cost_max_basis_en text,
+  living_cost_max_basis_bn text,
+  living_cost_source_url text,
+  living_cost_checked date,
+  constraint countries_living_cost_range check (living_cost_min is null or (living_cost_min > 0 and (living_cost_max is null or living_cost_max >= living_cost_min))),
   constraint countries_complete check (not published or (overview_en <> '' and last_verified is not null and student_work_hours is not null))
 );
 

@@ -37,6 +37,21 @@ describe("program cost in taka", () => {
     expect(c.bdt.fees).toBe(1300 * 140);
   });
 
+  it("uses the country's range when the city has no costs, and shows the total as a range", async () => {
+    const base = await ctx("sum-msc-computer-science");
+    const noCityCosts = { ...base.city, cost_rent_shared: null };
+    const country = { ...base.country, living_cost_min: 783, living_cost_max: 1020 };
+    const c = programCost({ ...base, city: noCityCosts, country }, rates);
+    expect(c.livingFrom).toBe("country");
+    expect(c.livingMonthly).toBe(783);
+    expect(c.livingMonthlyMax).toBe(1020);
+    // (5600 + 30 + 783 × 24) × 140 and (5600 + 30 + 1020 × 24) × 140
+    expect(c.bdt.total).toBe(3419080);
+    expect(c.bdt.totalMax).toBe(4215400);
+    // No country range either: no total.
+    expect(programCost({ ...base, city: noCityCosts }, rates).bdt.total).toBeNull();
+  });
+
   it("costs more with a studio than a shared room", async () => {
     const context = await ctx("sum-msc-computer-science");
     expect(monthlyLivingCost(context.city, "studio")).toBe(1437);

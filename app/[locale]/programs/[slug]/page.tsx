@@ -15,7 +15,7 @@ import { SampleBadge } from "@/components/ui/SampleBadge";
 import { Link } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 import { programCost } from "@/lib/cost";
-import { DATA_SOURCE, getProgramContext, listPrograms, listScholarshipsForProgram } from "@/lib/data";
+import { DATA_SOURCE, getProgramContext, hasGuide, listPrograms, listScholarshipsForProgram } from "@/lib/data";
 import { formatDate, formatMonthYear } from "@/lib/format";
 import { formatNumber, isFallback, localizeDigits, pick, pickList, type AppLocale } from "@/lib/localize";
 import { formatBDT, formatMoney } from "@/lib/money";
@@ -364,13 +364,16 @@ export default async function ProgramPage({ params }: Props) {
                   [t("costApplication"), cost.bdt.application, formatMoney(p.application_fee, p.currency ?? country.currency, L)],
                   [
                     p.duration_months !== null && cost.bdt.livingMonthly !== null
-                      ? t("costLiving", { months: localizeDigits(String(p.duration_months), L), monthly: formatBDT(cost.bdt.livingMonthly, L) })
+                      ? cost.bdt.livingMonthlyMax !== null && cost.bdt.livingMonthlyMax > cost.bdt.livingMonthly
+                        ? t("costLivingRange", { months: localizeDigits(String(p.duration_months), L), min: formatBDT(cost.bdt.livingMonthly, L), max: formatBDT(cost.bdt.livingMonthlyMax, L) })
+                        : t("costLiving", { months: localizeDigits(String(p.duration_months), L), monthly: formatBDT(cost.bdt.livingMonthly, L) })
                       : t("costLivingShort"),
                     cost.bdt.living,
                     cost.livingTotal !== null ? formatMoney(cost.livingTotal, country.currency, L) : null,
+                    cost.bdt.livingMax !== null && cost.bdt.living !== null && cost.bdt.livingMax > cost.bdt.living ? cost.bdt.livingMax : null,
                   ],
                 ] as const
-              ).map(([label, bdt, local]) => (
+              ).map(([label, bdt, local, bdtMax]) => (
                 <tr key={String(label)}>
                   <th scope="row" className="py-2 pr-3 text-left font-normal">
                     {label}
@@ -380,8 +383,11 @@ export default async function ProgramPage({ params }: Props) {
                       <NotFound />
                     ) : (
                       <>
-                        <span className="font-semibold">{formatBDT(bdt, L)}</span>
-                        {local && <span className="block text-ink-muted">{local}</span>}
+                        <span className="font-semibold">
+                          {formatBDT(bdt, L)}
+                          {bdtMax ? ` – ${formatBDT(bdtMax, L)}` : ""}
+                        </span>
+                        {local && !bdtMax && <span className="block text-ink-muted">{local}</span>}
                       </>
                     )}
                   </td>
@@ -392,17 +398,44 @@ export default async function ProgramPage({ params }: Props) {
                   {t("totalCost")}
                 </th>
                 <td className="py-2 text-right text-body font-bold">
-                  {cost.bdt.total !== null ? formatBDT(cost.bdt.total, L) : <span className="text-meta font-normal text-ink-muted">{common("costUnknown")}</span>}
+                  {cost.bdt.total !== null ? (
+                    <>
+                      {formatBDT(cost.bdt.total, L)}
+                      {cost.bdt.totalMax !== null && cost.bdt.totalMax > cost.bdt.total && ` – ${formatBDT(cost.bdt.totalMax, L)}`}
+                    </>
+                  ) : (
+                    <span className="text-meta font-normal text-ink-muted">{common("costUnknown")}</span>
+                  )}
                 </td>
               </tr>
             </tbody>
           </table>
-          <p className="mt-3 text-meta text-ink-muted">
-            {t("costNote")}{" "}
-            <Link href={cityHref(city)} className="font-semibold text-primary-ink hover:underline">
-              {t("cityGuide", { city: cityName })}
-            </Link>
-          </p>
+          <div className="mt-3 space-y-1 text-meta text-ink-muted">
+            {cost.livingFrom === "country" && country.living_cost_min ? (
+              <p>
+                {t("costLivingBasis", {
+                  min: formatMoney(country.living_cost_min, country.currency, L),
+                  minBasis: (L === "bn" ? country.living_cost_min_basis_bn : null) ?? country.living_cost_min_basis_en ?? "",
+                  max: formatMoney(country.living_cost_max ?? country.living_cost_min, country.currency, L),
+                  maxBasis: (L === "bn" ? country.living_cost_max_basis_bn : null) ?? country.living_cost_max_basis_en ?? t("costMaxEstimate"),
+                })}{" "}
+                {country.living_cost_source_url && <ExternalLink href={country.living_cost_source_url}>{t("costSource")}</ExternalLink>}
+              </p>
+            ) : cost.livingFrom === null ? (
+              <p>{t("costLivingMissing", { country: countryName })}</p>
+            ) : null}
+            <p>
+              {t("costNote")}
+              {hasGuide(city) && (
+                <>
+                  {" "}
+                  <Link href={cityHref(city)} className="font-semibold text-primary-ink hover:underline">
+                    {t("cityGuide", { city: cityName })}
+                  </Link>
+                </>
+              )}
+            </p>
+          </div>
         </Card>
       </Section>
 

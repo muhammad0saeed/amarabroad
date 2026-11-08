@@ -61,6 +61,19 @@ export interface Country extends Provenance {
   visa_info_bn?: string;
   visa_info_url: string;
   embassy_url: string;
+  /**
+   * Monthly living cost for a careful student (shared room, cooking at home, public transport), in
+   * the country's currency. Minimum: the student-visa amount; maximum: an official upper figure, or
+   * our estimate when living_cost_max_basis_en is empty. Used when the city has no costs of its own.
+   */
+  living_cost_min?: number | null;
+  living_cost_max?: number | null;
+  living_cost_min_basis_en?: string | null;
+  living_cost_min_basis_bn?: string | null;
+  living_cost_max_basis_en?: string | null;
+  living_cost_max_basis_bn?: string | null;
+  living_cost_source_url?: string | null;
+  living_cost_checked?: string | null;
 }
 
 export type LanguageNeed = "essential" | "helpful" | "not_needed";

@@ -50,7 +50,7 @@ const num = (v: unknown) => (v === null || v === undefined ? null : Number(v));
 const NUMERIC = {
   programs: ["tuition_per_year", "other_fees_per_year", "application_fee"],
   cities: ["cost_rent_shared", "cost_rent_studio", "cost_food", "cost_transport", "cost_phone", "cost_insurance"],
-  countries: ["min_wage"],
+  countries: ["min_wage", "living_cost_min", "living_cost_max"],
   exchange_rates: ["bdt_per_unit"],
 } as const;
 function numbers<T extends Record<string, unknown>>(row: T, columns: readonly string[]): T {
