@@ -3,14 +3,14 @@
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import { AddToCalendar } from "@/components/ui/AddToCalendar";
-import { DaysLeft } from "@/components/ui/DaysLeft";
 import { ChipToggle } from "@/components/ui/fields";
 import { Badge, EmptyState } from "@/components/ui/primitives";
 import { SampleBadge } from "@/components/ui/SampleBadge";
+import { cycleOf, roundRank } from "@/lib/scholarshipRound";
+import { RoundLine } from "./RoundLine";
 import { Link } from "@/i18n/navigation";
 import { useHydrated } from "@/lib/clientStore";
 import { todayISO } from "@/lib/dates";
-import { formatDate } from "@/lib/format";
 import { pick, type AppLocale } from "@/lib/localize";
 import type { DegreeLevel, Scholarship, ScholarshipType } from "@/types";
 
@@ -26,11 +26,10 @@ export function ScholarshipList({ scholarships }: { scholarships: Scholarship[] 
 
   const hydrated = useHydrated();
   const today = hydrated ? todayISO() : "";
-  // Soonest open deadline first; closed ones (known only on the device) go last.
-  const closed = (s: Scholarship) => hydrated && s.deadline < today;
+  // Soonest known deadline first, then open, varying, not announced and closed rounds (today is known only on the device).
   const shown = scholarships
     .filter((s) => (!bdOnly || s.bd_eligible) && (!types.length || types.includes(s.type)) && (!level || s.levels.includes(level)))
-    .sort((a, b) => Number(closed(a)) - Number(closed(b)) || (a.deadline < b.deadline ? -1 : 1));
+    .sort((a, b) => roundRank(a, today) - roundRank(b, today) || (a.deadline ?? "9").localeCompare(b.deadline ?? "9") || a.name.localeCompare(b.name));
 
   return (
     <div className="space-y-4">
@@ -72,16 +71,19 @@ export function ScholarshipList({ scholarships }: { scholarships: Scholarship[] 
                 <Badge>{labels(`coverage.${s.coverage.tuition}`)}</Badge>
                 {s.bd_eligible ? <Badge tone="success" icon="check">{t("bdEligible")}</Badge> : <Badge tone="danger">{t("notBdEligible")}</Badge>}
               </div>
-              <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border pt-2">
-                <p className="flex flex-wrap items-center gap-1.5 text-meta text-ink-muted">
-                  {formatDate(s.deadline, locale)} <DaysLeft date={s.deadline} />
+              <div className="mt-auto flex flex-wrap items-center justify-between gap-2 border-t border-border pt-2">
+                <p className="text-meta text-ink-muted">
+                  <RoundLine s={s} />
                 </p>
-                <AddToCalendar
-                  variant="ghost"
-                  fileSlug={s.slug}
-                  event={{ uid: `scholarship-${s.slug}@amarabroad`, title: t("calendarTitle", { name: s.name }), description: s.provider, url: s.official_url, date: s.deadline }}
-                />
+                {s.deadline && (
+                  <AddToCalendar
+                    variant="ghost"
+                    fileSlug={s.slug}
+                    event={{ uid: `scholarship-${s.slug}@amarabroad`, title: t("calendarTitle", { name: s.name }), description: s.provider, url: s.official_url, date: s.deadline }}
+                  />
+                )}
               </div>
+              {!s.deadline && cycleOf(s, locale) && <p className="-mt-1 text-meta text-ink-muted">{cycleOf(s, locale)}</p>}
               <SampleBadge />
             </li>
           ))}

@@ -12,6 +12,7 @@ const DESKTOP_LINKS = [
   ["/compare", "compare"],
   ["/tools", "tools"],
   ["/guides", "guides"],
+  ["/news", "news"],
   ["/saved", "saved"],
 ] as const;
 

@@ -227,6 +227,8 @@ export interface ScholarshipCoverage {
   summary_bn?: string;
 }
 
+export type ScholarshipRound = "open" | "closed" | "varies" | "unknown";
+
 export interface Scholarship extends Provenance {
   slug: string;
   name: string;
@@ -235,7 +237,17 @@ export interface Scholarship extends Provenance {
   bd_eligible: boolean;
   levels: DegreeLevel[];
   coverage: ScholarshipCoverage;
-  deadline: ISODate;
+  /** The next deadline, when its page states one (null while closed, varying or not announced). */
+  deadline: ISODate | null;
+  /** Where the round stands; missing in older sample data (then: open when there is a deadline). */
+  round_status?: ScholarshipRound;
+  /** Last round's closing date. */
+  last_deadline?: ISODate | null;
+  /** The sentence on the official page the deadline or status came from. */
+  deadline_quote?: string | null;
+  /** The usual yearly timeline, from the official pages. */
+  cycle_en?: string | null;
+  cycle_bn?: string | null;
   eligibility_summary_en: string;
   eligibility_summary_bn?: string;
   evaluates: EvaluatedItem[];

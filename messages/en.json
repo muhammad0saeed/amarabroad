@@ -57,7 +57,8 @@
     "privacy": "Privacy",
     "contact": "Report a problem",
     "lite": "Lite mode",
-    "liteHint": "For slow data and budget phones: no animations or decorations."
+    "liteHint": "For slow data and budget phones: no animations or decorations.",
+    "news": "News"
   },
   "footer": {
     "label": "Footer",
@@ -119,7 +120,14 @@
     "guidesCta": "Read the guides",
     "toolsTitle": "Tools",
     "toolsBody": "Grade converter, cost calculator and an application timeline.",
-    "toolsCta": "Open tools"
+    "toolsCta": "Open tools",
+    "robotTitle": "Our robot, last 24 hours",
+    "robotLive": "Checks university websites around the clock",
+    "robotPages": "University pages checked",
+    "robotNew": "New programs found",
+    "robotUpdated": "Programs updated",
+    "robotUniversities": "Universities searched",
+    "robotNote": "No AI writes anything here. The robot reads each university’s own website with fixed rules and keeps the sentence every fact came from, so you can check it. New programs appear on the site once they have a subject, level and source."
   },
   "search": {
     "title": "Find programs",
@@ -655,7 +663,7 @@
   },
   "scholarship": {
     "title": "Scholarships",
-    "subtitle": "Merit, need-based and mixed scholarships, with days left until each deadline.",
+    "subtitle": "Big official scholarships open to Bangladeshi students: where each round stands, its deadline when announced, and its usual timeline.",
     "bdOnly": "Open to Bangladeshi students",
     "count": "{count, plural, =0 {No scholarships} one {# scholarship} other {# scholarships}}",
     "emptyTitle": "No scholarships match these filters",
@@ -675,7 +683,17 @@
     "evaluatesNote": "Your Fit Score for this scholarship gives these parts extra weight.",
     "appliesTo": "Where it applies",
     "programCount": "{count, plural, =0 {No sample programs} one {# sample program} other {# sample programs}}",
-    "officialLink": "Official scholarship page"
+    "officialLink": "Official scholarship page",
+    "applyBy": "Apply by {date}",
+    "usually": "Usual timeline",
+    "fromPage": "From the official page",
+    "round": {
+      "open": "Open now",
+      "closed": "Closed for this round",
+      "varies": "Deadline set by each university",
+      "unknown": "Next deadline not announced yet",
+      "closedOn": "last round closed {date}"
+    }
   },
   "compare": {
     "title": "Compare programs",
@@ -1007,6 +1025,24 @@
       "seats_total": "Seats",
       "seats_non_eu": "Seats for non-EU",
       "required_documents": "Documents"
+    }
+  },
+  "news": {
+    "title": "News",
+    "subtitle": "Recent news about student visas, universities and scholarships in the countries we cover. Each link opens the article on its own site.",
+    "count": "{count, plural, =0 {No links} one {# link} other {# links}}",
+    "all": "All countries",
+    "official": "Official",
+    "deadline": "Deadline {date}",
+    "kept": "Guide",
+    "rules": "Our robot collects these headlines from official and education-news feeds every few hours, no AI. Old news is removed after 4 months, news with a deadline after that deadline, and dead links as soon as they are found. Guides stay.",
+    "empty": "No news for this country right now.",
+    "topics": {
+      "visa": "Visa",
+      "scholarship": "Scholarship",
+      "university": "Universities",
+      "work": "Work",
+      "cost": "Costs"
     }
   }
 }

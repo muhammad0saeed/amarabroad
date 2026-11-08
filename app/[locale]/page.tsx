@@ -13,6 +13,7 @@ import { getCatalogue, getSearchOptions } from "@/lib/search";
 import { lowestTotal } from "@/lib/summary";
 import { initPage, type LocaleParams } from "@/lib/server";
 import { countryHref } from "@/lib/places";
+import { getPublicRobotStats } from "@/lib/supabase/robotStats";
 
 export default async function HomePage({ params }: LocaleParams) {
   const locale = await initPage(params);
@@ -20,13 +21,14 @@ export default async function HomePage({ params }: LocaleParams) {
   const explore = await getTranslations("explore");
   const search = await getTranslations("search");
   const browse = await getTranslations("browse");
-  const [countries, universities, scholarships, programs, coverage, options] = await Promise.all([
+  const [countries, universities, scholarships, programs, coverage, options, robot] = await Promise.all([
     listCountries(),
     listUniversities(),
     listScholarships(),
     getCatalogue(),
     getCoverage(),
     getSearchOptions(),
+    getPublicRobotStats(),
   ]);
   const n = (v: number) => localizeDigits(String(v), locale);
   const name = (x: { name_en: string; name_bn: string }) => (locale === "bn" ? x.name_bn : x.name_en);
@@ -151,6 +153,37 @@ export default async function HomePage({ params }: LocaleParams) {
           </ul>
         </section>
 
+        {/* What the robot did in the last 24 hours: rules, not AI, and every fact keeps its source. */}
+        {robot && robot.pages_checked > 0 && (
+          <section aria-labelledby="robot-title" className="rounded-card border border-border bg-surface p-5 sm:p-6">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+              <h2 id="robot-title" className="text-heading font-semibold">
+                {t("robotTitle")}
+              </h2>
+              <span className="inline-flex items-center gap-1.5 text-meta text-ink-muted">
+                <span aria-hidden="true" className="size-2 animate-pulse rounded-full bg-success motion-reduce:animate-none" />
+                {t("robotLive")}
+              </span>
+            </div>
+            <dl className="mt-4 grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-4">
+              {(
+                [
+                  ["robotPages", robot.pages_checked],
+                  ["robotNew", robot.programs_found],
+                  ["robotUpdated", robot.programs_updated],
+                  ["robotUniversities", robot.universities_searched],
+                ] as const
+              ).map(([key, value]) => (
+                <div key={key}>
+                  <dt className="text-meta text-ink-muted">{t(key)}</dt>
+                  <dd className="mt-0.5 text-title leading-none font-bold tracking-tight tabular-nums">{n(value)}</dd>
+                </div>
+              ))}
+            </dl>
+            <p className="mt-4 max-w-[70ch] text-meta text-ink-muted">{t("robotNote")}</p>
+          </section>
+        )}
+
         {/* Match quiz. */}
         <section className="relative overflow-hidden rounded-card bg-ink p-6 text-canvas shadow-card sm:p-8">
           <img src="/illustrations/match.webp" alt="" width={658} height={666} loading="lazy" className="pointer-events-none float-right -mt-2 -mr-2 mb-2 ml-3 w-24 select-none sm:hidden lite:hidden" />
@@ -235,7 +268,9 @@ export default async function HomePage({ params }: LocaleParams) {
               {t("seeAll")} <Icon name="arrowRight" className="size-4" />
             </Link>
           </div>
-          <ClosingSoon scholarships={scholarships.map(({ slug, name, provider, deadline, bd_eligible, type }) => ({ slug, name, provider, deadline, bd_eligible, type }))} />
+          <ClosingSoon
+            scholarships={scholarships.flatMap(({ slug, name, provider, deadline, bd_eligible, type }) => (deadline ? [{ slug, name, provider, deadline, bd_eligible, type }] : []))}
+          />
         </section>
 
         {/* Guides and tools. */}

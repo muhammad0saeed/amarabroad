@@ -8,6 +8,7 @@ import { Link } from "@/i18n/navigation";
 
 const LINKS: [string, IconName, string][] = [
   ["/scholarships", "scholarship", "scholarships"],
+  ["/news", "news", "news"],
   ["/compare", "compare", "compare"],
   ["/tools", "tools", "tools"],
   ["/guides", "book", "guides"],

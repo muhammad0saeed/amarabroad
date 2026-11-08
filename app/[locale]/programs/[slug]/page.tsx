@@ -10,6 +10,7 @@ import { ProgramChat } from "@/components/program/ProgramChat";
 import { UniversityInfo } from "@/components/program/UniversityInfo";
 import { AddToCalendar } from "@/components/ui/AddToCalendar";
 import { DaysLeft } from "@/components/ui/DaysLeft";
+import { RoundLine } from "@/components/scholarship/RoundLine";
 import { Badge, Breadcrumbs, buttonClass, Card, Disclosure, ExternalLink, Section } from "@/components/ui/primitives";
 import { NotFound } from "@/components/ui/NotFound";
 import { SampleBadge } from "@/components/ui/SampleBadge";
@@ -504,7 +505,7 @@ export default async function ProgramPage({ params }: Props) {
                   <p className="flex flex-wrap items-center gap-2 text-meta">
                     <Badge tone={s.type === "need" ? "neutral" : "primary"}>{labels(`scholarshipType.${s.type}`)}</Badge>
                     {!s.bd_eligible && <Badge tone="danger">{t("tagNotBd")}</Badge>}
-                    {t("applyBy", { date: formatDate(s.deadline, L) })} <DaysLeft date={s.deadline} />
+                    <RoundLine s={s} prefix="applyBy" />
                   </p>
                 </Card>
               </li>

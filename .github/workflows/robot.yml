@@ -9,6 +9,8 @@
 #   info      2 jobs: the gap-filler, universities' general pages (fees, deadlines, English, documents),
 #                                           then the cross-checker (program pages vs those general pages)
 #   rates     every shift: exchange rates to taka for every currency (free public-domain dataset)
+#   extras    every shift: scholarship rounds (official pages), news links (official and education-news feeds;
+#                                           expired and dead links removed), tidying the change log
 #   official  weekly (Monday 03:30 Bangladesh time): programs from official government course lists. Australia
 #                                           (CRICOS): every matched university. US (College Scorecard): universities whose
 #                                           websites block the robot (all of them would overfill the free database).
@@ -160,6 +162,43 @@ jobs:
       - name: Cross-check program pages against universities' general pages
         if: matrix.shard == 0
         run: npm run robot -- crosscheck
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+
+  # Small jobs, every shift: scholarship rounds (a few official pages), news headlines (a few feeds),
+  # and tidying the change log. A few minutes in all.
+  extras:
+    needs: plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    concurrency:
+      group: robot-extras
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Scholarship rounds and deadlines
+        continue-on-error: true
+        run: npm run robot -- scholarships
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          ROBOT_CONTACT_URL: ${{ vars.ROBOT_CONTACT_URL }}
+      - name: News links (adds new ones, removes expired and dead ones)
+        continue-on-error: true
+        run: npm run robot -- news
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          ROBOT_CONTACT_URL: ${{ vars.ROBOT_CONTACT_URL }}
+      - name: Tidy the change log
+        continue-on-error: true
+        run: npm run robot -- tidy
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}

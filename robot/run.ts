@@ -23,6 +23,7 @@ import { interleave, pool, shardOf } from "./pool.ts";
 import { nextCheckHours } from "./schedule.ts";
 import { importOfficial } from "./official-data.ts";
 import { updateRates } from "./rates.ts";
+import { checkNews } from "./news.ts";
 import { checkScholarships } from "./scholarships.ts";
 import { subjectOf } from "./rules.ts";
 import { readUniversityInfo } from "./university-info.ts";
@@ -143,15 +144,19 @@ async function checkOne(source: store.SourceRow, validFields: Set<string>, stats
     log("  not a program page");
     return;
   }
-  const snapshot = await store.saveSnapshot(source.id, main);
-  const extraction = await store.saveExtraction({ source: source.id, snapshot, model: RULES_VERSION, result: { raw: read.raw, dropped: read.dropped }, input_tokens: 0, output_tokens: 0, cost_usd: 0 });
-  await store.pruneSource(source.id);
-
   // The same course imported earlier from an official government list: the page adds its facts to that program.
   const twin = existing ? null : await store.datasetTwin(uni.slug, read.facts.title);
   const current = existing ?? (twin ? await store.loadProgram(twin) : null);
   const slug = current?.slug ?? (await newProgramSlug(read.facts.title, uni.name));
   const changes = planChanges(current, read.facts, today(), validFields);
+
+  const snapshot = await store.saveSnapshot(source.id, main);
+  // The full reading is kept only when a change waits for review (it explains that change); otherwise
+  // each fact's sentence is already in the change log, and the reading would cost ~2 KB per program.
+  const extraction = changes.some((c) => c.hold)
+    ? await store.saveExtraction({ source: source.id, snapshot, model: RULES_VERSION, result: { raw: read.raw, dropped: read.dropped }, input_tokens: 0, output_tokens: 0, cost_usd: 0 })
+    : null;
+  await store.pruneSource(source.id);
   const result = await store.applyProgram({
     slug,
     isNew: !current,
@@ -422,6 +427,15 @@ async function official() {
   await importOfficial(country, { file: flag("file"), university: flag("university"), all: rest.includes("--all"), dry: rest.includes("--dry"), parallel: Number(flag("parallel", "8")), log });
 }
 
+/** Daily housekeeping: drops change-log rows replaced by newer ones (supabase/13_space_savers.sql; skipped until it is applied). */
+async function tidy() {
+  const { data, error } = await store.db().rpc("robot_prune_log");
+  if (error) log(`Tidy skipped: ${error.message}`);
+  else log(`Tidy: removed ${data} replaced change-log rows.`);
+  const mb = await store.databaseMB();
+  if (mb !== null) log(`Database: ${mb} MB of 500 MB (robot stops adding new pages at ${store.DATABASE_BRAKE_MB} MB).`);
+}
+
 const commands: Record<string, () => Promise<void>> = {
   check,
   rates: () => updateRates(log),
@@ -429,6 +443,8 @@ const commands: Record<string, () => Promise<void>> = {
   crosscheck: crossCheckAll,
   refield,
   scholarships: () => checkScholarships(log),
+  news: () => checkNews(log),
+  tidy,
   official,
   discover,
   "discover-all": discoverAll,
@@ -451,7 +467,7 @@ process.on("unhandledRejection", (e) => {
 
 const run = command ? commands[command] : undefined;
 if (!run) {
-  console.log("Commands: seed, seed-top, discover, discover-all, grow, add, check, official, rates, uni-info, crosscheck, refield, scholarships. See robot/README.md.");
+  console.log("Commands: seed, seed-top, discover, discover-all, grow, add, check, official, rates, uni-info, crosscheck, refield, scholarships, news, tidy. See robot/README.md.");
   process.exitCode = 1;
 } else {
   try {

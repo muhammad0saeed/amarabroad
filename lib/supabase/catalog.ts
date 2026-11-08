@@ -15,12 +15,24 @@ const PARALLEL = 8;
 async function all<T>(table: string, columns = "*", filter?: (q: ReturnType<ReturnType<typeof serviceClient>["from"]>["select"]) => unknown): Promise<T[]> {
   const db = serviceClient();
   const key = table === "exchange_rates" ? "currency" : "slug";
-  const page = async (n: number): Promise<T[]> => {
+  const once = async (n: number): Promise<T[]> => {
     let query = db.from(table).select(columns).order(key).range(n * PAGE, n * PAGE + PAGE - 1);
     if (filter) query = filter(query as never) as typeof query;
     const { data, error } = await query;
     if (error) throw new Error(`Supabase ${table}: ${error.message}`);
     return (data ?? []) as T[];
+  };
+  // A busy database (the robot writing) sometimes drops one request; try a page up to 4 times
+  // before giving up, so one hiccup doesn't fail a deploy or a refresh.
+  const page = async (n: number): Promise<T[]> => {
+    for (let attempt = 1; ; attempt++) {
+      try {
+        return await once(n);
+      } catch (e) {
+        if (attempt >= 4) throw e;
+        await new Promise((r) => setTimeout(r, 1000 * 2 ** (attempt - 1)));
+      }
+    }
   };
   const rows: T[] = [];
   for (let first = 0; ; first += PARALLEL) {

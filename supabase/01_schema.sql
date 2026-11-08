@@ -261,6 +261,12 @@ create table if not exists public.scholarships (
   levels text[] not null default '{}',
   coverage jsonb,                                  -- {tuition, tuition_percent?, stipend, summary_en, summary_bn?}
   deadline date,
+  -- Where the round stands (14_scholarship_rounds.sql): open / closed / varies (per university) / unknown.
+  round_status text not null default 'unknown' check (round_status in ('open','closed','varies','unknown')),
+  last_deadline date,                              -- last round's closing date
+  deadline_quote text,                             -- the sentence the deadline or status came from
+  cycle_en text,                                   -- the usual yearly timeline
+  cycle_bn text,
   eligibility_summary_en text not null default '',
   eligibility_summary_bn text,
   evaluates text[] not null default '{}',
@@ -276,7 +282,7 @@ create table if not exists public.scholarships (
   published boolean not null default false,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
-  constraint scholarships_complete check (not published or (coverage is not null and deadline is not null and last_verified is not null))
+  constraint scholarships_complete check (not published or (coverage is not null and last_verified is not null))
 );
 create index if not exists scholarships_deadline_idx on public.scholarships (deadline);
 create index if not exists scholarships_countries_idx on public.scholarships using gin (countries);

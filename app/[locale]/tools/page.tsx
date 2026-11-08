@@ -26,7 +26,7 @@ export default async function ToolsPage({ params }: LocaleParams) {
     )
   ).filter((c) => c !== null);
   const programs = (await listPrograms()).map(({ slug, title, intakes }) => ({ slug, title, intakes }));
-  const scholarships = (await listScholarships()).map(({ slug, name, deadline }) => ({ slug, name, deadline }));
+  const scholarships = (await listScholarships()).flatMap(({ slug, name, deadline }) => (deadline ? [{ slug, name, deadline }] : []));
 
   return (
     <>

@@ -11,6 +11,7 @@ import { DATA_SOURCE, getScholarship, listCountries, listProgramContexts, listSc
 import { formatDate } from "@/lib/format";
 import { localizeDigits, pick } from "@/lib/localize";
 import { formatMoney } from "@/lib/money";
+import { cycleOf, roundOf } from "@/lib/scholarshipRound";
 import { initPage } from "@/lib/server";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
@@ -47,6 +48,8 @@ export default async function ScholarshipPage({ params }: Props) {
   const countries = (await listCountries()).filter((c) => s.countries.includes(c.slug));
   const universities = (await listUniversities()).filter((u) => s.universities.includes(u.slug));
   const stipend = s.coverage.stipend;
+  const round = roundOf(s);
+  const cycle = cycleOf(s, locale);
 
   return (
     <div className="space-y-6 pb-4">
@@ -62,7 +65,11 @@ export default async function ScholarshipPage({ params }: Props) {
       />
 
       <dl className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-        <Fact label={t("deadline")} value={formatDate(s.deadline, locale)} hint={<DaysLeft date={s.deadline} />} />
+        <Fact
+          label={t("deadline")}
+          value={s.deadline ? formatDate(s.deadline, locale) : t(`round.${round}`)}
+          hint={s.deadline ? <DaysLeft date={s.deadline} /> : round === "closed" && s.last_deadline ? t("round.closedOn", { date: formatDate(s.last_deadline, locale) }) : undefined}
+        />
         <Fact label={t("tuition")} value={labels(`coverage.${s.coverage.tuition}`)} hint={s.coverage.tuition_percent ? `${localizeDigits(String(s.coverage.tuition_percent), locale)}%` : undefined} />
         <Fact
           label={t("stipend")}
@@ -72,9 +79,26 @@ export default async function ScholarshipPage({ params }: Props) {
         <Fact label={t("levels")} value={s.levels.map((l) => labels(`level.${l}`)).join(", ")} />
       </dl>
 
-      <div className="flex flex-wrap gap-2">
-        <AddToCalendar fileSlug={s.slug} event={{ uid: `scholarship-${s.slug}@amarabroad`, title: t("calendarTitle", { name: s.name }), description: s.provider, url: s.official_url, date: s.deadline }} />
-      </div>
+      {s.deadline && (
+        <div className="flex flex-wrap gap-2">
+          <AddToCalendar fileSlug={s.slug} event={{ uid: `scholarship-${s.slug}@amarabroad`, title: t("calendarTitle", { name: s.name }), description: s.provider, url: s.official_url, date: s.deadline }} />
+        </div>
+      )}
+
+      {(cycle || s.deadline_quote) && (
+        <Section title={t("usually")}>
+          <Card className="space-y-3">
+            {cycle && <p>{cycle}</p>}
+            {s.deadline_quote && (
+              <figure className="text-meta">
+                <figcaption className="font-semibold text-ink-muted">{t("fromPage")}</figcaption>
+                <blockquote className="mt-1 border-l-2 border-accent pl-3">&ldquo;{s.deadline_quote}&rdquo;</blockquote>
+                {s.source_url && <ExternalLink href={s.source_url} className="mt-1 inline-block text-meta">{new URL(s.source_url).hostname.replace(/^www./, "")}</ExternalLink>}
+              </figure>
+            )}
+          </Card>
+        </Section>
+      )}
 
       <Section title={t("coverageTitle")}>
         <Card>
