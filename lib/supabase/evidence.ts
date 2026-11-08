@@ -31,3 +31,24 @@ export async function getEvidence(programSlug: string): Promise<Record<string, E
   }
   return out;
 }
+
+export interface UniversityFact {
+  field: "tuition" | "application_fee" | "english" | "deadline" | "document";
+  /** null: the page is about both levels. */
+  level: "bachelor" | "master" | null;
+  value: Record<string, unknown>;
+  quote: string;
+  source_url: string;
+  checked_at: string;
+}
+
+/** What a university's general pages say (fees, English scores, deadlines, documents), from the gap-filler robot. */
+export async function getUniversityFacts(university: string): Promise<UniversityFact[]> {
+  const { data, error } = await serviceClient()
+    .from("university_facts")
+    .select("field, level, value, quote, source_url, checked_at")
+    .eq("university", university)
+    .limit(100);
+  if (error || !data) return [];
+  return data as UniversityFact[];
+}

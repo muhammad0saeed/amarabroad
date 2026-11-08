@@ -20,7 +20,8 @@
     "robot:wikidata": "node robot/wikidata-peek.ts",
     "robot:discover-try": "node robot/discover-try.ts",
     "robot:measure": "node robot/measure.ts",
-    "db:reference": "node scripts/build-seed.mjs --tables fields,degree_mappings,glossary_terms,exchange_rates --out supabase/03_reference.sql"
+    "db:reference": "node scripts/build-seed.mjs --tables fields,degree_mappings,glossary_terms,exchange_rates --out supabase/03_reference.sql",
+    "robot:info-try": "node robot/info-try.ts"
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",

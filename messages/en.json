@@ -253,6 +253,12 @@
     "notPublished": "Not published",
     "seatsValue": "{nonEu} non-EU seats out of {total}",
     "intakes": "Intakes and deadlines",
+    "deadlineMissingTitle": "The deadline isn't on this program's page. How to find it:",
+    "deadlineStep1": "Open the official program page and look for \"Application\", \"Deadlines\" or \"Key dates\".",
+    "deadlineStep2": "Check the university's admissions page for international students: dates for all programs are often listed there.",
+    "deadlineStep3": "Some countries use one application website: uni-assist or the university portal (Germany), UCAS (UK bachelor's), Studielink (Netherlands), University Admissions (Sweden), Studyinfo (Finland), Universitaly (Italy).",
+    "deadlineStep4": "Still unclear? Email the admissions office and ask for the application deadline for non-EU applicants for your intake.",
+    "openOfficialPage": "Open the official page",
     "intakeStarts": "Starts {month}",
     "applyBy": "Apply by {date}",
     "calendarTitle": "Deadline: {title}",
@@ -707,6 +713,17 @@
       "deadline": "Next deadline"
     },
     "notStated": "Not stated"
+  },
+  "uniInfo": {
+    "title": "From {university}'s general pages",
+    "note": "This program's own page doesn't say these, so here is what the university says in general, word for word. One general page often covers many programs: check on the program's official page that a line applies to you.",
+    "field": {
+      "deadline": "Application dates",
+      "tuition": "Tuition",
+      "english": "English tests",
+      "application_fee": "Application fee",
+      "document": "Documents"
+    }
   },
   "match": {
     "title": "Match me",

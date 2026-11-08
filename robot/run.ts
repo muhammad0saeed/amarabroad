@@ -23,6 +23,7 @@ import { interleave, pool, shardOf } from "./pool.ts";
 import { nextCheckHours } from "./schedule.ts";
 import { importOfficial } from "./official-data.ts";
 import { updateRates } from "./rates.ts";
+import { readUniversityInfo } from "./university-info.ts";
 
 const [command, ...rest] = process.argv.slice(2);
 const flag = (name: string, fallback?: string) => {
@@ -332,6 +333,36 @@ async function add() {
   log("Added. It will be read on the next check.");
 }
 
+/**
+ * The gap-filler: reads universities' general pages (international fees, deadlines, English scores, documents)
+ * so program pages missing those can show what the university says in general (university-info.ts).
+ * --limit, --parallel, --minutes and --shard work like discover-all. Each university again after 30 days.
+ */
+async function uniInfo() {
+  const limit = Number(flag("limit", "200"));
+  const parallel = Number(flag("parallel", "10"));
+  const minutes = Number(flag("minutes", "0"));
+  const deadline = minutes > 0 ? Date.now() + minutes * 60_000 : Infinity;
+  const [shard, shards] = (flag("shard", "0/1") ?? "0/1").split("/").map(Number) as [number, number];
+  if (await retry(() => databaseFull())) return;
+  const due = (await retry(() => store.universitiesNeedingInfo())).filter((u) => shardOf(u.slug, shards) === shard).slice(0, limit);
+  log(`Reading general pages of ${due.length} universities, ${parallel} at a time`);
+  let withFacts = 0;
+  let facts = 0;
+  await pool(due, parallel, deadline, async (u) => {
+    try {
+      const read = await readUniversityInfo(u.website, today());
+      await store.saveUniversityFacts(u.slug, read.facts);
+      if (read.facts.length) withFacts++;
+      facts += read.facts.length;
+      log(`  ${u.slug}: ${read.facts.length} facts from ${read.pages} pages`);
+    } catch (e) {
+      log(`  ${u.slug}: ${e instanceof Error ? e.message : String(e)}`);
+    }
+  });
+  log(`Done: ${facts} facts at ${withFacts} universities.`);
+}
+
 /** Programs from official government course lists, for universities whose websites block the robot (official-data.ts). */
 async function official() {
   const country = rest[0];
@@ -342,6 +373,7 @@ async function official() {
 const commands: Record<string, () => Promise<void>> = {
   check,
   rates: () => updateRates(log),
+  "uni-info": uniInfo,
   official,
   discover,
   "discover-all": discoverAll,
@@ -364,7 +396,7 @@ process.on("unhandledRejection", (e) => {
 
 const run = command ? commands[command] : undefined;
 if (!run) {
-  console.log("Commands: seed, seed-top, discover, discover-all, grow, add, check, official, rates. See robot/README.md.");
+  console.log("Commands: seed, seed-top, discover, discover-all, grow, add, check, official, rates, uni-info. See robot/README.md.");
   process.exitCode = 1;
 } else {
   try {

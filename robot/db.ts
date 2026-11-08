@@ -3,7 +3,8 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { stable, type PlannedChange, type ProgramRow } from "./checks.ts";
 import type { FetchedPage } from "./pipeline.ts";
-import { fromDataset } from "./official-data.ts";
+import { everyRow, fromDataset } from "./official-data.ts";
+import type { InfoFact } from "./university-info.ts";
 
 let client: SupabaseClient | null = null;
 export function db(): SupabaseClient {
@@ -306,4 +307,35 @@ export async function startRun(trigger: string): Promise<number> {
 
 export async function finishRun(id: number, stats: { pages_checked: number; pages_changed: number; changes_applied: number; changes_held: number; errors: number; cost_usd: number; notes?: string }) {
   must(await db().from("crawl_runs").update({ ...stats, finished_at: new Date().toISOString() }).eq("id", id), "finish run");
+}
+
+// ---------------------------------------------------------------- university general pages (gap-filler)
+
+/** Read again after this many days (fees and deadlines change once or twice a year). */
+const INFO_DAYS = 30;
+
+/** Universities with programs on the site whose general pages weren't read in the last 30 days, never-read first. */
+export async function universitiesNeedingInfo(): Promise<{ slug: string; website: string }[]> {
+  const withPrograms = new Set(
+    (await everyRow<{ university: string }>((from, to) => db().from("programs").select("university").eq("published", true).order("slug").range(from, to), "programs")).map((r) => r.university),
+  );
+  const unis = await everyRow<{ slug: string; website: string | null; info_checked_at: string | null }>(
+    (from, to) => db().from("universities").select("slug, website, info_checked_at").order("slug").range(from, to),
+    "universities",
+  );
+  const due = Date.now() - INFO_DAYS * DAY;
+  return unis
+    .filter((u) => withPrograms.has(u.slug) && u.website && (!u.info_checked_at || Date.parse(u.info_checked_at) < due))
+    .sort((a, b) => (a.info_checked_at ?? "").localeCompare(b.info_checked_at ?? ""))
+    .map((u) => ({ slug: u.slug, website: u.website! }));
+}
+
+/** Replaces what a university's general pages say with the latest reading. */
+export async function saveUniversityFacts(slug: string, facts: InfoFact[]) {
+  must(await db().from("university_facts").delete().eq("university", slug), "clear university facts");
+  if (facts.length) {
+    const today = new Date().toISOString().slice(0, 10);
+    must(await db().from("university_facts").insert(facts.map((f) => ({ university: slug, field: f.field, level: f.level, value: f.value, quote: f.quote, source_url: f.source_url, checked_at: today }))), "save university facts");
+  }
+  must(await db().from("universities").update({ info_checked_at: new Date().toISOString() }).eq("slug", slug), "mark info checked");
 }

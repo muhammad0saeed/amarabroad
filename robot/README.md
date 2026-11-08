@@ -71,6 +71,16 @@ The lines a fact was found in are saved as its **evidence**, shown on the site w
 5. **Logged.** `field_changes` keeps every change with old value, new value, evidence and page.
 6. **Facts it can't find** are shown as "Not found, check the official page", never guessed.
 
+## The gap-filler: universities' general pages (university-info.ts)
+
+Many universities state tuition, English scores, deadlines and the documents to send once, on general pages ("Fees for international students", "How to apply"), not on every program page. The gap-filler:
+
+1. Opens the homepage and up to three hub pages (International, Admissions, How to apply) and picks the best-matching pages for fees, deadlines, English requirements and documents (about 5-8 fetches per university).
+2. Reads them with the same rules and quote check as program pages, but stricter: a sentence must clearly be about that fact (no application fees or per-credit prices as tuition, no payment dates as deadlines, no PhD English scores, documents only from a list on an application page; research-job, exchange and PhD pages are skipped).
+3. Saves each fact with its sentence and page in `university_facts` (`supabase/08_university_facts.sql`), replacing the previous reading.
+
+A program page with a gap shows these sentences, word for word with the link, in a box labelled as the university's general pages. They are **never copied into the program's own fields** (one general page often covers many programs), so filters, totals and the quiz use only what the program's own page says. Without a deadline, the page also explains how to find it.
+
 ## Universities that block the robot: official course lists (official-data.ts)
 
 Some big universities (Oxford, UCL, Melbourne, Monash, Johns Hopkins…) refuse robots (HTTP 403). The robot never pretends to be a browser to get around that. For these it uses the course lists governments publish for free reuse:

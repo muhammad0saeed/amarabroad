@@ -7,6 +7,7 @@ import { GROUP_ICON, Icon } from "@/components/icons";
 import { ParentSummary } from "@/components/program/ParentSummary";
 import { ProgramPageActions } from "@/components/program/ProgramActions";
 import { ProgramChat } from "@/components/program/ProgramChat";
+import { UniversityInfo } from "@/components/program/UniversityInfo";
 import { AddToCalendar } from "@/components/ui/AddToCalendar";
 import { DaysLeft } from "@/components/ui/DaysLeft";
 import { Badge, Breadcrumbs, buttonClass, Card, Disclosure, ExternalLink, Section } from "@/components/ui/primitives";
@@ -56,6 +57,14 @@ export default async function ProgramPage({ params }: Props) {
   const scholarships = await listScholarshipsForProgram(p.slug);
   // Robot-read programs: the exact words on the official page behind each fact.
   const evidence = DATA_SOURCE === "supabase" && p.origin === "robot" ? await (await import("@/lib/supabase/evidence")).getEvidence(p.slug) : {};
+  // Gaps on the program's own page, filled (labelled) from the university's general pages.
+  const gaps = [
+    ...(p.intakes.length === 0 ? (["deadline"] as const) : []),
+    ...(p.tuition_per_year === null ? (["tuition", "application_fee"] as const) : []),
+    ...(p.english_tests.length === 0 ? (["english"] as const) : []),
+    ...(p.required_documents.length === 0 ? (["document"] as const) : []),
+  ];
+  const universityFacts = DATA_SOURCE === "supabase" && gaps.length ? await (await import("@/lib/supabase/evidence")).getUniversityFacts(u.slug) : [];
   const sources = await getTranslations("sources");
   const fitContext = await getFitContext();
   const fieldNames = await getFieldNames();
@@ -321,7 +330,21 @@ export default async function ProgramPage({ params }: Props) {
         </Card>
       </Section>
 
+      <UniversityInfo facts={universityFacts} gaps={[...gaps]} level={p.degree_level} university={u.name} />
+
       <Section title={t("intakes")} id="intakes">
+        {p.intakes.length === 0 && (
+          <Card className="space-y-2">
+            <p className="font-semibold">{t("deadlineMissingTitle")}</p>
+            <ol className="list-decimal space-y-1 pl-5 text-meta text-ink-muted">
+              <li>{t("deadlineStep1")}</li>
+              <li>{t("deadlineStep2")}</li>
+              <li>{t("deadlineStep3")}</li>
+              <li>{t("deadlineStep4")}</li>
+            </ol>
+            <ExternalLink href={p.official_url || u.website}>{t("openOfficialPage")}</ExternalLink>
+          </Card>
+        )}
         <ul className="space-y-2">
           {p.intakes.map((i) => (
             <li key={i.deadline}>

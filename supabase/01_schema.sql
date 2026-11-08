@@ -170,6 +170,7 @@ create table if not exists public.universities (
   published boolean not null default false,
   discovered_at timestamptz,                       -- when the robot last searched its website for program pages
   program_pages_found integer,
+  info_checked_at timestamptz,                     -- when the robot last read its general pages (fees, deadlines…)
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   constraint universities_complete check (not published or last_verified is not null)
@@ -425,6 +426,19 @@ create table if not exists public.crawl_runs (
   cost_usd numeric(10,4) not null default 0,
   notes text
 );
+
+-- What universities' general pages say (fees, English scores, deadlines, documents); see 08_university_facts.sql.
+create table if not exists public.university_facts (
+  id bigint generated always as identity primary key,
+  university text not null references public.universities(slug) on delete cascade,
+  field text not null check (field in ('tuition','application_fee','english','deadline','document')),
+  level text check (level in ('bachelor','master')),
+  value jsonb not null,
+  quote text not null check (length(quote) <= 400),
+  source_url text not null,
+  checked_at date not null default current_date
+);
+create index if not exists university_facts_university_idx on public.university_facts (university);
 
 -- Indexes for the links between tables (deletes and joins stay fast as the tables grow).
 create index if not exists degree_mappings_field_idx on public.degree_mappings (field);
