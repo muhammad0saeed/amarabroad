@@ -1,7 +1,7 @@
 // Page helpers for Server Components: locale setup and data every page reuses.
 
 import { setRequestLocale } from "next-intl/server";
-import { listExchangeRates, listFields } from "./data";
+import { listCountries, listExchangeRates, listFields } from "./data";
 import type { FitContext } from "./fitScore";
 import type { AppLocale } from "./localize";
 import { rateTable, type RateTable } from "./money";
@@ -21,7 +21,10 @@ export async function getRates(): Promise<RateTable> {
 }
 
 export async function getFitContext(): Promise<FitContext> {
-  return { fieldGroups: Object.fromEntries((await listFields()).map((f) => [f.slug, f.group])) };
+  return {
+    fieldGroups: Object.fromEntries((await listFields()).map((f) => [f.slug, f.group])),
+    hscExtraYear: (await listCountries()).filter((c) => c.hsc_entry_note_en).map((c) => c.slug),
+  };
 }
 
 /** Field slug → display names, for cards and filters. */

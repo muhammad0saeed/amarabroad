@@ -264,6 +264,16 @@ export default async function ProgramPage({ params }: Props) {
       </Section>
 
       <Section title={t("requirements")} id="requirements">
+        {p.degree_level === "bachelor" && country.hsc_entry_note_en && (
+          <Card className="mb-3 flex gap-3 border border-warning/40">
+            <Icon name="info" className="mt-0.5 size-5 shrink-0 text-warning" />
+            <div className="text-meta">
+              <p className="font-semibold">{t("hscEntryTitle")}</p>
+              <p className="mt-1">{(L === "bn" ? country.hsc_entry_note_bn : null) ?? country.hsc_entry_note_en}</p>
+              {country.hsc_entry_source_url && <ExternalLink href={country.hsc_entry_source_url}>{t("costSource")}</ExternalLink>}
+            </div>
+          </Card>
+        )}
         <Card className="space-y-4">
           <div>
             <h3 className="font-semibold">{t(p.degree_level === "bachelor" ? "minHsc" : "minCgpa")}</h3>

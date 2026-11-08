@@ -253,6 +253,7 @@
     "notPublished": "Not published",
     "seatsValue": "{nonEu} non-EU seats out of {total}",
     "intakes": "Intakes and deadlines",
+    "hscEntryTitle": "Coming with HSC (12 years of school)?",
     "deadlineMissingTitle": "The deadline isn't on this program's page. How to find it:",
     "deadlineStep1": "Open the official program page and look for \"Application\", \"Deadlines\" or \"Key dates\".",
     "deadlineStep2": "Check the university's admissions page for international students: dates for all programs are often listed there.",
@@ -324,7 +325,8 @@
     "note": {
       "moi_used": "Your MOI letter counts instead of a test score.",
       "language_requirement": "Taught in another language: needs {requirement}. Check this yourself; it isn't scored.",
-      "english_not_scored": "English isn't scored for this program, so the score is based on the other parts."
+      "english_not_scored": "English isn't scored for this program, so the score is based on the other parts.",
+      "hsc_extra_year": "In this country HSC alone usually isn't enough: expect a foundation year or 1 year of university first. See the program page."
     },
     "tip": {
       "english": "{test} {from} → {to}: +{gain} points",

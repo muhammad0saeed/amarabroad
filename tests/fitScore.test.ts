@@ -161,6 +161,15 @@ describe("bachelor's programs", () => {
     expect(codes(fit({ ...hscStudent, field: "hsc-humanities" }, debrecenBsc))).toEqual(["field_not_related"]);
     expect(codes(fit({ ...hscStudent, hsc_gpa: 2.5 }, debrecenBsc))).toEqual(["grade_below_minimum"]);
   });
+
+  it("notes the extra year where HSC alone usually isn't enough (score unchanged)", () => {
+    const inGermany = { ...debrecenBsc, country: { slug: "germany" } };
+    const ctx = { ...fitContext, hscExtraYear: ["germany"] };
+    const r = computeFit(hscStudent, inGermany, ctx);
+    expect(r.notes).toContainEqual({ code: "hsc_extra_year" });
+    expect(r.eligible && r.score).toBe(71);
+    expect(computeFit(hscStudent, { ...debrecenBsc, country: { slug: "hungary" } }, ctx).notes).not.toContainEqual({ code: "hsc_extra_year" });
+  });
 });
 
 describe("programs not taught in English", () => {

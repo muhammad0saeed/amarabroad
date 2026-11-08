@@ -30,7 +30,7 @@ export type FitProgram = Pick<
   | "open_to_bd_citizens"
   | "related_bachelor_fields"
   | "min_gpa_requirement"
->;
+> & { country?: { slug: string } };
 
 export const FIT_CONFIG = {
   academics: {
@@ -100,7 +100,8 @@ export interface FitPart {
 export type FitNote =
   | { code: "moi_used" }
   | { code: "language_requirement"; requirement: string }
-  | { code: "english_not_scored" };
+  | { code: "english_not_scored" }
+  | { code: "hsc_extra_year" };
 
 export type FitResult =
   | { eligible: false; reasons: GateReason[]; notes: FitNote[] }
@@ -109,6 +110,8 @@ export type FitResult =
 export interface FitContext {
   /** Field slug → group, from fields.json. */
   fieldGroups: Record<string, FieldGroup>;
+  /** Countries where HSC alone usually isn't enough for a bachelor's (foundation year or 1 year of university first). */
+  hscExtraYear?: string[];
 }
 
 // ---------------------------------------------------------------- English
@@ -288,6 +291,7 @@ export function computeFit(profile: StudentProfile, program: FitProgram, ctx: Fi
   const english = englishStatus(profile, program);
   if (english.status === "moi") notes.push({ code: "moi_used" });
   if (english.status === "not_applicable") notes.push({ code: "english_not_scored" });
+  if (program.degree_level === "bachelor" && onlyHsc(profile) && program.country && ctx.hscExtraYear?.includes(program.country.slug)) notes.push({ code: "hsc_extra_year" });
 
   const reasons = eligibilityGate(profile, program);
   if (reasons.length > 0) return { eligible: false, reasons, notes };

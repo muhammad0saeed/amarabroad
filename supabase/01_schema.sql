@@ -111,6 +111,10 @@ create table if not exists public.countries (
   living_cost_max_basis_bn text,
   living_cost_source_url text,
   living_cost_checked date,
+  -- When HSC alone usually isn't enough for a bachelor's here (see 09_hsc_entry.sql).
+  hsc_entry_note_en text,
+  hsc_entry_note_bn text,
+  hsc_entry_source_url text,
   constraint countries_living_cost_range check (living_cost_min is null or (living_cost_min > 0 and (living_cost_max is null or living_cost_max >= living_cost_min))),
   constraint countries_complete check (not published or (overview_en <> '' and last_verified is not null and student_work_hours is not null))
 );

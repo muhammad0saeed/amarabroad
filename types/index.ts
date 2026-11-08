@@ -74,6 +74,10 @@ export interface Country extends Provenance {
   living_cost_max_basis_bn?: string | null;
   living_cost_source_url?: string | null;
   living_cost_checked?: string | null;
+  /** When Bangladesh's HSC usually isn't enough on its own for a bachelor's here: the usual extra step. */
+  hsc_entry_note_en?: string | null;
+  hsc_entry_note_bn?: string | null;
+  hsc_entry_source_url?: string | null;
 }
 
 export type LanguageNeed = "essential" | "helpful" | "not_needed";
