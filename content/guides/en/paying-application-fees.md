@@ -15,6 +15,6 @@ Application fees are usually small, but paying from Bangladesh can be confusing.
 ## Stay safe
 
 - Pay only on the university's official portal or to the account in its official email.
-- Never send money to a personal account, even if an agent asks.
+- Universities take fees through their own portal or bank account, never a personal account.
 - Keep the receipt and the confirmation email until you have your final decision.
 - Application fees are rarely refunded, so apply only where you meet the requirements. The Fit Score's eligibility check helps here.

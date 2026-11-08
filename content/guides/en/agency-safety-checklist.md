@@ -1,20 +1,17 @@
 ---
-title: Agency safety checklist
-summary: Ten checks before you pay a study-abroad agency or hand over documents.
+title: Choosing an agency
+summary: Applying on your own or through an agency is your choice. Some points to compare if you look at agencies.
 order: 1
 ---
 
-Many students use an agency, and good ones save time. But you stay responsible for your application, so check these before you pay anything.
+Some students apply on their own, and others use a study-abroad agency to save time. Either way works. If you're thinking about an agency, do your own research and choose one that suits you and is worth your time and money.
 
-1. **No one can guarantee admission or a visa.** Walk away from anyone who promises either.
-2. **Apply on the university's own portal where possible.** Ask the agency to show you the official program page for every program they suggest.
-3. **Ask how they are paid.** Some agencies earn a commission from certain universities. That can bias what they recommend.
-4. **Get every fee in writing**, with what it covers and when it is refunded.
-5. **Pay the university directly** for application and tuition fees, not through a personal account.
-6. **Never hand over original certificates.** Give attested copies; keep the originals yourself.
-7. **Keep your own login** for every portal and email used in your application.
-8. **Read every document before you sign it**, including anything written in a language you don't read.
-9. **Check reviews from real students**, not only the agency's own page.
-10. **Compare their advice with the official page.** If the deadline, tuition or requirements differ, trust the official page.
+Points students often compare between agencies:
 
-If something feels wrong, stop and ask someone already studying at that university.
+- **Services.** Which steps they handle (choosing programs, applications, documents, visa, housing) and which stay with you.
+- **Fees.** What each fee covers, when it's paid, and the refund terms.
+- **Universities and countries.** Which ones they work with, and whether that matches what you're looking for.
+- **Communication.** Who your contact person is, and how quickly they answer.
+- **Experience.** What students who used them say, in reviews or in person.
+
+Each program on amarAbroad links to its official page, so you can compare what you hear with what the university publishes.
