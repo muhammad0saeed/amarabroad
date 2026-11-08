@@ -23,6 +23,7 @@ import { interleave, pool, shardOf } from "./pool.ts";
 import { nextCheckHours } from "./schedule.ts";
 import { importOfficial } from "./official-data.ts";
 import { updateRates } from "./rates.ts";
+import { checkScholarships } from "./scholarships.ts";
 import { subjectOf } from "./rules.ts";
 import { readUniversityInfo } from "./university-info.ts";
 import { crossCheck } from "../lib/crosscheck.ts";
@@ -427,6 +428,7 @@ const commands: Record<string, () => Promise<void>> = {
   "uni-info": uniInfo,
   crosscheck: crossCheckAll,
   refield,
+  scholarships: () => checkScholarships(log),
   official,
   discover,
   "discover-all": discoverAll,
@@ -449,7 +451,7 @@ process.on("unhandledRejection", (e) => {
 
 const run = command ? commands[command] : undefined;
 if (!run) {
-  console.log("Commands: seed, seed-top, discover, discover-all, grow, add, check, official, rates, uni-info, crosscheck, refield. See robot/README.md.");
+  console.log("Commands: seed, seed-top, discover, discover-all, grow, add, check, official, rates, uni-info, crosscheck, refield, scholarships. See robot/README.md.");
   process.exitCode = 1;
 } else {
   try {

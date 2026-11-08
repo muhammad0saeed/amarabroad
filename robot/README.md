@@ -43,6 +43,7 @@ A new shift starts every 6 hours; each job works about 5½ hours, so the robot i
 | `npm run robot:info-try -- <website>` | Show which general pages the gap-filler picks on a website and what it reads there | nothing |
 | `npm run robot -- crosscheck` | Compare program pages with universities' general pages (tuition, IELTS); agreements show as "confirmed by a second source", differences go to /admin | Supabase |
 | `npm run robot -- refield [--dry]` | Re-sort programs with the current subject rules (after adding subjects): programs without a subject get one, others move to a more specific new subject; hand-set subjects stay | Supabase |
+| `npm run robot -- scholarships` | **Not scheduled yet.** Checks 6 major scholarships open to Bangladeshi students (Chevening, Commonwealth, Swedish Institute, Türkiye Bursları, Gates Cambridge, Holland) for the next deadline on their official pages; publishes only those with a stated future date. First test (2026-11-09): most pages give no date or last year's, so it needs each scholarship's own key-dates page before it runs on the live site | Supabase |
 | `npm run robot -- official <au\|us\|uk> [--file F] [--dry] [--all] [--university slug]` | Programs from an official government course list, for universities whose websites block the robot (see below). `--dry` only shows the matches | Supabase |
 
 "Supabase" means `SUPABASE_URL` and `SUPABASE_SECRET_KEY` in `.env.local` (or GitHub secrets for the daily run).
