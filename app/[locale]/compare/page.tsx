@@ -3,7 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { Suspense } from "react";
 import { CompareView } from "@/components/compare/CompareView";
 import { PageHeader } from "@/components/ui/primitives";
-import { getFitContext, getSummaries, initPage, type LocaleParams } from "@/lib/server";
+import { getFitContext, initPage, type LocaleParams } from "@/lib/server";
 
 export async function generateMetadata({ params }: LocaleParams): Promise<Metadata> {
   const t = await getTranslations({ locale: (await params).locale, namespace: "compare" });
@@ -17,7 +17,7 @@ export default async function ComparePage({ params }: LocaleParams) {
     <>
       <PageHeader title={t("title")} subtitle={t("subtitle")} />
       <Suspense fallback={<p className="text-ink-muted">{t("loading")}</p>}>
-        <CompareView programs={await getSummaries()} fitContext={await getFitContext()} />
+        <CompareView fitContext={await getFitContext()} />
       </Suspense>
     </>
   );

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { SavedView } from "@/components/saved/SavedView";
 import { PageHeader } from "@/components/ui/primitives";
-import { getFieldInfo, getFitContext, getSummaries, initPage, type LocaleParams } from "@/lib/server";
+import { getFieldInfo, getFitContext, initPage, type LocaleParams } from "@/lib/server";
 
 export async function generateMetadata({ params }: LocaleParams): Promise<Metadata> {
   const t = await getTranslations({ locale: (await params).locale, namespace: "saved" });
@@ -15,7 +15,7 @@ export default async function SavedPage({ params }: LocaleParams) {
   return (
     <>
       <PageHeader title={t("title")} subtitle={t("subtitle")} />
-      <SavedView programs={await getSummaries()} fields={await getFieldInfo()} fitContext={await getFitContext()} />
+      <SavedView fields={await getFieldInfo()} fitContext={await getFitContext()} />
     </>
   );
 }

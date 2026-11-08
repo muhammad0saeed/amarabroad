@@ -16,8 +16,9 @@ import type { FitContext } from "@/lib/fitScore";
 import { formatNumber, localizeDigits, type AppLocale } from "@/lib/localize";
 import { formatBDT, formatMoney } from "@/lib/money";
 import type { ProgramSummary } from "@/lib/summary";
+import { useProgramSummaries } from "@/lib/useProgramSummaries";
 
-export function CompareView({ programs, fitContext }: { programs: ProgramSummary[]; fitContext: FitContext }) {
+export function CompareView({ fitContext }: { fitContext: FitContext }) {
   const t = useTranslations("compare");
   const p = useTranslations("program");
   const labels = useTranslations("labels");
@@ -30,8 +31,11 @@ export function CompareView({ programs, fitContext }: { programs: ProgramSummary
   const [savedNow, setSavedNow] = useState(false);
 
   const fromUrl = parseCompareIds(new URLSearchParams(params.toString()));
-  const ids = (fromUrl.length ? fromUrl : hydrated ? tray : []).filter((id) => programs.some((x) => x.slug === id));
-  const selected = ids.map((id) => programs.find((x) => x.slug === id)!);
+  const wanted = fromUrl.length ? fromUrl : hydrated ? tray : [];
+  // Only the compared programs are loaded from the server; ones that no longer exist drop out.
+  const loaded = useProgramSummaries(wanted, fromUrl.length > 0 || hydrated);
+  const selected = wanted.map((id) => loaded?.find((x) => x.slug === id)).filter((x) => x !== undefined);
+  const ids = selected.map((x) => x.slug);
 
   // Keep the tray in step with a shared link, so "add more" continues from it.
   useEffect(() => {
@@ -64,7 +68,7 @@ export function CompareView({ programs, fitContext }: { programs: ProgramSummary
     setSavedNow(true);
   }
 
-  if (!hydrated && !fromUrl.length) return <p className="min-h-[60dvh] text-ink-muted">{t("loading")}</p>;
+  if ((!hydrated && !fromUrl.length) || loaded === null) return <p className="min-h-[60dvh] text-ink-muted">{t("loading")}</p>;
   if (selected.length < COMPARE_MIN) {
     return (
       <EmptyState

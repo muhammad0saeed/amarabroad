@@ -25,7 +25,6 @@
       "living": "living costs for this city aren't in our guide yet",
       "rate": "we don't have an exchange rate for this currency yet"
     },
-    "foundOn": "Found on the official page",
     "checkedOn": "Checked {date}",
     "robotNote": "Read automatically from the university's own website. Always confirm on the official page before you apply."
   },
@@ -706,7 +705,9 @@
   "match": {
     "title": "Match me",
     "subtitle": "5 short steps. Get programs ranked by how well your profile fits their published requirements.",
-    "privacy": "Your answers stay on this phone or computer. Nothing is sent.",
+    "privacy": "Your answers are saved only on this phone or computer. To find your matches they're sent to our server for a moment and not stored.",
+    "loading": "Finding your matches…",
+    "showingTop": "Showing your best {shown} of {total} matches. Use the filters in Programs to see more.",
     "seeMatches": "See my matches",
     "cancel": "Cancel",
     "resultCount": "{count, plural, =0 {No eligible programs} one {# eligible program} other {# eligible programs}}",
@@ -775,7 +776,7 @@
     "title": "My profile",
     "subtitle": "Edit your answers, move them to another device, or delete them.",
     "loading": "Loading…",
-    "privacy": "Your profile is stored only in this browser. It's never sent anywhere. Export it to move it to another phone or computer.",
+    "privacy": "Your profile is stored only in this browser. When you open Match me it's sent to our server to score programs, and not stored there. Export it to move it to another phone or computer.",
     "export": "Export file",
     "import": "Import file",
     "delete": "Delete profile",
@@ -897,7 +898,7 @@
       "title": "Privacy",
       "count": "3",
       "p1": "There's no login, no cookies, no analytics, no tracking pixels and no session replay.",
-      "p2": "Your profile, saved programs and settings stay in this browser's local storage. Nothing is sent to us or anyone else.",
+      "p2": "Your profile, saved programs and settings stay in this browser's local storage. When you open Match me, your profile is sent to our server only to score programs; it isn't stored, logged or shared. Your saved and compared program names are sent the same way, only to show them.",
       "p3": "When you send a report, we store what you wrote, the page, your browser type and, only if you give it, your email. To stop spam we also keep a one-way code made from your internet address (the address itself isn't kept) and use Cloudflare Turnstile, which checks you're a person and loads only on the report forms. Reports go to the site owner and are never sold or shared.",
       "storedTitle": "What this browser stores",
       "keys": {

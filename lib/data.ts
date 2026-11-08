@@ -90,14 +90,41 @@ async function snapshot(): Promise<Snapshot> {
     cached ??= { at: Date.now(), value: Promise.resolve(jsonSnapshot()) };
     return cached.value;
   }
-  if (!cached || Date.now() - cached.at > TTL_MS) {
-    const { loadCatalogFromSupabase } = await import("./supabase/catalog");
-    const value = loadCatalogFromSupabase().then(build);
-    // Keep serving the previous copy if a refresh fails.
+  if (!cached) {
+    cached = {
+      at: Date.now(),
+      value: loadFresh(null).catch((e) => {
+        cached = null; // Nothing to fall back on: the next request tries again.
+        throw e;
+      }),
+    };
+  } else if (Date.now() - cached.at > TTL_MS && !refreshing) {
+    // Older than 10 minutes: keep answering from the current copy while a fresh one loads in the
+    // background, so no visitor waits for the reload.
     const previous = cached;
-    cached = { at: Date.now(), value: value.catch((e) => (previous ? previous.value : Promise.reject(e))) };
+    refreshing = loadFresh(previous)
+      .then((value) => {
+        cached = { at: Date.now(), value: Promise.resolve(value) };
+      })
+      .catch(() => {
+        // Keep the old copy; try again on a later request.
+        previous.at = Date.now() - TTL_MS + 60_000;
+      })
+      .finally(() => {
+        refreshing = null;
+      });
   }
   return cached.value;
+}
+
+let refreshing: Promise<void> | null = null;
+
+async function loadFresh(previous: { value: Promise<Snapshot> } | null): Promise<Snapshot> {
+  const { loadCatalogFromSupabase } = await import("./supabase/catalog");
+  // The first load has nothing to fall back on; a failed refresh keeps the previous copy.
+  return loadCatalogFromSupabase()
+    .then(build)
+    .catch((e) => (previous ? previous.value : Promise.reject(e)));
 }
 
 /** Changes whenever the data is reloaded, so caches built on top of it (search) know to rebuild. */
@@ -162,10 +189,14 @@ function contextOf(s: Snapshot, program: Program): ProgramContext | null {
   return university && city && country ? { program, university, city, country } : null;
 }
 
-/** A program with its university, city and country. */
+/** A program with its university, city and country. With live data the program's full row (overview, documents, links) is read fresh. */
 export async function getProgramContext(slug: string): Promise<ProgramContext | undefined> {
   const s = await snapshot();
-  const program = s.index.program.get(slug);
+  let program = s.index.program.get(slug);
+  if (DATA_SOURCE === "supabase") {
+    const { loadProgramFromSupabase } = await import("./supabase/catalog");
+    program = (await loadProgramFromSupabase(slug)) ?? program;
+  }
   return (program && contextOf(s, program)) || undefined;
 }
 

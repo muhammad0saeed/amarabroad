@@ -84,13 +84,14 @@ export async function markChecked(source: SourceRow, result: { hash?: string; et
   must(await db().from("sources").update(update).eq("id", source.id), "mark checked");
 }
 
-/** Longest page text kept for page search: enough for a program page's facts, small enough for the free plan. */
-const SNAPSHOT_MAX_CHARS = 12_000;
-
-export async function saveSnapshot(sourceId: string, page: FetchedPage): Promise<number | null> {
+/**
+ * Records which version of a page was read (its fingerprint), for the reading to point to.
+ * The page text itself isn't kept: on the free plan the copies filled the database (06_drop_page_copies.sql).
+ */
+export async function saveSnapshot(sourceId: string, page: Pick<FetchedPage, "status" | "hash">): Promise<number | null> {
   const { data, error } = await db()
     .from("page_snapshots")
-    .upsert({ source: sourceId, http_status: page.status, content_hash: page.hash, text_content: page.text.slice(0, SNAPSHOT_MAX_CHARS) }, { onConflict: "source,content_hash" })
+    .upsert({ source: sourceId, http_status: page.status, content_hash: page.hash, text_content: "" }, { onConflict: "source,content_hash" })
     .select("id")
     .single();
   if (error) throw new Error(`snapshot: ${error.message}`);

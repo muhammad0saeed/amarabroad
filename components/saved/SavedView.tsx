@@ -12,17 +12,20 @@ import type { FitContext } from "@/lib/fitScore";
 import { formatDate } from "@/lib/format";
 import type { AppLocale } from "@/lib/localize";
 import type { ProgramSummary } from "@/lib/summary";
+import { useProgramSummaries } from "@/lib/useProgramSummaries";
 
-export function SavedView({ programs, fields, fitContext }: { programs: ProgramSummary[]; fields: Record<string, FieldInfo>; fitContext: FitContext }) {
+export function SavedView({ fields, fitContext }: { fields: Record<string, FieldInfo>; fitContext: FitContext }) {
   const t = useTranslations("saved");
   const locale = useLocale() as AppLocale;
   const hydrated = useHydrated();
   const saved = useStore(savedStore);
   const comparisons = useStore(comparisonsStore);
-  const bySlug = new Map(programs.map((p) => [p.slug, p]));
+  // Only saved and compared programs are loaded from the server.
+  const programs = useProgramSummaries([...saved, ...comparisons.flatMap((c) => c.ids)], hydrated);
+  const bySlug = new Map((programs ?? []).map((p) => [p.slug, p]));
   const savedPrograms = saved.map((s) => bySlug.get(s)).filter((p): p is ProgramSummary => !!p);
 
-  if (!hydrated) return <p className="min-h-[60dvh] text-ink-muted">{t("loading")}</p>;
+  if (!hydrated || programs === null) return <p className="min-h-[60dvh] text-ink-muted">{t("loading")}</p>;
 
   return (
     <div className="space-y-8">

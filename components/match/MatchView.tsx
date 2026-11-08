@@ -1,7 +1,8 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { matchPrograms, type MatchResult } from "@/app/actions/programs";
 import { ScoreDisclaimer, useReasonText } from "@/components/fit/FitScore";
 import { Icon } from "@/components/icons";
 import { ProfileForm, type ProfileFormOptions } from "@/components/profile/ProfileForm";
@@ -10,7 +11,7 @@ import { ChipToggle } from "@/components/ui/fields";
 import { Badge, buttonClass, EmptyState } from "@/components/ui/primitives";
 import { Link } from "@/i18n/navigation";
 import { profileStore, useHydrated, useStore } from "@/lib/clientStore";
-import { computeFit, type FitContext, type FitResult } from "@/lib/fitScore";
+import type { FitContext, FitResult } from "@/lib/fitScore";
 import { localizeDigits, type AppLocale } from "@/lib/localize";
 import { formatBDT } from "@/lib/money";
 import { isProfileComplete } from "@/lib/profile";
@@ -20,13 +21,12 @@ import type { StudentProfile } from "@/types";
 const BAND_TONE = { strong: "success", good: "primary", possible: "warning", weak: "neutral" } as const;
 
 interface Props {
-  programs: ProgramSummary[];
   fields: Record<string, FieldInfo>;
   fitContext: FitContext;
   options: ProfileFormOptions;
 }
 
-export function MatchView({ programs, fields, fitContext, options }: Props) {
+export function MatchView({ fields, fitContext, options }: Props) {
   const t = useTranslations("match");
   const hydrated = useHydrated();
   const profile = useStore(profileStore);
@@ -55,10 +55,12 @@ export function MatchView({ programs, fields, fitContext, options }: Props) {
       </div>
     );
   }
-  return <MatchResults profile={profile} programs={programs} fields={fields} fitContext={fitContext} onEdit={() => setEditing(true)} />;
+  return <MatchResults profile={profile} fields={fields} fitContext={fitContext} onEdit={() => setEditing(true)} />;
 }
 
-function MatchResults({ profile, programs, fields, fitContext, onEdit }: { profile: StudentProfile; programs: ProgramSummary[]; fields: Record<string, FieldInfo>; fitContext: FitContext; onEdit: () => void }) {
+// Scoring runs on the server (every program), so the phone only downloads the best matches.
+// fitContext is kept for the card badges' shape; the scores come from the server.
+function MatchResults({ profile, fields, onEdit }: { profile: StudentProfile; fields: Record<string, FieldInfo>; fitContext: FitContext; onEdit: () => void }) {
   const t = useTranslations("match");
   const fit = useTranslations("fit");
   const locale = useLocale() as AppLocale;
@@ -69,23 +71,33 @@ function MatchResults({ profile, programs, fields, fitContext, onEdit }: { profi
   const [withinBudget, setWithinBudget] = useState(false);
   const budget = profile.budget_bdt_total;
 
-  const scored = useMemo(() => {
-    const level = profile.field.startsWith("hsc-") ? "bachelor" : "master";
-    return programs
-      .filter((p) => p.degree_level === level)
-      .filter((p) => !onlyMine || ((!profile.target_countries.length || profile.target_countries.includes(p.country.slug)) && (!profile.target_fields.length || profile.target_fields.includes(p.field))))
-      .filter((p) => !withinBudget || budget === null || (p.total_bdt !== null && p.total_bdt <= budget))
-      .map((p) => ({ program: p, fit: computeFit(profile, p, fitContext) }));
-  }, [programs, profile, fitContext, onlyMine, withinBudget, budget]);
-
-  const eligible = scored.filter((x): x is { program: ProgramSummary; fit: Extract<FitResult, { eligible: true }> } => x.fit.eligible).sort((a, b) => b.fit.score - a.fit.score);
-  const ineligible = scored.filter((x): x is { program: ProgramSummary; fit: Extract<FitResult, { eligible: false }> } => !x.fit.eligible);
+  const [result, setResult] = useState<{ key: string; value: MatchResult | null } | null>(null);
+  const key = JSON.stringify([profile, onlyMine, withinBudget]);
+  useEffect(() => {
+    let live = true;
+    matchPrograms(profile, { onlyMine, withinBudget })
+      .then((value) => live && setResult({ key, value }))
+      .catch(() => live && setResult({ key, value: null }));
+    return () => {
+      live = false;
+    };
+    // key covers profile and both toggles.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key]);
+  const loading = !result || result.key !== key;
+  const data = loading ? null : result.value;
+  type Eligible = { program: ProgramSummary; fit: Extract<FitResult, { eligible: true }> };
+  type Ineligible = { program: ProgramSummary; fit: Extract<FitResult, { eligible: false }> };
+  const eligible = (data?.eligible ?? []) as Eligible[];
+  const ineligible = (data?.ineligible ?? []) as Ineligible[];
+  const eligibleCount = data?.eligibleCount ?? 0;
+  const ineligibleCount = data?.ineligibleCount ?? 0;
 
   return (
     <div className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p aria-live="polite" className="text-heading font-semibold">
-          {t("resultCount", { count: eligible.length })}
+          {loading ? t("loading") : t("resultCount", { count: eligibleCount })}
         </p>
         <button type="button" onClick={onEdit} className={buttonClass("secondary", "sm")}>
           {t("edit")}
@@ -104,7 +116,13 @@ function MatchResults({ profile, programs, fields, fitContext, onEdit }: { profi
         )}
       </div>
 
-      {eligible.length === 0 ? (
+      {loading ? (
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2" aria-hidden>
+          {[0, 1, 2, 3].map((i) => (
+            <div key={i} className="h-40 animate-pulse rounded-card bg-surface-2" />
+          ))}
+        </div>
+      ) : eligible.length === 0 ? (
         <EmptyState icon="match" title={t("emptyTitle")} body={t("emptyBody")} />
       ) : (
         <ol className="grid grid-cols-1 gap-3 md:grid-cols-2">
@@ -132,13 +150,16 @@ function MatchResults({ profile, programs, fields, fitContext, onEdit }: { profi
           ))}
         </ol>
       )}
+      {!loading && eligibleCount > eligible.length && (
+        <p className="text-meta text-ink-muted">{t("showingTop", { shown: localizeDigits(String(eligible.length), locale), total: localizeDigits(String(eligibleCount), locale) })}</p>
+      )}
 
       <ScoreDisclaimer />
 
-      {ineligible.length > 0 && (
+      {ineligibleCount > 0 && (
         <details className="rounded-card bg-surface shadow-card [&_summary::-webkit-details-marker]:hidden">
           <summary className="flex min-h-tap cursor-pointer list-none items-center justify-between px-4 py-3 font-semibold">
-            {t("notEligible", { count: ineligible.length })}
+            {t("notEligible", { count: ineligibleCount })}
             <Icon name="chevronDown" className="size-5 text-ink-muted" />
           </summary>
           <ul className="divide-y divide-border border-t border-border">

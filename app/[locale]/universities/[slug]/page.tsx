@@ -8,7 +8,8 @@ import { routing } from "@/i18n/routing";
 import { DATA_SOURCE, getCity, getCountry, getUniversity, listScholarshipsForUniversity, listUniversities } from "@/lib/data";
 import { formatDate } from "@/lib/format";
 import { isFallback, localizeDigits, pick } from "@/lib/localize";
-import { getFieldInfo, getSummaries, initPage } from "@/lib/server";
+import { getCatalogue } from "@/lib/search";
+import { getFieldInfo, initPage } from "@/lib/server";
 import { countryHref, cityHref } from "@/lib/places";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
@@ -36,7 +37,7 @@ export default async function UniversityPage({ params }: Props) {
   const t = await getTranslations("university");
   const common = await getTranslations("common");
   const labels = await getTranslations("labels");
-  const programs = (await getSummaries()).filter((p) => p.university.slug === u.slug);
+  const programs = (await getCatalogue()).filter((p) => p.university.slug === u.slug);
   const scholarships = await listScholarshipsForUniversity(u.slug);
   const fields = await getFieldInfo();
   const cityName = locale === "bn" ? city.name_bn : city.name_en;

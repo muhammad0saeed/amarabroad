@@ -1,11 +1,10 @@
 // Page helpers for Server Components: locale setup and data every page reuses.
 
 import { setRequestLocale } from "next-intl/server";
-import { listExchangeRates, listFields, listProgramContexts } from "./data";
+import { listExchangeRates, listFields } from "./data";
 import type { FitContext } from "./fitScore";
 import type { AppLocale } from "./localize";
 import { rateTable, type RateTable } from "./money";
-import { summarizeProgram, type ProgramSummary } from "./summary";
 import type { FieldGroup, TileColor } from "@/types";
 
 export type LocaleParams = { params: Promise<{ locale: string }> };
@@ -35,7 +34,3 @@ export async function getFieldInfo(): Promise<Record<string, { name: { en: strin
   return Object.fromEntries((await listFields()).map((f) => [f.slug, { name: { en: f.name_en, bn: f.name_bn }, group: f.group, tile: f.tile }]));
 }
 
-export async function getSummaries(): Promise<ProgramSummary[]> {
-  const rates = await getRates();
-  return (await listProgramContexts()).map((ctx) => summarizeProgram(ctx, rates));
-}

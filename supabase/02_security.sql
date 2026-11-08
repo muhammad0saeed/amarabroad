@@ -64,10 +64,6 @@ create policy "admins read" on public.admins for select to authenticated using (
 -- An earlier version kept is_admin in public; nothing uses it any more.
 drop function if exists public.is_admin();
 
--- Page search: the website's server calls it with the secret key.
-revoke all on function public.search_program_pages(text, integer) from public, anon, authenticated;
-grant execute on function public.search_program_pages(text, integer) to service_role;
-
 -- Visitors never get a direct line to reports or robot data, even with the public key.
 revoke insert, delete on public.wrong_info_reports, public.problem_reports, public.outcome_reports from anon, authenticated;
 revoke all on public.sources, public.page_snapshots, public.extractions, public.field_changes, public.crawl_runs from anon;

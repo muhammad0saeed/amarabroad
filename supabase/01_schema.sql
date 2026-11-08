@@ -331,7 +331,8 @@ create table if not exists public.admins (
 );
 
 -- ---------------------------------------------------------------- the data robot
--- sources: every web page the robot watches. page_snapshots: the cleaned text each time it changed.
+-- sources: every web page the robot watches. page_snapshots: a fingerprint of each version the robot read
+-- (the page text itself is not kept: on the free plan the copies filled the database).
 -- extractions: what the reading rules found in a snapshot. field_changes: every value the robot changed or held back,
 -- with the exact sentence from the page as evidence. crawl_runs: one row per run, with counts.
 
@@ -364,12 +365,10 @@ create table if not exists public.page_snapshots (
   fetched_at timestamptz not null default now(),
   http_status smallint not null,
   content_hash text not null,
-  text_content text not null,
-  -- Full-text index of the page, so students can search what every program page says ('simple' = any language).
-  tsv tsvector generated always as (to_tsvector('simple', left(text_content, 200000))) stored,
+  -- Always empty now; kept so older robot versions and readings still fit.
+  text_content text not null default '',
   unique (source, content_hash)
 );
-create index if not exists page_snapshots_tsv_idx on public.page_snapshots using gin (tsv);
 create index if not exists page_snapshots_latest_idx on public.page_snapshots (source, fetched_at desc);
 
 create table if not exists public.extractions (
@@ -439,32 +438,8 @@ begin
   end loop;
 end $$;
 
--- ---------------------------------------------------------------- search engine
--- Searches the latest copy of every published program's official page and returns the best matches
--- with a highlighted snippet, like a search engine result. Words can be in any language.
-
-create or replace function public.search_program_pages(q text, max_results integer default 50)
-returns table (program text, url text, snippet text, rank real, checked_at timestamptz)
-language sql stable security definer set search_path = '' as $$
-  with query as (select websearch_to_tsquery('simple', q) as tsq),
-  latest as (
-    select distinct on (s.id) s.entity_slug, s.url, s.last_checked_at, ps.text_content, ps.tsv
-    from public.sources s
-    join public.page_snapshots ps on ps.source = s.id
-    where s.entity_type = 'program' and s.status = 'active'
-    order by s.id, ps.fetched_at desc
-  )
-  select l.entity_slug, l.url,
-         ts_headline('simple', l.text_content, query.tsq, 'MaxFragments=2, MinWords=6, MaxWords=22, StartSel=«, StopSel=»'),
-         ts_rank(l.tsv, query.tsq),
-         l.last_checked_at
-  from latest l
-  cross join query
-  join public.programs p on p.slug = l.entity_slug and p.published
-  where l.tsv @@ query.tsq
-  order by 4 desc
-  limit least(max_results, 200);
-$$;
+-- Page search (search_program_pages) was removed on 2026-11-08 with the stored page copies; see 06_drop_page_copies.sql.
+drop function if exists public.search_program_pages(text, integer);
 
 drop trigger if exists programs_derive on public.programs;
 create trigger programs_derive before insert or update of english_tests, intakes on public.programs

@@ -1,7 +1,6 @@
 import "server-only";
 
-// Where the robot's facts came from, and the page search. Server-only (secret key):
-// field_changes and page snapshots are never exposed to browsers directly.
+// Where the robot's facts came from. Server-only (secret key): field_changes is never exposed to browsers directly.
 
 import { serviceClient } from "./clients";
 
@@ -31,19 +30,4 @@ export async function getEvidence(programSlug: string): Promise<Record<string, E
     out[row.field] = { quote: row.evidence, url: row.source_url, date: (row.decided_at ?? row.created_at).slice(0, 10) };
   }
   return out;
-}
-
-export interface PageHit {
-  program: string;
-  url: string;
-  /** Matching words marked «like this». */
-  snippet: string;
-}
-
-/** Full-text search over what every published program's official page says (any language). */
-export async function searchPages(q: string, max = 100): Promise<PageHit[]> {
-  if (q.trim().length < 2) return [];
-  const { data, error } = await serviceClient().rpc("search_program_pages", { q, max_results: max });
-  if (error || !data) return [];
-  return (data as { program: string; url: string; snippet: string }[]).map(({ program, url, snippet }) => ({ program, url, snippet }));
 }
