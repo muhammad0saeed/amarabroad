@@ -76,6 +76,13 @@ You can apply before receiving your degree certificate if you are in your final 
     expect(f.related_bachelor_fields).toEqual(expect.arrayContaining(["cse", "math-physics"]));
   });
 
+  it("takes the international fee, not the UK home fee listed next to it", () => {
+    const f = readFacts([page("MSc Data Science\nDuration: 1 year\nTuition fees 2027/28\nUK students: £10,050 per year\nInternational students: £19,850 per year\nTaught in English")], TODAY);
+    expect(f.tuition).toMatchObject({ amount_per_year: 19850, currency: "GBP", applies_to: "non_eu" });
+    const homeOnly = readFacts([page("MSc Data Science\nDuration: 1 year\nTuition fees\nHome students: £10,050 per year\nTaught in English")], TODAY);
+    expect(homeOnly.tuition?.applies_to).toBe("eu");
+  });
+
   it("reads tuition-free and German-taught programs", () => {
     const f = readFacts([page("Maschinenbau (M.Sc.)\nUnterrichtssprache: Deutsch\nGerman language skills at level C1 (DSH-2) are required.\nThere are no tuition fees.\nRegelstudienzeit: 4 Semester", "<title>Maschinenbau (M.Sc.) - Uni</title>")], TODAY);
     expect(f.tuition).toMatchObject({ amount_per_year: 0 });

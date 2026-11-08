@@ -983,6 +983,8 @@
     "intro": "Read automatically from the university's own website, or from an official government course list when the website can't be read, with the exact words each fact was taken from. Always confirm on the official page before you apply.",
     "checked": "checked {date}",
     "open": "Open page",
+    "checkAgree": "Confirmed by a second source, the university's general page:",
+    "checkConflict": "The university's general page says something different; check the official page:",
     "field": {
       "degree_level": "Degree level",
       "duration_months": "Length",

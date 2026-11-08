@@ -444,6 +444,20 @@ create table if not exists public.university_facts (
 );
 create index if not exists university_facts_university_idx on public.university_facts (university);
 
+-- The cross-checker's results: program page vs the university's general page (see 10_fact_checks.sql).
+create table if not exists public.fact_checks (
+  program text not null references public.programs(slug) on delete cascade,
+  field text not null check (field in ('tuition','ielts')),
+  status text not null check (status in ('agree','conflict')),
+  program_value numeric not null,
+  general_value numeric not null,
+  currency text,
+  general_quote text not null,
+  general_url text not null,
+  checked_at timestamptz not null default now(),
+  primary key (program, field)
+);
+
 -- Indexes for the links between tables (deletes and joins stay fast as the tables grow).
 create index if not exists degree_mappings_field_idx on public.degree_mappings (field);
 create index if not exists extractions_source_idx on public.extractions (source);

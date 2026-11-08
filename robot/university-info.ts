@@ -10,6 +10,7 @@
 import { extractLinks, htmlToText, pageMeta, registrable, type PageLink } from "./clean.ts";
 import { politeFetch } from "./fetch.ts";
 import { fetchPage, readPages, type FetchedPage } from "./pipeline.ts";
+import { amountsIn } from "./rules.ts";
 
 export type InfoKind = "fees" | "deadlines" | "english" | "documents";
 export type InfoField = "tuition" | "application_fee" | "english" | "deadline" | "document";
@@ -110,7 +111,7 @@ export async function findInfoPages(website: string, perKind = 2): Promise<{ url
 // General pages mention many amounts and dates; a fact is kept only when its sentence clearly is about
 // that fact. (The program-page rules can be looser: there, the whole page is about one program.)
 const TUITION_SAYS = /(tuition|study fee|programme fee|program fee|course fee|studiengebühr|tasse)/i;
-const TUITION_NOT = /(application fee|per (credit|hour|unit|module|course)|\/\s*(hour|credit)|credit hour|prep(aratory)? school|deposit|housing|accommodation|insurance|late fee|payment deadline|instal+ment|semester contribution|student union|earning|income|famil(y|ies)|household|graduation)/i;
+const TUITION_NOT = /(application fee|per (credit|hour|unit|module|course)|\/\s*(hour|credit)|credit hour|prep(aratory)? school|deposit|housing|accommodation|insurance|late fee|payment deadline|instal+ment|semester contribution|student union|earning|income|famil(y|ies)|household|graduation|evidence|maintenance|living costs?|visa|bank|funds|award|scholarship|remission|discount|waiver|bursar)/i;
 const DEADLINE_SAYS = /(deadline|closing date|apply by|apply until|applications? (close|closes|open|opens|period|window|must be (submitted|received))|submit (your )?application|application round)/i;
 const DEADLINE_NOT = /(payment|\bpay\b|tuition|\bfees?\b|instal+ment|semester (start|begins)|classes (start|begin)|lectures|orientation|arrival|re-?enrol|national joint application|submit (official )?(initial )?transcripts|transfer success|(taught )?in (finnish|swedish|norwegian|danish|dutch|estonian)\b)/i;
 const ENGLISH_SAYS = /(minimum|at least|overall|score|band|require|proof|equivalent)/i;
@@ -122,6 +123,21 @@ const DOCUMENT_NOT = /(\bpay|\bfee|tuition|research|position|vacanc|\bjobs?\b|st
 const OFF_TOPIC_PAGE = /(research|researcher|positions?|vacanc|jobs?|career|staff|exchange|erasmus|phd|doctoral|summer-school)/i;
 const MIN_TUITION = 500;
 
+/** True per kind when the page names two or more different overall IELTS scores or tuition amounts. */
+export function variesOnPage(text: string): { tuition: boolean; english: boolean } {
+  const ielts = new Set<number>();
+  for (const m of text.matchAll(/IELTS[^\d\n]{0,40}(\d(?:\.\d)?)/gi)) {
+    const n = Number(m[1]);
+    if (n >= 4 && n <= 9) ielts.add(n);
+  }
+  const fees = new Set<number>();
+  for (const line of text.split("\n")) {
+    if (!TUITION_SAYS.test(line) && !/(fee|cost)/i.test(line)) continue;
+    for (const a of amountsIn(line)) if (a.amount >= MIN_TUITION) fees.add(Math.round(a.amount));
+  }
+  return { tuition: fees.size >= 2, english: ielts.size >= 2 };
+}
+
 /** What one general page says, each fact with its sentence (only facts whose quote is really on the page and clearly about it). */
 export function factsFromPage(p: FetchedPage, today: string, kind?: InfoKind): InfoFact[] {
   let path = "";
@@ -132,14 +148,19 @@ export function factsFromPage(p: FetchedPage, today: string, kind?: InfoKind): I
   }
   if (OFF_TOPIC_PAGE.test(path)) return [];
   const f = readPages([p], today).facts;
-  const level = pageLevel(`${p.url} ${p.meta.title ?? ""} ${p.meta.h1 ?? ""}`);
+  const pageLvl = pageLevel(`${p.url} ${p.meta.title ?? ""} ${p.meta.h1 ?? ""}`);
   const out: InfoFact[] = [];
-  const add = (field: InfoField, value: Record<string, unknown>, quote: string) => out.push({ field, level, value, quote: quote.slice(0, 400), source_url: p.url });
+  // The sentence's own level words ("for Bachelor's programs: 2,300 euros") beat the page's.
+  const add = (field: InfoField, value: Record<string, unknown>, quote: string) =>
+    out.push({ field, level: pageLevel(quote) ?? pageLvl, value, quote: quote.slice(0, 400), source_url: p.url });
+  // A page listing several different fees or IELTS scores (by subject or course) has no single rule:
+  // its sentences are still shown to students, but the cross-checker doesn't compare with them.
+  const varies = variesOnPage(p.text);
   if (f.tuition && f.tuition.amount_per_year >= MIN_TUITION && TUITION_SAYS.test(f.tuition.quote) && !TUITION_NOT.test(f.tuition.quote)) {
-    add("tuition", { amount_per_year: f.tuition.amount_per_year, currency: f.tuition.currency, applies_to: f.tuition.applies_to }, f.tuition.quote);
+    add("tuition", { amount_per_year: f.tuition.amount_per_year, currency: f.tuition.currency, applies_to: f.tuition.applies_to, ...(varies.tuition ? { varies: true } : {}) }, f.tuition.quote);
   }
   if (f.application_fee && /application fee/i.test(f.application_fee.quote) && !APPLICATION_FEE_NOT.test(f.application_fee.quote)) add("application_fee", { amount: f.application_fee.amount, currency: f.application_fee.currency }, f.application_fee.quote);
-  for (const t of f.english_tests) if (ENGLISH_SAYS.test(t.quote) && !ENGLISH_NOT.test(t.quote)) add("english", { test: t.test, min_score: t.min_score }, t.quote);
+  for (const t of f.english_tests) if (ENGLISH_SAYS.test(t.quote) && !ENGLISH_NOT.test(t.quote)) add("english", { test: t.test, min_score: t.min_score, ...(varies.english ? { varies: true } : {}) }, t.quote);
   for (const i of f.intakes) {
     if (i.deadline && DEADLINE_SAYS.test(i.quote) && !DEADLINE_NOT.test(i.quote)) add("deadline", { deadline: i.deadline, start_month: i.start_month, start_year: i.start_year, for: i.deadline_for }, i.quote);
   }

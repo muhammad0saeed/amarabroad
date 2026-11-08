@@ -24,6 +24,7 @@ import { nextCheckHours } from "./schedule.ts";
 import { importOfficial } from "./official-data.ts";
 import { updateRates } from "./rates.ts";
 import { readUniversityInfo } from "./university-info.ts";
+import { crossCheck } from "../lib/crosscheck.ts";
 
 const [command, ...rest] = process.argv.slice(2);
 const flag = (name: string, fallback?: string) => {
@@ -363,6 +364,24 @@ async function uniInfo() {
   log(`Done: ${facts} facts at ${withFacts} universities.`);
 }
 
+/** The cross-checker: compares each program page's tuition and IELTS with the university's general pages (lib/crosscheck.ts). */
+async function crossCheckAll() {
+  const { programs, facts } = await retry(() => store.crossCheckInputs());
+  const byUni = new Map<string, typeof facts>();
+  for (const f of facts) byUni.set(f.university, [...(byUni.get(f.university) ?? []), f]);
+  const rows: Record<string, unknown>[] = [];
+  for (const p of programs) {
+    const general = byUni.get(p.university);
+    if (!general) continue;
+    for (const c of crossCheck(p, general)) {
+      rows.push({ program: p.slug, field: c.field, status: c.status, program_value: c.programValue, general_value: c.generalValue, currency: c.currency ?? null, general_quote: c.generalQuote, general_url: c.generalUrl });
+    }
+  }
+  await retry(() => store.saveFactChecks(rows));
+  const conflicts = rows.filter((r) => r.status === "conflict").length;
+  log(`Cross-check: ${rows.length - conflicts} facts confirmed by a second source, ${conflicts} differences to look at (/admin).`);
+}
+
 /** Programs from official government course lists, for universities whose websites block the robot (official-data.ts). */
 async function official() {
   const country = rest[0];
@@ -374,6 +393,7 @@ const commands: Record<string, () => Promise<void>> = {
   check,
   rates: () => updateRates(log),
   "uni-info": uniInfo,
+  crosscheck: crossCheckAll,
   official,
   discover,
   "discover-all": discoverAll,
@@ -396,7 +416,7 @@ process.on("unhandledRejection", (e) => {
 
 const run = command ? commands[command] : undefined;
 if (!run) {
-  console.log("Commands: seed, seed-top, discover, discover-all, grow, add, check, official, rates, uni-info. See robot/README.md.");
+  console.log("Commands: seed, seed-top, discover, discover-all, grow, add, check, official, rates, uni-info, crosscheck. See robot/README.md.");
   process.exitCode = 1;
 } else {
   try {

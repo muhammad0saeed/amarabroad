@@ -84,6 +84,13 @@ describe("planning changes", () => {
     expect(changes).toEqual([{ field: "tuition_per_year", oldValue: 3000, newValue: 3500, evidence: "q", hold: null }]);
   });
 
+  it("removes a stored tuition that turns out to be the home-students fee", () => {
+    const home = { ...EMPTY, tuition: { amount_per_year: 3000, currency: "EUR", applies_to: "eu" as const, quote: "Home students: €3,000" } };
+    expect(planChanges(OLD, home, "2026-11-05")).toEqual([expect.objectContaining({ field: "tuition_per_year", oldValue: 3000, newValue: null, hold: null })]);
+    // A different home fee is just not used: the stored value stays.
+    expect(planChanges(OLD, { ...home, tuition: { ...home.tuition, amount_per_year: 2500 } }, "2026-11-05")).toEqual([]);
+  });
+
   it("holds big jumps, tuition-free flips and eligibility flips", () => {
     expect(planChanges(OLD, tuition(12000), "2026-11-05")[0]?.hold).toMatch(/moved/);
     expect(planChanges(OLD, tuition(0), "2026-11-05")[0]?.hold).toMatch(/tuition-free/);

@@ -339,3 +339,24 @@ export async function saveUniversityFacts(slug: string, facts: InfoFact[]) {
   }
   must(await db().from("universities").update({ info_checked_at: new Date().toISOString() }).eq("slug", slug), "mark info checked");
 }
+
+// ---------------------------------------------------------------- the cross-checker
+
+/** Every published program's checkable facts and every university general-page fact, for crosscheck. */
+export async function crossCheckInputs() {
+  const programs = await everyRow<{ slug: string; university: string; degree_level: "bachelor" | "master"; tuition_per_year: string | number | null; currency: string | null; english_tests: { test: string; min_score: number }[] }>(
+    (from, to) => db().from("programs").select("slug, university, degree_level, tuition_per_year, currency, english_tests").eq("published", true).order("slug").range(from, to),
+    "programs",
+  );
+  const facts = await everyRow<{ university: string; field: string; level: "bachelor" | "master" | null; value: Record<string, unknown>; quote: string; source_url: string }>(
+    (from, to) => db().from("university_facts").select("university, field, level, value, quote, source_url").order("id").range(from, to),
+    "university facts",
+  );
+  return { programs: programs.map((p) => ({ ...p, tuition_per_year: p.tuition_per_year === null ? null : Number(p.tuition_per_year) })), facts };
+}
+
+/** Replaces all cross-check results with this run's. */
+export async function saveFactChecks(rows: Record<string, unknown>[]) {
+  must(await db().from("fact_checks").delete().neq("field", ""), "clear fact checks");
+  for (let i = 0; i < rows.length; i += 500) must(await db().from("fact_checks").insert(rows.slice(i, i + 500)), "save fact checks");
+}

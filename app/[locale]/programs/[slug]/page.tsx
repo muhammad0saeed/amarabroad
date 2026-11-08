@@ -16,6 +16,7 @@ import { SampleBadge } from "@/components/ui/SampleBadge";
 import { Link } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 import { programCost } from "@/lib/cost";
+import { crossCheck } from "@/lib/crosscheck";
 import { DATA_SOURCE, getProgramContext, hasGuide, listPrograms, listScholarshipsForProgram } from "@/lib/data";
 import { formatDate, formatMonthYear } from "@/lib/format";
 import { formatNumber, isFallback, localizeDigits, pick, pickList, type AppLocale } from "@/lib/localize";
@@ -64,7 +65,9 @@ export default async function ProgramPage({ params }: Props) {
     ...(p.english_tests.length === 0 ? (["english"] as const) : []),
     ...(p.required_documents.length === 0 ? (["document"] as const) : []),
   ];
-  const universityFacts = DATA_SOURCE === "supabase" && gaps.length ? await (await import("@/lib/supabase/evidence")).getUniversityFacts(u.slug) : [];
+  const universityFacts = DATA_SOURCE === "supabase" ? await (await import("@/lib/supabase/evidence")).getUniversityFacts(u.slug) : [];
+  // The cross-checker: the program page's facts against the university's general pages.
+  const checks = Object.fromEntries(crossCheck(p, universityFacts).map((c) => [c.field === "tuition" ? "tuition_per_year" : "english_tests", c]));
   const sources = await getTranslations("sources");
   const fitContext = await getFitContext();
   const fieldNames = await getFieldNames();
@@ -223,6 +226,17 @@ export default async function ProgramPage({ params }: Props) {
                 <dd className="mt-1 text-meta">
                   <q className="text-ink">{e.quote}</q>
                 </dd>
+                {checks[field] && (
+                  <dd className={`mt-1 flex gap-1.5 text-meta ${checks[field].status === "agree" ? "text-success" : "text-warning"}`}>
+                    <Icon name={checks[field].status === "agree" ? "checkCircle" : "info"} className="mt-0.5 size-4 shrink-0" />
+                    <span>
+                      {checks[field].status === "agree" ? sources("checkAgree") : sources("checkConflict")}{" "}
+                      <a href={checks[field].generalUrl} target="_blank" rel="noopener noreferrer" className="font-semibold underline-offset-2 hover:underline">
+                        <q>{checks[field].generalQuote.slice(0, 160)}</q>
+                      </a>
+                    </span>
+                  </dd>
+                )}
                 <dd className="mt-1 flex flex-wrap items-center gap-x-2 text-[0.75rem] text-ink-muted">
                   <a href={e.url} target="_blank" rel="noopener noreferrer" className="font-semibold text-primary-ink hover:underline">
                     {new URL(e.url).hostname.replace(/^www\./, "")}

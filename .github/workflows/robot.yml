@@ -6,7 +6,8 @@
 #                                           (hot pages every 6 h, normal daily, quiet every 2 days; see robot/schedule.ts)
 #   discover  4 jobs × 40 universities      search universities for program pages: new ones first (best ranked first),
 #                                           then each again every 30 days; adds the next 500 by rank when few are left
-#   info      2 jobs: the gap-filler, universities' general pages (fees, deadlines, English, documents)
+#   info      2 jobs: the gap-filler, universities' general pages (fees, deadlines, English, documents),
+#                                           then the cross-checker (program pages vs those general pages)
 #   rates     every shift: exchange rates to taka for every currency (free public-domain dataset)
 #   official  weekly (Monday 03:30 Bangladesh time): programs from official government course lists. Australia
 #                                           (CRICOS): every matched university. US (College Scorecard): universities whose
@@ -156,6 +157,12 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
           ROBOT_CONTACT_URL: ${{ vars.ROBOT_CONTACT_URL }}
+      - name: Cross-check program pages against universities' general pages
+        if: matrix.shard == 0
+        run: npm run robot -- crosscheck
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
 
   official:
     if: github.event.schedule == '30 21 * * 0' || inputs.official == true

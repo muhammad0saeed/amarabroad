@@ -201,6 +201,10 @@ export function planChanges(old: ProgramRow | null, f: ProgramFacts, today: stri
     else if (prev !== null && prev > 0 && (v > prev * 2 || v < prev / 2)) hold = `tuition moved from ${prev} to ${v}`;
     propose("currency", cur, f.tuition.quote, hold);
     propose("tuition_per_year", v, f.tuition.quote, hold);
+  } else if (f.tuition && old?.tuition_per_year !== null && old?.tuition_per_year === Math.round(f.tuition.amount_per_year)) {
+    // The stored tuition is the page's home-students fee (an older rule took it for the international fee):
+    // remove it, so the page says "Not found" instead of a fee Bangladeshi students won't pay.
+    propose("tuition_per_year", null, `(the fee for the country's own students, not international students)`);
   }
   if (f.other_fees_per_year) propose("other_fees_per_year", Math.round(f.other_fees_per_year.amount), f.other_fees_per_year.quote);
   if (f.application_fee) propose("application_fee", Math.round(f.application_fee.amount), f.application_fee.quote);

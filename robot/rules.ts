@@ -50,6 +50,8 @@ const AMOUNT = new RegExp(`(?:(${CUR})\\s?(${NUM}))|(?:(${NUM})\\s?(${CUR})(?![a
 
 const NON_EU = /(non[- ]?eu|non[- ]?eea|international (students|applicants)|third[- ]country|outside (the )?(eu|eea|european union)|non[- ]european|nicht[- ]eu|drittstaat|extra[- ]?ue|nem eu)/i;
 const EU_ONLY = /\b(eu|eea|european union)\b.*\b(citizens|students|applicants|nationals)\b/i;
+/** Fees for the country's own students (UK "home" fees, US in-state…): never the international fee. */
+const HOME = /(\bhome (students?|fees?|applicants?)\b|\buk (students?|applicants?|fees?)\b|\b(uk|home)\/(eu|ireland|irish)\b|\bdomestic\b|\bin-state\b|\bresidents? of\b|\bscottish\b|\bnational students\b)/i;
 const PER_SEMESTER = /(per|a|each|every|\/|pro|je)\s*(semester|term|half[- ]year|semestre|félév)|semester fee|semesterbeitrag|a semestre|per semestre|félévente/i;
 const PER_YEAR = /(per|a|each|every|\/|pro)\s*(year|annum|academic year|jahr|anno)|annual|yearly|all'anno|annu[oa]|évente|\/év\b/i;
 
@@ -259,8 +261,13 @@ function tuition(lines: string[]): ProgramFacts["tuition"] {
       const a = amounts[0]!;
       const joined = lines.slice(i, j + 1).join(" ");
       const offset = joined.length - lines[j]!.length + a.index;
-      found.push({ amount_per_year: Math.round(yearly(a.amount, joined, offset)), currency: a.currency, applies_to: applies, quote: quoteOf(lines, i, j) });
-      break;
+      // The amount's own line decides first: "UK students: £10,050" next to "International: £20,000"
+      // is the home fee, even though "international" is in the nearby lines.
+      const own = lines[j]!;
+      const ownApplies: Applies | null = NON_EU.test(own) ? "non_eu" : HOME.test(own) || EU_ONLY.test(own) ? "eu" : null;
+      found.push({ amount_per_year: Math.round(yearly(a.amount, joined, offset)), currency: a.currency, applies_to: ownApplies ?? applies, quote: quoteOf(lines, i, j) });
+      // A home-fee line is often followed by the international one: keep reading this block.
+      if (ownApplies !== "eu") break;
     }
   }
   // Non-EU amounts first, then general ones; EU-only amounts only when nothing else was found.

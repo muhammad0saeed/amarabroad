@@ -43,7 +43,7 @@ begin
   end loop;
 
   -- Reports and robot tables: admins only (the server uses the secret key, which skips RLS).
-  foreach t in array array['wrong_info_reports','problem_reports','outcome_reports','sources','page_snapshots','extractions','field_changes','crawl_runs','university_facts']
+  foreach t in array array['wrong_info_reports','problem_reports','outcome_reports','sources','page_snapshots','extractions','field_changes','crawl_runs','university_facts','fact_checks']
   loop
     execute format('alter table public.%I enable row level security', t);
     execute format('drop policy if exists "admins read" on public.%I', t);
@@ -66,5 +66,5 @@ drop function if exists public.is_admin();
 
 -- Visitors never get a direct line to reports or robot data, even with the public key.
 revoke insert, delete on public.wrong_info_reports, public.problem_reports, public.outcome_reports from anon, authenticated;
-revoke all on public.sources, public.page_snapshots, public.extractions, public.field_changes, public.crawl_runs, public.university_facts from anon;
+revoke all on public.sources, public.page_snapshots, public.extractions, public.field_changes, public.crawl_runs, public.university_facts, public.fact_checks from anon;
 revoke all on public.admins from anon;
