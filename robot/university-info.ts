@@ -113,7 +113,7 @@ export async function findInfoPages(website: string, perKind = 2): Promise<{ url
 const TUITION_SAYS = /(tuition|study fee|programme fee|program fee|course fee|studiengebühr|tasse)/i;
 const TUITION_NOT = /(application fee|per (credit|hour|unit|module|course)|\/\s*(hour|credit)|credit hour|prep(aratory)? school|deposit|housing|accommodation|insurance|late fee|payment deadline|instal+ment|semester contribution|student union|earning|income|famil(y|ies)|household|graduation|evidence|maintenance|living costs?|visa|bank|funds|award|scholarship|remission|discount|waiver|bursar)/i;
 const DEADLINE_SAYS = /(deadline|closing date|apply by|apply until|applications? (close|closes|open|opens|period|window|must be (submitted|received))|submit (your )?application|application round)/i;
-const DEADLINE_NOT = /(payment|\bpay\b|tuition|\bfees?\b|instal+ment|semester (start|begins)|classes (start|begin)|lectures|orientation|arrival|re-?enrol|national joint application|submit (official )?(initial )?transcripts|transfer success|(taught )?in (finnish|swedish|norwegian|danish|dutch|estonian)\b)/i;
+const DEADLINE_NOT = /(exchange (student|program|semester)|study abroad semester|payment|\bpay\b|tuition|\bfees?\b|instal+ment|semester (start|begins)|classes (start|begin)|lectures|orientation|arrival|re-?enrol|national joint application|submit (official )?(initial )?transcripts|transfer success|(taught )?in (finnish|swedish|norwegian|danish|dutch|estonian)\b)/i;
 const ENGLISH_SAYS = /(minimum|at least|overall|score|band|require|proof|equivalent)/i;
 /** Research degrees (PhD, MPhil) often ask for other scores. */
 const ENGLISH_NOT = /(phd|doctor|mphil|research degree)/i;

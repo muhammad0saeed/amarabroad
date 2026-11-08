@@ -48,6 +48,8 @@ describe("reading a general page strictly", () => {
     expect(manchester.some((f) => f.startsWith("deadline:bachelor:") && f.includes("2027-01-13"))).toBe(true);
     const aarhus = fields("https://masters.au.dk/tuitionfees", "Tuition fees", "<h2>Payment deadlines</h2><p>Payment deadlines Study start 1 September</p>");
     expect(aarhus.filter((f) => f.startsWith("deadline"))).toEqual([]);
+    const exchange = fields("https://www.tum.de/en/studies/application/dates", "Application dates", "<p>Courses start in October 2027.</p><p>These deadlines apply to students who wish to spend up to 3 semesters at TUM as an exchange student: application deadline 10 May 2027.</p>");
+    expect(exchange.filter((f) => f.startsWith("deadline"))).toEqual([]);
   });
 
   it("keeps documents only from an application page that lists several", () => {
