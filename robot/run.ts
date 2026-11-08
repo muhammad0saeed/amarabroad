@@ -168,6 +168,19 @@ async function checkOne(source: store.SourceRow, validFields: Set<string>, stats
 }
 
 /** True (and says so) when the database is near the plan limit: then the robot only updates what it already has. */
+/** Tries a database call up to 3 times (5 and 15 seconds apart): one slow answer shouldn't end a whole job. */
+async function retry<T>(call: () => Promise<T>): Promise<T> {
+  for (let attempt = 1; ; attempt++) {
+    try {
+      return await call();
+    } catch (e) {
+      if (attempt >= 3) throw e;
+      log(`Database call failed (${e instanceof Error ? e.message : String(e)}); trying again`);
+      await new Promise((r) => setTimeout(r, attempt * attempt * 5000));
+    }
+  }
+}
+
 async function databaseFull(): Promise<boolean> {
   const mb = await store.databaseMB();
   if (mb === null || mb < store.DATABASE_BRAKE_MB) return false;
@@ -207,17 +220,17 @@ async function check() {
   };
 
   if (reread) {
-    await pool(interleave(await store.knownProgramSources(Math.min(limit, 1000))), parallel, deadline, one);
+    await pool(interleave(await retry(() => store.knownProgramSources(Math.min(limit, 1000)))), parallel, deadline, one);
   } else {
     // Batches of 1000, oldest due first; a checked page moves to tomorrow, so the next batch starts after the last one seen.
     let after: string | undefined;
     let taken = 0;
     while (taken < limit && Date.now() < deadline) {
-      const batch = await store.dueProgramSources(1000, after);
+      const batch = await retry(() => store.dueProgramSources(1000, after));
       if (!batch.length) break;
       after = batch.at(-1)!.next_check_at;
       // Near the database limit: keep known programs up to date, but don't read new pages.
-      const full = await databaseFull();
+      const full = await retry(() => databaseFull());
       const mine = batch.filter((s) => shardOf(s.university ?? s.url, shards) === shard && (!full || s.entity_slug)).slice(0, limit - taken);
       taken += mine.length;
       await pool(interleave(mine), parallel, deadline, one);
@@ -269,8 +282,8 @@ async function discoverAll() {
   let offset = 0; // rows ahead of ours that stay in the list (other shards' turn)
   const tried = new Set<string>();
   while (searched < limit && Date.now() < deadline) {
-    if (await databaseFull()) break;
-    const batch = await store.undiscoveredUniversities(1000, offset);
+    if (await retry(() => databaseFull())) break;
+    const batch = await retry(() => store.undiscoveredUniversities(1000, offset));
     if (!batch.length) break;
     const mine = batch.filter((s) => shardOf(s, shards) === shard && !tried.has(s)).slice(0, limit - searched);
     offset += batch.filter((s) => shardOf(s, shards) !== shard || tried.has(s)).length;
@@ -335,10 +348,28 @@ const commands: Record<string, () => Promise<void>> = {
   seed: () => seedCountry(rest[0] ?? "", Number(flag("limit", "30"))),
   "seed-top": () => seedTop({ total: Number(flag("total", "5000")), floor: Number(flag("floor", "50")), fresh: rest.includes("--fresh"), dry: rest.includes("--dry") }),
 };
+// GitHub turns output lines starting with "::error" / "::warning" into notes on the run page that anyone can
+// read without signing in, so a stopped job always says why.
+function oneLine(e: unknown): string {
+  const text = e instanceof Error ? `${e.message} | ${(e.stack ?? "").split("\n").slice(1, 4).join(" ")}` : String(e);
+  return text.replace(/\s+/g, " ").slice(0, 900);
+}
+// A stray failed request from some website (a promise nobody waited for) must not end a 5-hour job.
+process.on("unhandledRejection", (e) => {
+  log(`Ignored an error nobody was waiting for: ${oneLine(e)}`);
+  if (process.env.GITHUB_ACTIONS) console.log(`::warning title=Robot kept going after an error::${oneLine(e)}`);
+});
+
 const run = command ? commands[command] : undefined;
 if (!run) {
   console.log("Commands: seed, seed-top, discover, discover-all, grow, add, check, official. See robot/README.md.");
   process.exitCode = 1;
 } else {
-  await run();
+  try {
+    await run();
+  } catch (e) {
+    console.error(e);
+    if (process.env.GITHUB_ACTIONS) console.log(`::error title=Robot stopped::${oneLine(e)}`);
+    process.exitCode = 1;
+  }
 }
