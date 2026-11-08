@@ -164,6 +164,7 @@
     "groupCost": "Cost and funding",
     "groupAdmission": "Admission",
     "city": "City",
+    "pickCountryForCities": "Pick a country to choose cities.",
     "university": "University",
     "universityType": "University type",
     "area": "Subject area",

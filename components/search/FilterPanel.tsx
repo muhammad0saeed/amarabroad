@@ -58,13 +58,18 @@ export function FilterPanel() {
           onToggle={(v) => update({ countries: toggle(f.countries, v), cities: [], universities: [] })}
           countLabel={n}
         />
-        <CheckList
-          legend={t("city")}
-          options={cities.map((c) => ({ value: c.slug, label: name(c), count: facets.cities[c.slug] ?? 0 }))}
-          selected={f.cities}
-          onToggle={(v) => update({ cities: toggle(f.cities, v), universities: [] })}
-          countLabel={n}
-        />
+        {/* Thousands of cities: they appear once a country is picked. */}
+        {f.countries.length || f.cities.length ? (
+          <CheckList
+            legend={t("city")}
+            options={cities.map((c) => ({ value: c.slug, label: name(c), count: facets.cities[c.slug] ?? 0 }))}
+            selected={f.cities}
+            onToggle={(v) => update({ cities: toggle(f.cities, v), universities: [] })}
+            countLabel={n}
+          />
+        ) : (
+          <p className="py-2 text-meta text-ink-muted">{t("pickCountryForCities")}</p>
+        )}
         <CheckList
           legend={t("university")}
           options={universities.map((u) => ({ value: u.slug, label: u.name, count: facets.universities[u.slug] ?? 0 }))}

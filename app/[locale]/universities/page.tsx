@@ -33,6 +33,11 @@ export default async function UniversitiesPage({ params, searchParams }: Props) 
   const cityOf = Object.fromEntries(cities.map((c) => [c.slug, c]));
   const countryOf = Object.fromEntries(countries.map((c) => [c.slug, c]));
   const name = (x: { name_en: string; name_bn: string }) => (locale === "bn" ? x.name_bn : x.name_en);
+  const perCountry: Record<string, number> = {};
+  for (const u of universities) {
+    const c = cityOf[u.city]?.country;
+    if (c) perCountry[c] = (perCountry[c] ?? 0) + 1;
+  }
 
   const words = q.toLowerCase().split(/\s+/).filter(Boolean);
   const matches = universities.filter((u) => {
@@ -71,8 +76,11 @@ export default async function UniversitiesPage({ params, searchParams }: Props) 
         <LinkChips
           label={t("countriesTitle")}
           items={[
-            { href: base + query({ country: "", page: "" }), label: t("all"), active: !country },
-            ...countries.map((c) => ({ href: base + query({ country: c.slug, page: "" }), label: name(c), active: country === c.slug })),
+            { href: base + query({ country: "", page: "" }), label: t("all"), active: !country, count: localizeDigits(String(universities.length), locale) },
+            // Only countries that have universities on the site, with how many.
+            ...countries
+              .filter((c) => (perCountry[c.slug] ?? 0) > 0)
+              .map((c) => ({ href: base + query({ country: c.slug, page: "" }), label: name(c), active: country === c.slug, count: localizeDigits(String(perCountry[c.slug]), locale) })),
             ...(["public", "private"] as const).map((k) => ({ href: base + query({ type: type === k ? "" : k, page: "" }), label: labels(`universityType.${k}`), active: type === k })),
           ]}
         />

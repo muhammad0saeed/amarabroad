@@ -2,16 +2,17 @@ import { useTranslations } from "next-intl";
 import { Icon, type IconName } from "@/components/icons";
 import { Link } from "@/i18n/navigation";
 
-// The five ways in: one row of tabs at the top of each browse page.
+// The ways in: one row of tabs at the top of each browse page. Cities aren't a tab (there are
+// thousands); they're a filter under each country in program search. /cities still works as a page.
 const TABS: { key: "programs" | "universities" | "cities" | "countries" | "scholarships"; href: string; icon: IconName }[] = [
   { key: "programs", href: "/programs", icon: "cap" },
   { key: "universities", href: "/universities", icon: "building" },
-  { key: "cities", href: "/cities", icon: "pin" },
   { key: "countries", href: "/countries", icon: "globe" },
   { key: "scholarships", href: "/scholarships", icon: "scholarship" },
 ];
 
-export type ExploreTab = (typeof TABS)[number]["key"];
+/** "cities" is still a page, just not a tab. */
+export type ExploreTab = (typeof TABS)[number]["key"] | "cities";
 
 export function ExploreTabs({ active }: { active: ExploreTab }) {
   const t = useTranslations("explore");

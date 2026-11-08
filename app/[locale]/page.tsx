@@ -50,10 +50,10 @@ export default async function HomePage({ params }: LocaleParams) {
     ? new Intl.DateTimeFormat(locale === "bn" ? "bn-BD" : "en-GB", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Dhaka" }).format(new Date(coverage.lastUpdated))
     : null;
 
-  const tiles: { key: "programs" | "universities" | "cities" | "countries" | "scholarships"; href: string; icon: IconName; count: number }[] = [
+  // Cities aren't a way in (there are thousands); they're a filter under each country.
+  const tiles: { key: "programs" | "universities" | "countries" | "scholarships"; href: string; icon: IconName; count: number }[] = [
     { key: "programs", href: "/programs", icon: "cap", count: programs.length },
     { key: "universities", href: "/universities", icon: "building", count: universities.length },
-    { key: "cities", href: "/cities", icon: "pin", count: citiesWithPrograms.size },
     { key: "countries", href: "/countries", icon: "globe", count: activeCountries.length },
     { key: "scholarships", href: "/scholarships", icon: "scholarship", count: scholarships.length },
   ];
@@ -125,7 +125,7 @@ export default async function HomePage({ params }: LocaleParams) {
           ) : (
             <div className="mb-3" />
           )}
-          <ul className="grid grid-cols-2 gap-3 lg:grid-cols-5">
+          <ul className="grid grid-cols-2 gap-3 lg:grid-cols-4">
             {tiles.map((tile, i) => (
               <li key={tile.key} className={i === 0 ? "col-span-2 lg:col-span-1" : ""}>
                 <Link
