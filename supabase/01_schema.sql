@@ -27,7 +27,7 @@ create table if not exists public.fields (
   slug text primary key,
   name_en text not null,
   name_bn text not null,
-  field_group text not null check (field_group in ('computing','engineering','business','social','humanities','health','life_sciences','natural_sciences','design')),
+  field_group text not null check (field_group in ('computing','engineering','business','social','law','education','humanities','arts','health','life_sciences','natural_sciences','design')),
   tile text not null default 'indigo',
   published boolean not null default true,
   updated_at timestamptz not null default now()

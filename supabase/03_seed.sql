@@ -4,7 +4,7 @@
 
 begin;
 
--- fields: 27 rows
+-- fields: 59 rows
 insert into public.fields (slug, name_en, name_bn, field_group, tile, published) values
   ('cse', 'Computer Science & Engineering', 'কম্পিউটার সায়েন্স ও ইঞ্জিনিয়ারিং', 'computing', 'indigo', true),
   ('data-science', 'Data Science', 'ডেটা সায়েন্স', 'computing', 'indigo', true),
@@ -32,7 +32,39 @@ insert into public.fields (slug, name_en, name_bn, field_group, tile, published)
   ('general-arts', 'General Arts & Social Science (pass course)', 'সাধারণ কলা ও সামাজিক বিজ্ঞান (পাস কোর্স)', 'humanities', 'pink', true),
   ('hsc-science', 'HSC Science', 'এইচএসসি বিজ্ঞান', 'natural_sciences', 'indigo', true),
   ('hsc-business', 'HSC Business Studies', 'এইচএসসি ব্যবসায় শিক্ষা', 'business', 'amber', true),
-  ('hsc-humanities', 'HSC Humanities', 'এইচএসসি মানবিক', 'humanities', 'pink', true)
+  ('hsc-humanities', 'HSC Humanities', 'এইচএসসি মানবিক', 'humanities', 'pink', true),
+  ('ai', 'Artificial Intelligence & Machine Learning', 'আর্টিফিশিয়াল ইন্টেলিজেন্স ও মেশিন লার্নিং', 'computing', 'indigo', true),
+  ('cybersecurity', 'Cybersecurity', 'সাইবার সিকিউরিটি', 'computing', 'indigo', true),
+  ('information-systems', 'Information Systems & IT', 'ইনফরমেশন সিস্টেমস ও আইটি', 'computing', 'indigo', true),
+  ('chemical-engineering', 'Chemical & Process Engineering', 'কেমিক্যাল ও প্রসেস ইঞ্জিনিয়ারিং', 'engineering', 'blue', true),
+  ('mechatronics-robotics', 'Mechatronics & Robotics', 'মেকাট্রনিক্স ও রোবোটিক্স', 'engineering', 'blue', true),
+  ('energy-engineering', 'Energy & Renewable Energy Engineering', 'এনার্জি ও নবায়নযোগ্য শক্তি ইঞ্জিনিয়ারিং', 'engineering', 'blue', true),
+  ('industrial-engineering', 'Industrial & Production Engineering', 'ইন্ডাস্ট্রিয়াল ও প্রোডাকশন ইঞ্জিনিয়ারিং', 'engineering', 'blue', true),
+  ('aerospace-automotive', 'Aerospace & Automotive Engineering', 'অ্যারোস্পেস ও অটোমোটিভ ইঞ্জিনিয়ারিং', 'engineering', 'blue', true),
+  ('materials-engineering', 'Materials Science & Engineering', 'ম্যাটেরিয়ালস সায়েন্স ও ইঞ্জিনিয়ারিং', 'engineering', 'blue', true),
+  ('marketing', 'Marketing', 'মার্কেটিং', 'business', 'amber', true),
+  ('accounting', 'Accounting', 'অ্যাকাউন্টিং', 'business', 'amber', true),
+  ('supply-chain', 'Logistics & Supply Chain', 'লজিস্টিকস ও সাপ্লাই চেইন', 'business', 'amber', true),
+  ('hospitality-tourism', 'Hospitality & Tourism', 'হসপিটালিটি ও ট্যুরিজম', 'business', 'amber', true),
+  ('psychology', 'Psychology', 'মনোবিজ্ঞান', 'social', 'teal', true),
+  ('political-science', 'Politics & International Relations', 'রাষ্ট্রবিজ্ঞান ও আন্তর্জাতিক সম্পর্ক', 'social', 'teal', true),
+  ('development-studies', 'Development Studies', 'উন্নয়ন অধ্যয়ন', 'social', 'teal', true),
+  ('history-philosophy', 'History & Philosophy', 'ইতিহাস ও দর্শন', 'humanities', 'pink', true),
+  ('languages-linguistics', 'Languages & Linguistics', 'ভাষা ও ভাষাবিজ্ঞান', 'humanities', 'pink', true),
+  ('nursing', 'Nursing & Midwifery', 'নার্সিং ও মিডওয়াইফারি', 'health', 'green', true),
+  ('physiotherapy-rehab', 'Physiotherapy & Rehabilitation', 'ফিজিওথেরাপি ও রিহ্যাবিলিটেশন', 'health', 'green', true),
+  ('dentistry', 'Dentistry', 'ডেন্টিস্ট্রি', 'health', 'green', true),
+  ('nutrition-dietetics', 'Nutrition & Dietetics', 'পুষ্টি ও ডায়েটেটিক্স', 'health', 'green', true),
+  ('sport-science', 'Sport & Exercise Science', 'স্পোর্টস ও এক্সারসাইজ সায়েন্স', 'health', 'green', true),
+  ('environmental-science', 'Environmental Science & Ecology', 'পরিবেশ বিজ্ঞান ও বাস্তুবিদ্যা', 'life_sciences', 'green', true),
+  ('food-science', 'Food Science & Technology', 'খাদ্য বিজ্ঞান ও প্রযুক্তি', 'life_sciences', 'green', true),
+  ('geography', 'Geography & GIS', 'ভূগোল ও জিআইএস', 'natural_sciences', 'teal', true),
+  ('design', 'Design (Graphic, Product, Fashion)', 'ডিজাইন (গ্রাফিক, প্রোডাক্ট, ফ্যাশন)', 'design', 'pink', true),
+  ('law', 'Law', 'আইন', 'law', 'amber', true),
+  ('criminology', 'Criminology & Criminal Justice', 'অপরাধবিজ্ঞান ও ফৌজদারি বিচার', 'law', 'amber', true),
+  ('education', 'Education & Teaching', 'শিক্ষা ও শিক্ষকতা', 'education', 'teal', true),
+  ('media-communication', 'Media, Communication & Journalism', 'মিডিয়া, যোগাযোগ ও সাংবাদিকতা', 'arts', 'pink', true),
+  ('fine-arts', 'Fine Arts, Music & Film', 'চারুকলা, সংগীত ও চলচ্চিত্র', 'arts', 'pink', true)
 on conflict (slug) do update set name_en = excluded.name_en, name_bn = excluded.name_bn, field_group = excluded.field_group, tile = excluded.tile, published = excluded.published;
 
 -- degree_mappings: 24 rows

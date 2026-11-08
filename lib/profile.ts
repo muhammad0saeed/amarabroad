@@ -83,7 +83,7 @@ const num = (v: unknown, min: number, max: number): number | null =>
 const str = (v: unknown, max = 80): string => (typeof v === "string" ? v.slice(0, max) : "");
 const strList = (v: unknown, maxItems = 30): string[] =>
   Array.isArray(v) ? v.filter((x): x is string => typeof x === "string").slice(0, maxItems).map((x) => x.slice(0, 80)) : [];
-const GROUPS = new Set(["general", "computing", "engineering", "business", "social", "humanities", "health", "life_sciences", "natural_sciences", "design"]);
+const GROUPS = new Set(["general", "computing", "engineering", "business", "social", "law", "education", "humanities", "arts", "health", "life_sciences", "natural_sciences", "design"]);
 const TRAITS = new Set(["academics", "english", "experience", "research", "leadership", "extracurricular"]);
 
 function items(v: unknown): ProfileItem[] {

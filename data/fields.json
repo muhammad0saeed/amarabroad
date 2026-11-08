@@ -187,5 +187,229 @@
     "name_bn": "এইচএসসি মানবিক",
     "group": "humanities",
     "tile": "pink"
+  },
+  {
+    "slug": "ai",
+    "name_en": "Artificial Intelligence & Machine Learning",
+    "name_bn": "আর্টিফিশিয়াল ইন্টেলিজেন্স ও মেশিন লার্নিং",
+    "group": "computing",
+    "tile": "indigo"
+  },
+  {
+    "slug": "cybersecurity",
+    "name_en": "Cybersecurity",
+    "name_bn": "সাইবার সিকিউরিটি",
+    "group": "computing",
+    "tile": "indigo"
+  },
+  {
+    "slug": "information-systems",
+    "name_en": "Information Systems & IT",
+    "name_bn": "ইনফরমেশন সিস্টেমস ও আইটি",
+    "group": "computing",
+    "tile": "indigo"
+  },
+  {
+    "slug": "chemical-engineering",
+    "name_en": "Chemical & Process Engineering",
+    "name_bn": "কেমিক্যাল ও প্রসেস ইঞ্জিনিয়ারিং",
+    "group": "engineering",
+    "tile": "blue"
+  },
+  {
+    "slug": "mechatronics-robotics",
+    "name_en": "Mechatronics & Robotics",
+    "name_bn": "মেকাট্রনিক্স ও রোবোটিক্স",
+    "group": "engineering",
+    "tile": "blue"
+  },
+  {
+    "slug": "energy-engineering",
+    "name_en": "Energy & Renewable Energy Engineering",
+    "name_bn": "এনার্জি ও নবায়নযোগ্য শক্তি ইঞ্জিনিয়ারিং",
+    "group": "engineering",
+    "tile": "blue"
+  },
+  {
+    "slug": "industrial-engineering",
+    "name_en": "Industrial & Production Engineering",
+    "name_bn": "ইন্ডাস্ট্রিয়াল ও প্রোডাকশন ইঞ্জিনিয়ারিং",
+    "group": "engineering",
+    "tile": "blue"
+  },
+  {
+    "slug": "aerospace-automotive",
+    "name_en": "Aerospace & Automotive Engineering",
+    "name_bn": "অ্যারোস্পেস ও অটোমোটিভ ইঞ্জিনিয়ারিং",
+    "group": "engineering",
+    "tile": "blue"
+  },
+  {
+    "slug": "materials-engineering",
+    "name_en": "Materials Science & Engineering",
+    "name_bn": "ম্যাটেরিয়ালস সায়েন্স ও ইঞ্জিনিয়ারিং",
+    "group": "engineering",
+    "tile": "blue"
+  },
+  {
+    "slug": "marketing",
+    "name_en": "Marketing",
+    "name_bn": "মার্কেটিং",
+    "group": "business",
+    "tile": "amber"
+  },
+  {
+    "slug": "accounting",
+    "name_en": "Accounting",
+    "name_bn": "অ্যাকাউন্টিং",
+    "group": "business",
+    "tile": "amber"
+  },
+  {
+    "slug": "supply-chain",
+    "name_en": "Logistics & Supply Chain",
+    "name_bn": "লজিস্টিকস ও সাপ্লাই চেইন",
+    "group": "business",
+    "tile": "amber"
+  },
+  {
+    "slug": "hospitality-tourism",
+    "name_en": "Hospitality & Tourism",
+    "name_bn": "হসপিটালিটি ও ট্যুরিজম",
+    "group": "business",
+    "tile": "amber"
+  },
+  {
+    "slug": "psychology",
+    "name_en": "Psychology",
+    "name_bn": "মনোবিজ্ঞান",
+    "group": "social",
+    "tile": "teal"
+  },
+  {
+    "slug": "political-science",
+    "name_en": "Politics & International Relations",
+    "name_bn": "রাষ্ট্রবিজ্ঞান ও আন্তর্জাতিক সম্পর্ক",
+    "group": "social",
+    "tile": "teal"
+  },
+  {
+    "slug": "development-studies",
+    "name_en": "Development Studies",
+    "name_bn": "উন্নয়ন অধ্যয়ন",
+    "group": "social",
+    "tile": "teal"
+  },
+  {
+    "slug": "history-philosophy",
+    "name_en": "History & Philosophy",
+    "name_bn": "ইতিহাস ও দর্শন",
+    "group": "humanities",
+    "tile": "pink"
+  },
+  {
+    "slug": "languages-linguistics",
+    "name_en": "Languages & Linguistics",
+    "name_bn": "ভাষা ও ভাষাবিজ্ঞান",
+    "group": "humanities",
+    "tile": "pink"
+  },
+  {
+    "slug": "nursing",
+    "name_en": "Nursing & Midwifery",
+    "name_bn": "নার্সিং ও মিডওয়াইফারি",
+    "group": "health",
+    "tile": "green"
+  },
+  {
+    "slug": "physiotherapy-rehab",
+    "name_en": "Physiotherapy & Rehabilitation",
+    "name_bn": "ফিজিওথেরাপি ও রিহ্যাবিলিটেশন",
+    "group": "health",
+    "tile": "green"
+  },
+  {
+    "slug": "dentistry",
+    "name_en": "Dentistry",
+    "name_bn": "ডেন্টিস্ট্রি",
+    "group": "health",
+    "tile": "green"
+  },
+  {
+    "slug": "nutrition-dietetics",
+    "name_en": "Nutrition & Dietetics",
+    "name_bn": "পুষ্টি ও ডায়েটেটিক্স",
+    "group": "health",
+    "tile": "green"
+  },
+  {
+    "slug": "sport-science",
+    "name_en": "Sport & Exercise Science",
+    "name_bn": "স্পোর্টস ও এক্সারসাইজ সায়েন্স",
+    "group": "health",
+    "tile": "green"
+  },
+  {
+    "slug": "environmental-science",
+    "name_en": "Environmental Science & Ecology",
+    "name_bn": "পরিবেশ বিজ্ঞান ও বাস্তুবিদ্যা",
+    "group": "life_sciences",
+    "tile": "green"
+  },
+  {
+    "slug": "food-science",
+    "name_en": "Food Science & Technology",
+    "name_bn": "খাদ্য বিজ্ঞান ও প্রযুক্তি",
+    "group": "life_sciences",
+    "tile": "green"
+  },
+  {
+    "slug": "geography",
+    "name_en": "Geography & GIS",
+    "name_bn": "ভূগোল ও জিআইএস",
+    "group": "natural_sciences",
+    "tile": "teal"
+  },
+  {
+    "slug": "design",
+    "name_en": "Design (Graphic, Product, Fashion)",
+    "name_bn": "ডিজাইন (গ্রাফিক, প্রোডাক্ট, ফ্যাশন)",
+    "group": "design",
+    "tile": "pink"
+  },
+  {
+    "slug": "law",
+    "name_en": "Law",
+    "name_bn": "আইন",
+    "group": "law",
+    "tile": "amber"
+  },
+  {
+    "slug": "criminology",
+    "name_en": "Criminology & Criminal Justice",
+    "name_bn": "অপরাধবিজ্ঞান ও ফৌজদারি বিচার",
+    "group": "law",
+    "tile": "amber"
+  },
+  {
+    "slug": "education",
+    "name_en": "Education & Teaching",
+    "name_bn": "শিক্ষা ও শিক্ষকতা",
+    "group": "education",
+    "tile": "teal"
+  },
+  {
+    "slug": "media-communication",
+    "name_en": "Media, Communication & Journalism",
+    "name_bn": "মিডিয়া, যোগাযোগ ও সাংবাদিকতা",
+    "group": "arts",
+    "tile": "pink"
+  },
+  {
+    "slug": "fine-arts",
+    "name_en": "Fine Arts, Music & Film",
+    "name_bn": "চারুকলা, সংগীত ও চলচ্চিত্র",
+    "group": "arts",
+    "tile": "pink"
   }
 ]

@@ -207,7 +207,10 @@
       "health": "Health",
       "life_sciences": "Life sciences",
       "natural_sciences": "Natural sciences",
-      "design": "Design & architecture"
+      "design": "Design & architecture",
+      "law": "Law",
+      "education": "Education",
+      "arts": "Arts & media"
     }
   },
   "program": {

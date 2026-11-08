@@ -360,3 +360,35 @@ export async function saveFactChecks(rows: Record<string, unknown>[]) {
   must(await db().from("fact_checks").delete().neq("field", ""), "clear fact checks");
   for (let i = 0; i < rows.length; i += 500) must(await db().from("fact_checks").insert(rows.slice(i, i + 500)), "save fact checks");
 }
+
+// ---------------------------------------------------------------- re-sorting subjects (refield)
+
+/** Programs with what refield needs: title, current subject, hand-locked fields, page link. */
+export async function programsForRefield() {
+  return everyRow<{ slug: string; title: string; field: string | null; locked_fields: string[] | null; source_url: string | null; official_url: string | null; published: boolean }>(
+    (from, to) => db().from("programs").select("slug, title, field, locked_fields, source_url, official_url, published").order("slug").range(from, to),
+    "programs",
+  );
+}
+
+/** Changes only a program's subject (logged as the robot's judgement), then publishes it if it's now complete. */
+export async function setProgramField(p: { slug: string; field: string | null; source_url: string | null; official_url: string | null; published: boolean }, field: string): Promise<boolean> {
+  must(await db().from("programs").update({ field }).eq("slug", p.slug), "set subject");
+  must(
+    await db().from("field_changes").insert({
+      entity_type: "program", entity_slug: p.slug, field: "field", old_value: p.field, new_value: field,
+      evidence: "(subject chosen by the robot)", source_url: p.source_url || p.official_url || "", extraction: null,
+      status: "applied", reason: null, decided_by: "robot", decided_at: new Date().toISOString(),
+    }),
+    "log subject",
+  );
+  if (p.published) return false;
+  const { error } = await db().from("programs").update({ published: true }).eq("slug", p.slug);
+  return !error;
+}
+
+/** Subject slug → area (fields table). */
+export async function fieldGroups(): Promise<Record<string, string>> {
+  const rows = must(await db().from("fields").select("slug, field_group"), "fields") as { slug: string; field_group: string }[];
+  return Object.fromEntries(rows.map((r) => [r.slug, r.field_group]));
+}

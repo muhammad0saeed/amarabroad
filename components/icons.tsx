@@ -35,6 +35,7 @@ import {
   MapPin,
   Medal,
   Minus,
+  Palette,
   PaperPlaneTilt,
   Plus,
   Ruler,
@@ -102,6 +103,7 @@ const ICONS = {
   flask: Flask,
   ruler: Ruler,
   scale: Scales,
+  palette: Palette,
   wifi: WifiHigh,
   send: PaperPlaneTilt,
   plus: Plus,
@@ -133,4 +135,7 @@ export const GROUP_ICON: Record<FieldGroup, IconName> = {
   life_sciences: "leaf",
   natural_sciences: "flask",
   design: "ruler",
+  law: "scale",
+  education: "cap",
+  arts: "palette",
 };

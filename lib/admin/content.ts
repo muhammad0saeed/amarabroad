@@ -67,7 +67,7 @@ const DOCUMENTS: Option[] = [
 ];
 const LEVELS: Option[] = [["bachelor", "Bachelor"], ["master", "Master"]];
 const LANGUAGES: Option[] = [["en", "English"], ["de", "German"], ["it", "Italian"], ["hu", "Hungarian"], ["fr", "French"], ["es", "Spanish"], ["nl", "Dutch"], ["pl", "Polish"], ["cs", "Czech"], ["fi", "Finnish"], ["sv", "Swedish"], ["pt", "Portuguese"]];
-const FIELD_GROUPS: Option[] = ["computing", "engineering", "business", "social", "humanities", "health", "life_sciences", "natural_sciences", "design"].map((g) => [g, g.replace("_", " ")]);
+const FIELD_GROUPS: Option[] = ["computing", "engineering", "business", "social", "law", "education", "humanities", "arts", "health", "life_sciences", "natural_sciences", "design"].map((g) => [g, g.replace("_", " ")]);
 const TILES: Option[] = ["indigo", "blue", "teal", "green", "amber", "pink"].map((t) => [t, t]);
 
 const PHOTO: Field = {

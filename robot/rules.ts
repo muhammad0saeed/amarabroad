@@ -419,30 +419,64 @@ function documents(lines: string[]): ProgramFacts["required_documents"] {
 }
 
 /** Title words → our subject list (most specific first). */
+// First match wins, so specific subjects come before the broad ones they'd otherwise fall under
+// ("Nursing" before Medicine, "Artificial Intelligence" before Data science, "Mechatronics" before Electrical).
 export const SUBJECTS: [string, RegExp][] = [
-  ["data-science", /data science|data analytics|data engineering|machine learning|big data|business analytics|artificial intelligence|\bai\b/i],
+  ["ai", /artificial intelligence|machine learning|deep learning|\bai\b/i],
+  ["data-science", /data science|data analytics|data engineering|big data|business analytics/i],
+  ["cybersecurity", /cyber ?security|information security|digital forensics|network security/i],
+  ["mechatronics-robotics", /mechatroni|robotic/i],
+  ["energy-engineering", /(renewable|sustainable|green) energy|energy (systems|engineering|technology|technologies|science|transition)|solar energy|wind energy/i],
   // Electrical before computing ("Electrical Engineering and Information Technology"), and
   // biotechnology before computing ("Bioinformatics").
   ["eee", /electrical|electronic|elektrotechnik|communications? engineering|telecommunication|power engineering|microelectronics|integrated circuit|embedded systems/i],
   ["biotechnology", /biotechnolog|bioengineering|bioinformatics|biomedical engineering|neuroengineering|neuro ?technology/i],
-  ["cse", /computer science|informatics|informatik|informatica|software|computing|computational|computer engineering|cyber ?security|information (technology|systems|engineering)|\bict\b|robotics and ai/i],
-  ["civil", /civil engineering|structural|bauingenieur|construction|geotechnic|transport|geodesy|geoinformat|surveying|environmental engineering|water/i],
-  ["mechanical", /mechanical|mechatronic|maschinenbau|automotive|aerospace|aeronautic|production|manufacturing|robotics|energy engineering|industrial engineering|materials engineering|engineering science/i],
-  ["textile", /textile|fashion/i],
+  ["information-systems", /information (technology|systems|management)|\bict\b|business informatics|wirtschaftsinformatik|it management/i],
+  ["cse", /computer science|informatics|informatik|informatica|software|computing|computational|computer engineering|information engineering/i],
+  ["chemical-engineering", /chemical (and (biological |biomolecular )?)?(process )?engineering|process engineering|verfahrenstechnik/i],
+  ["materials-engineering", /materials (science|engineering)|metallurg|nanoscien|nanotechnolog|polymer engineering/i],
+  ["civil", /civil engineering|structural|bauingenieur|construction|geotechnic|transport|geodesy|surveying|environmental engineering|water/i],
+  ["aerospace-automotive", /aerospace|aeronautic|aviation|automotive|vehicle engineering|space (science|engineering)/i],
+  ["industrial-engineering", /industrial engineering|production|manufacturing|operations engineering|wirtschaftsingenieur/i],
+  ["mechanical", /mechanical|maschinenbau|engineering science/i],
+  ["design", /graphic design|product design|industrial design|fashion|interaction design|ux design|visual communication|game design|\bdesign\b(?! engineering)/i],
+  ["textile", /textile/i],
   ["architecture", /architect|urban (planning|design)|landscape|interior design|spatial planning/i],
-  ["public-health", /public health|global health|epidemiolog|health (management|policy|economics|sciences)/i],
+  ["nursing", /nursing|midwif/i],
+  ["dentistry", /dentist|dental|oral health/i],
+  ["physiotherapy-rehab", /physiotherap|physical therap|occupational therap|rehabilitat|speech (and language )?therap|podiatr|prosthetic|orthotic/i],
+  ["nutrition-dietetics", /nutrition|dietetic/i],
+  ["sport-science", /\bsports?\b|exercise science|kinesiolog/i],
+  ["public-health", /public health|global health|epidemiolog|occupational health|health and safety|health (management|policy|economics|sciences|studies|care)/i],
   ["pharmacy", /pharma/i],
-  ["medicine", /medicine|medical|nursing|dentist/i],
-  ["finance", /finance|financial|accounting|banking|actuarial/i],
-  ["economics", /economics|economic|volkswirt|econometric/i],
-  ["business", /business|management|\bmba\b|marketing|entrepreneur|logistics|supply chain|tourism|hospitality|administration/i],
+  ["medicine", /medicine|medical|surgery|clinical|trauma/i],
+  ["accounting", /accounting|auditing/i],
+  ["finance", /finance|financial|banking|actuarial/i],
+  ["economics", /economics|economic|volkswirt|wirtschaftswissenschaft|econometric/i],
+  ["marketing", /marketing|advertising|brand management/i],
+  ["supply-chain", /logistics|supply chain|operations management|procurement/i],
+  ["hospitality-tourism", /hospitality|tourism|hotel|event management/i],
+  ["criminology", /criminolog|crime science|criminal justice|policing/i],
+  ["law", /\blaws?\b|legal|\bll\.?[mb]\b|jurisprudence|juris/i],
+  ["education", /education|teaching|pedagog|teacher/i],
+  ["political-science", /politic|international relations|international affairs|european studies|diplomacy|public policy|governance|public administration/i],
+  ["development-studies", /development studies|international development|humanitarian|peace|conflict studies/i],
+  ["business", /business|management|\bmba\b|entrepreneur|administration|commerce/i],
+  ["psychology", /psycholog|behaviou?ral science|cognitive science/i],
+  ["environmental-science", /environment|ecolog|biodiversity|sustainab|conservation|climate change/i],
+  ["food-science", /food (science|technology|safety|engineering)/i],
   ["microbiology", /microbio|molecular|biology|biolog|life sciences?|neuroscience|biochem|genetics/i],
-  ["agriculture", /agricult|agronom|food|forest|horticult|nutrition|veterinary/i],
-  ["chemistry", /chemi|materials science|polymer/i],
+  ["agriculture", /agricult|agronom|food|forest|horticult|veterinary|animal science|plant (science|biology)/i],
+  ["chemistry", /chemi|polymer|cosmetic/i],
+  ["geography", /geograph|\bgis\b|geoinformat|urban studies|regional studies/i],
   ["earth-sciences", /geoscien|geolog|earth science|geophysic|meteorolog|climate science|oceanograph/i],
   ["math-physics", /mathemat|physics|statistic|astro|quantum/i],
-  ["social-sciences", /responsibility|ethics|society|science and technology studies|sociolog|political|politics|international relations|psycholog|public policy|social|communication|media|journalism|law|legal|education/i],
-  ["english-humanities", /english|literature|linguistic|history|philosoph|language|cultural|humanities|arts|music|theolog/i],
+  ["media-communication", /media|communication|journalism|public relations|film studies/i],
+  ["fine-arts", /fine art|music|\bfilm\b|cinema|theat(re|er)|performing arts|dance|photography|animation/i],
+  ["history-philosophy", /history|philosoph|theolog|religio|archaeolog|classics/i],
+  ["languages-linguistics", /linguistic|languages|translation|interpreting/i],
+  ["social-sciences", /responsibility|ethics|society|science and technology studies|sociolog|social|anthropolog|disability|gender studies/i],
+  ["english-humanities", /english|literature|language|cultural|humanities|arts|creative writing/i],
 ];
 
 export function subjectOf(title: string): string | null {
@@ -450,7 +484,13 @@ export function subjectOf(title: string): string | null {
   const subject = title
     .replace(/\b(bachelor|master)'?s?( of| in)? (arts|science|sciences|engineering|education|laws|fine arts|philosophy)\b/gi, " ")
     .replace(/\((m|b)\.?\s?(a|sc|eng|ed)\.?\)|\b(m|b)\.?(sc|a|eng)\.?(?=\s|$)/gi, " ");
-  return SUBJECTS.find(([, re]) => re.test(subject))?.[0] ?? null;
+  const found = SUBJECTS.find(([, re]) => re.test(subject))?.[0];
+  if (found) return found;
+  // Titles that are only a degree name still say the subject for these: "Master of Laws", "Master of Education".
+  if (/\b(master|bachelor)'?s?( of)? laws\b|juris doctor/i.test(title)) return "law";
+  if (/\b(master|bachelor)'?s?( of| in)? education\b/i.test(title)) return "education";
+  if (/\b(master|bachelor)'?s?( of)? fine arts\b/i.test(title)) return "fine-arts";
+  return null;
 }
 
 /** "Bachelor's degree in computer science, electrical engineering or a related field" → [cse, eee]. */

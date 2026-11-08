@@ -70,13 +70,13 @@ describe("Fit Score with missing facts", () => {
     research: false, extracurriculars: [], certificates: [], skills: [],
   };
 
-  it("no stated minimum grade: no grade reason, and grades aren't scored", () => {
+  it("no stated minimum grade: no grade reason, and the grade itself is scored", () => {
     const program = { ...base.program, degree_level: "master" as const, min_gpa_requirement: null, related_bachelor_fields: [] };
     expect(eligibilityGate(profile, program).map((r) => r.code)).not.toContain("grade_below_minimum");
     expect(eligibilityGate(profile, program).map((r) => r.code)).not.toContain("grade_missing");
     const fit = computeFit(profile, program, { fieldGroups: {} });
     expect(fit.eligible).toBe(true);
-    if (fit.eligible) expect(fit.parts.find((part) => part.key === "academics")?.scored).toBe(false);
+    if (fit.eligible) expect(fit.parts.find((part) => part.key === "academics")?.scored).toBe(profile.cgpa !== null);
   });
 
   it("no listed qualifying subjects: the subject check can't rule anyone out", () => {

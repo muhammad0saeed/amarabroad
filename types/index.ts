@@ -269,7 +269,10 @@ export type FieldGroup =
   | "health"
   | "life_sciences"
   | "natural_sciences"
-  | "design";
+  | "design"
+  | "law"
+  | "education"
+  | "arts";
 
 export type TileColor = "indigo" | "blue" | "green" | "pink" | "amber" | "teal";
 

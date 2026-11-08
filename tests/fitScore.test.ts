@@ -24,32 +24,40 @@ const codes = (r: FitResult) => (r.eligible ? [] : r.reasons.map((x) => x.code))
 const part = (r: FitResult, key: string) => (r.eligible ? r.parts.find((p) => p.key === key) : undefined);
 
 describe("score parts (BRIEF.md step 2)", () => {
-  it("scores the reference profile: 33 + 16 + 15 + 6 + 0 = 70, Good", () => {
+  it("scores the reference profile: 29 + 16 + 25 + 6 + 0 = 76, Good", () => {
     const r = fit();
     expect(r.eligible).toBe(true);
     if (!r.eligible) return;
     expect(r.parts.map((p) => [p.key, p.points, p.max])).toEqual([
-      ["academics", 33, 40], // 20 + 20 × 0.5 / 0.8 = 32.5 → 33
+      ["academics", 29, 35], // 18 + 17 × 0.5 / 0.8 = 28.6 → 29
       ["english", 16, 20], // IELTS 6.5 vs 6.0: one half band → 12 + 4
-      ["field", 15, 15], // exact field
-      ["experience", 6, 15], // 12 months → 6
-      ["extras", 0, 10],
+      ["field", 25, 25], // exact field
+      ["experience", 6, 12], // 12 months → 6
+      ["extras", 0, 8],
     ]);
-    expect(r.score).toBe(70);
+    expect(r.score).toBe(76);
     expect(r.band).toBe("good");
   });
 
-  it("gives academics 20 at the minimum and the full 40 at +0.8 or more", () => {
-    expect(part(fit(profile({ cgpa: 3.0 })), "academics")?.points).toBe(20);
-    expect(part(fit(profile({ cgpa: 3.8 })), "academics")?.points).toBe(40);
-    expect(part(fit(profile({ cgpa: 4.0 })), "academics")?.points).toBe(40);
+  it("gives academics 18 at the minimum and the full 35 at +0.8 or more", () => {
+    expect(part(fit(profile({ cgpa: 3.0 })), "academics")?.points).toBe(18);
+    expect(part(fit(profile({ cgpa: 3.8 })), "academics")?.points).toBe(35);
+    expect(part(fit(profile({ cgpa: 4.0 })), "academics")?.points).toBe(35);
+  });
+
+  it("scores the grade itself when the program states no minimum, so results always count", () => {
+    const noMinimum = { ...milanCS, min_gpa_requirement: null };
+    const at = (cgpa: number) => part(computeFit(profile({ cgpa }), noMinimum, fitContext), "academics");
+    expect(at(3.8)).toMatchObject({ points: 35, scored: true });
+    expect(at(2.9)?.points).toBe(18); // (2.9 − 2.0) / 1.8 × 35 = 17.5
+    expect(at(3.5)!.points).toBeGreaterThan(at(3.0)!.points);
   });
 
   it("compares CGPA on other scales after converting to 4.0", () => {
     // 3.8 / 5 = 3.04 / 4 → just above the 3.0 minimum
     const r = fit(profile({ cgpa: 3.8, cgpa_scale: 5 }));
     expect(r.eligible).toBe(true);
-    expect(part(r, "academics")?.points).toBe(21);
+    expect(part(r, "academics")?.points).toBe(19);
   });
 
   it("caps the English bonus at 8 and counts MOI-only as 12", () => {
@@ -70,23 +78,26 @@ describe("score parts (BRIEF.md step 2)", () => {
     expect(scoreForBand("ielts", 9.5)).toBeNull();
   });
 
-  it("scores field relevance 15 exact, 10 close (same group), 5 loose (other group)", () => {
-    expect(part(fit(profile({ field: "cse" })), "field")?.points).toBe(15);
-    expect(part(fit(profile({ field: "data-science" })), "field")?.points).toBe(10); // computing, like CSE
-    expect(part(fit(profile({ field: "eee" })), "field")?.points).toBe(5); // engineering
+  it("scores field relevance 25 same subject, 18 same area, 12 listed in another area", () => {
+    expect(part(fit(profile({ field: "cse" })), "field")?.points).toBe(25);
+    expect(part(fit(profile({ field: "data-science" })), "field")?.points).toBe(18); // computing, like CSE
+    expect(part(fit(profile({ field: "eee" })), "field")?.points).toBe(12); // engineering, listed as related
+    // Same area counts even when the program doesn't list the degree (CSE graduate → AI master's).
+    const ai = { ...milanCS, field: "ai", related_bachelor_fields: [] };
+    expect(part(computeFit(profile({ field: "cse" }), ai, { ...fitContext, fieldGroups: { ...fitContext.fieldGroups, ai: "computing" } }), "field")?.points).toBe(18);
   });
 
-  it("gives 1 point per 2 months of experience (max 10) and +5 for research", () => {
+  it("gives 1 point per 2 months of experience (max 8) and +4 for research", () => {
     expect(part(fit(profile({ experience_months: 5 })), "experience")?.points).toBe(2);
-    expect(part(fit(profile({ experience_months: 40 })), "experience")?.points).toBe(10);
-    expect(part(fit(profile({ experience_months: 40, research: true })), "experience")?.points).toBe(15);
+    expect(part(fit(profile({ experience_months: 40 })), "experience")?.points).toBe(8);
+    expect(part(fit(profile({ experience_months: 40, research: true })), "experience")?.points).toBe(12);
   });
 
-  it("counts only relevant extras, 2 each, max 10", () => {
+  it("counts only relevant extras, 2 each, max 8", () => {
     const relevant = fit(profile({ certificates: [item("computing"), item("general")], extracurriculars: [item("general", "leadership")] }));
     expect(part(relevant, "extras")?.points).toBe(6);
     expect(part(fit(profile({ certificates: [item("business"), item("health")] })), "extras")?.points).toBe(0);
-    expect(part(fit(profile({ certificates: Array(8).fill(item("general")) })), "extras")?.points).toBe(10);
+    expect(part(fit(profile({ certificates: Array(8).fill(item("general")) })), "extras")?.points).toBe(8);
   });
 
   it("reaches exactly 100 for a profile that maxes every part", () => {
@@ -156,8 +167,8 @@ describe("bachelor's programs", () => {
   it("checks the HSC stream and HSC GPA", () => {
     const r = fit(hscStudent, debrecenBsc);
     expect(r.eligible).toBe(true);
-    // HSC 4.5/5 = 3.6/4 vs 2.4/4 → full academics; IELTS 6.5 vs 6.0 → 16; listed stream → 15
-    expect(r.eligible && r.score).toBe(71);
+    // HSC 4.5/5 = 3.6/4 vs 2.4/4 → full academics 35; IELTS 6.5 vs 6.0 → 16; listed stream → 25
+    expect(r.eligible && r.score).toBe(76);
     expect(codes(fit({ ...hscStudent, field: "hsc-humanities" }, debrecenBsc))).toEqual(["field_not_related"]);
     expect(codes(fit({ ...hscStudent, hsc_gpa: 2.5 }, debrecenBsc))).toEqual(["grade_below_minimum"]);
   });
@@ -167,7 +178,7 @@ describe("bachelor's programs", () => {
     const ctx = { ...fitContext, hscExtraYear: ["germany"] };
     const r = computeFit(hscStudent, inGermany, ctx);
     expect(r.notes).toContainEqual({ code: "hsc_extra_year" });
-    expect(r.eligible && r.score).toBe(71);
+    expect(r.eligible && r.score).toBe(76);
     expect(computeFit(hscStudent, { ...debrecenBsc, country: { slug: "hungary" } }, ctx).notes).not.toContainEqual({ code: "hsc_extra_year" });
   });
 });
@@ -179,7 +190,7 @@ describe("programs not taught in English", () => {
     expect(r.eligible).toBe(true);
     if (!r.eligible) return;
     expect(part(r, "english")?.scored).toBe(false);
-    expect(r.score).toBe(68); // (33 + 15 + 6 + 0) / 80 = 67.5 → 68
+    expect(r.score).toBe(75); // (29 + 25 + 6 + 0) / 80 = 75
     expect(r.notes).toContainEqual({ code: "language_requirement", requirement: "German at C1 level" });
     expect(r.notes).toContainEqual({ code: "english_not_scored" });
   });
@@ -209,11 +220,11 @@ describe("every sample program", () => {
 });
 
 describe("improvement tips (BRIEF.md step 3)", () => {
-  it("shows IELTS 6.5 → 7.0 as +4 points, then experience +3 and a certificate +2", () => {
+  it("shows IELTS 6.5 → 7.0 as +4 points, then a certificate +2 and experience +2", () => {
     expect(improvementTips(profile(), milanCS, fitContext)).toEqual([
       { kind: "english", test: "ielts", from: 6.5, to: 7, gain: 4 },
-      { kind: "experience", fromMonths: 12, toMonths: 18, gain: 3 },
       { kind: "certificate", gain: 2 },
+      { kind: "experience", fromMonths: 12, toMonths: 18, gain: 2 },
     ]);
   });
 
@@ -239,9 +250,9 @@ describe("scholarships", () => {
 
   it("weights the evaluated parts ×1.5 for merit scholarships", () => {
     // Milan Excellence evaluates academics and English:
-    // (33×1.5 + 16×1.5 + 15 + 6 + 0) / (40×1.5 + 20×1.5 + 15 + 15 + 10) = 94.5 / 130 = 72.7 → 73
+    // (29×1.5 + 16×1.5 + 25 + 6 + 0) / (35×1.5 + 20×1.5 + 25 + 12 + 8) = 98.5 / 127.5 = 77.3 → 77
     const r = scholarshipFit(profile(), scholarship("sample-milan-excellence-scholarship"), milanCS, fitContext);
-    expect(r).toEqual({ kind: "scored", score: 73, band: "good", partlyNeedBased: false });
+    expect(r).toEqual({ kind: "scored", score: 77, band: "good", partlyNeedBased: false });
   });
 
   it("explains when a scholarship can't apply", () => {

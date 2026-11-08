@@ -19,11 +19,13 @@ Before any score, we check the hard rules. If one fails, you see **Not eligible*
 
 | Part | Points | How |
 | --- | --- | --- |
-| Academics | 40 | 20 for meeting the minimum, up to 20 more the further above it you are |
+| Academics (your results) | 35 | With a stated minimum: 18 for meeting it, up to 17 more the further above it you are. Without one: your grade itself (2.0/4 gives nothing, 3.8/4 or more gives all 35) |
+| Field (your studies) | 25 | 25 same subject, 18 same area (CSE for an AI master's), 12 a related degree the program lists, 4 otherwise |
 | English | 20 | 12 for meeting the minimum, 4 more per half IELTS band above it (MOI alone counts 12) |
-| Field | 15 | 15 same field, 10 closely related, 5 loosely related |
-| Experience | 15 | 1 point per 2 months of work or internships (max 10), 5 for research |
-| Extras | 10 | 2 per relevant activity, certificate or leadership role |
+| Experience | 12 | 1 point per 2 months of work or internships (max 8), 4 for research |
+| Extras | 8 | 2 per relevant activity, certificate or leadership role |
+
+Your studies and results count most (60 of 100). Your budget is never part of the score: use the budget filter for that.
 
 80 or more is **Strong**, 60–79 **Good**, 40–59 **Possible** and below 40 **Weak**.
 

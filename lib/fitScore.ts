@@ -33,18 +33,24 @@ export type FitProgram = Pick<
 > & { country?: { slug: string } };
 
 export const FIT_CONFIG = {
+  // Studies (field) and results (academics) weigh most: 60 of 100. Budget is never scored (it's a filter).
   academics: {
-    max: 40,
+    max: 35,
     /** Points for meeting the minimum. */
-    base: 20,
-    bonusMax: 20,
+    base: 18,
+    bonusMax: 17,
     /** Full bonus this far above the minimum, on a 4.0 scale. */
     fullBonusAbove: 0.8,
+    /** No stated minimum (most programs): scored on the grade itself, nothing at this 4.0-scale grade … */
+    noMinimumFrom: 2.0,
+    /** … full points from this one. */
+    noMinimumFull: 3.8,
   },
   english: { max: 20, base: 12, perHalfBand: 4, bonusMax: 8, moiOnly: 12 },
-  field: { max: 15, exact: 15, close: 10, loose: 5 },
-  experience: { max: 15, monthsPerPoint: 2, workMax: 10, research: 5 },
-  extras: { max: 10, perItem: 2 },
+  /** exact subject; same area (CSE → AI); listed as a related degree in another area; anything else. */
+  field: { max: 25, exact: 25, sameArea: 18, listed: 12, loose: 4 },
+  experience: { max: 12, monthsPerPoint: 2, workMax: 8, research: 4 },
+  extras: { max: 8, perItem: 2 },
   bands: [
     { min: 80, band: "strong" },
     { min: 60, band: "good" },
@@ -217,6 +223,13 @@ export function eligibilityGate(profile: StudentProfile, program: FitProgram): G
 
 // ---------------------------------------------------------------- 2. score
 
+/** The subject areas each HSC stream usually leads to, for bachelor's programs that don't list streams. */
+const HSC_STREAM_AREAS: Record<string, FieldGroup[]> = {
+  "hsc-science": ["computing", "engineering", "health", "life_sciences", "natural_sciences", "design"],
+  "hsc-business": ["business", "social"],
+  "hsc-humanities": ["humanities", "social", "law", "education", "arts"],
+};
+
 function isRelevant(item: ProfileItem, group: FieldGroup | undefined): boolean {
   return item.group === "general" || item.group === group;
 }
@@ -225,10 +238,16 @@ function scoreParts(profile: StudentProfile, program: FitProgram, ctx: FitContex
   const C = FIT_CONFIG;
   const programGroup = ctx.fieldGroups[program.field];
 
-  // Academics: 20 for meeting the minimum, + up to 20 scaled by how far above it.
+  // Academics: with a stated minimum, 18 for meeting it + up to 17 by how far above it. Without one,
+  // the grade itself counts (2.0/4 → 0, 3.8/4 → full), so results always matter.
   const { yours, minimum } = gradesOnFourPoint(profile, program);
-  const above = minimum === null ? 0 : Math.max(0, (yours ?? minimum) - minimum);
-  const academics = C.academics.base + Math.min(C.academics.bonusMax, (C.academics.bonusMax * above) / C.academics.fullBonusAbove);
+  const A = C.academics;
+  const academics =
+    minimum !== null
+      ? A.base + Math.min(A.bonusMax, (A.bonusMax * Math.max(0, (yours ?? minimum) - minimum)) / A.fullBonusAbove)
+      : yours === null
+        ? 0
+        : A.max * Math.min(1, Math.max(0, (yours - A.noMinimumFrom) / (A.noMinimumFull - A.noMinimumFrom)));
 
   // English: 12 for meeting the minimum, + 4 per 0.5 IELTS band above it (max 8); MOI-only = 12.
   const english = englishStatus(profile, program);
@@ -242,15 +261,20 @@ function scoreParts(profile: StudentProfile, program: FitProgram, ctx: FitContex
     englishPoints = C.english.moiOnly;
   }
 
-  // Field relevance: exact 15, listed and same group 10, listed but another group 5.
-  // Bachelor's programs list HSC streams; a listed stream counts as an exact match.
-  let field: number = C.field.loose;
+  // Field relevance (studies). Master's: same subject 25, same area 18 (CSE → AI), listed as a related
+  // degree in another area 12, otherwise 4. Bachelor's: a listed HSC stream counts as the same subject;
+  // with no list, a stream's usual areas (science → engineering, health…) count as the same area.
+  const F = C.field;
+  let field: number = F.loose;
   if (program.degree_level === "bachelor") {
-    field = program.related_bachelor_fields.includes(profile.field) ? C.field.exact : C.field.loose;
+    if (program.related_bachelor_fields.includes(profile.field)) field = F.exact;
+    else if (!program.related_bachelor_fields.length && programGroup && HSC_STREAM_AREAS[profile.field]?.includes(programGroup)) field = F.sameArea;
   } else if (profile.field === program.field) {
-    field = C.field.exact;
+    field = F.exact;
+  } else if (programGroup && ctx.fieldGroups[profile.field] === programGroup) {
+    field = F.sameArea;
   } else if (program.related_bachelor_fields.includes(profile.field)) {
-    field = ctx.fieldGroups[profile.field] === programGroup ? C.field.close : C.field.loose;
+    field = F.listed;
   }
 
   // Experience: 1 point per 2 months of work or internships (max 10), research +5.
@@ -263,7 +287,8 @@ function scoreParts(profile: StudentProfile, program: FitProgram, ctx: FitContex
 
   return [
     // Not scored when the program states no minimum grade.
-    { key: "academics", points: Math.round(academics), max: C.academics.max, scored: minimum !== null },
+    // Not scored only when there's no grade to judge (no CGPA or HSC GPA given).
+    { key: "academics", points: Math.round(academics), max: C.academics.max, scored: minimum !== null || yours !== null },
     { key: "english", points: englishPoints, max: C.english.max, scored: english.status !== "not_applicable" },
     { key: "field", points: field, max: C.field.max, scored: true },
     { key: "experience", points: experience, max: C.experience.max, scored: true },

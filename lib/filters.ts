@@ -83,7 +83,7 @@ export const EMPTY_FILTERS: ProgramFilters = {
 
 const LEVELS: DegreeLevel[] = ["bachelor", "master"];
 const LANGUAGES: TeachingLanguage[] = ["en", "de", "it", "hu"];
-const GROUPS: FieldGroup[] = ["computing", "engineering", "business", "social", "humanities", "health", "life_sciences", "natural_sciences", "design"];
+const GROUPS: FieldGroup[] = ["computing", "engineering", "business", "social", "law", "education", "humanities", "arts", "health", "life_sciences", "natural_sciences", "design"];
 const list = (value: string | null) => (value ? value.split(",").map((v) => v.trim()).filter(Boolean) : []);
 const flag = (value: string | null) => value === "1";
 const positive = (value: string | null) => {

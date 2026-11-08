@@ -23,6 +23,7 @@ import { interleave, pool, shardOf } from "./pool.ts";
 import { nextCheckHours } from "./schedule.ts";
 import { importOfficial } from "./official-data.ts";
 import { updateRates } from "./rates.ts";
+import { subjectOf } from "./rules.ts";
 import { readUniversityInfo } from "./university-info.ts";
 import { crossCheck } from "../lib/crosscheck.ts";
 
@@ -364,6 +365,37 @@ async function uniInfo() {
   log(`Done: ${facts} facts at ${withFacts} universities.`);
 }
 
+/**
+ * Re-sorts programs with the current subject rules (robot/rules.ts SUBJECTS): programs without a subject get
+ * one, and programs move into a more specific new subject (Medicine → Nursing). Subjects set by hand stay.
+ * --dry only counts.
+ */
+async function refield() {
+  const dry = rest.includes("--dry");
+  const fields = await retry(() => store.fieldGroups());
+  const programs = await retry(() => store.programsForRefield());
+  // Subjects that existed before the 2026-11-09 split; a move from one of them into a different area is
+  // only taken when it lands in a subject added then (a refinement), so older judgements aren't overturned.
+  const NEW = new Set(["ai", "cybersecurity", "information-systems", "chemical-engineering", "mechatronics-robotics", "energy-engineering", "industrial-engineering", "aerospace-automotive", "materials-engineering", "marketing", "accounting", "supply-chain", "hospitality-tourism", "psychology", "political-science", "development-studies", "history-philosophy", "languages-linguistics", "nursing", "physiotherapy-rehab", "dentistry", "nutrition-dietetics", "sport-science", "environmental-science", "food-science", "geography", "design", "law", "criminology", "education", "media-communication", "fine-arts"]);
+  let given = 0;
+  let moved = 0;
+  let published = 0;
+  const counts: Record<string, number> = {};
+  await pool(programs, 10, Infinity, async (p) => {
+    if (p.locked_fields?.includes("field")) return;
+    const next = subjectOf(p.title);
+    if (!next || next === p.field || !fields[next]) return;
+    const ok = p.field === null || fields[p.field] === fields[next] || NEW.has(next);
+    if (!ok) return;
+    counts[next] = (counts[next] ?? 0) + 1;
+    if (p.field === null) given++;
+    else moved++;
+    if (!dry && (await store.setProgramField(p, next))) published++;
+  });
+  log(`${dry ? "Would give" : "Gave"} ${given} programs a subject and ${dry ? "move" : "moved"} ${moved} into a more specific one${dry ? "" : `; ${published} newly published`}.`);
+  log("  " + Object.entries(counts).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k} ${v}`).join(", "));
+}
+
 /** The cross-checker: compares each program page's tuition and IELTS with the university's general pages (lib/crosscheck.ts). */
 async function crossCheckAll() {
   const { programs, facts } = await retry(() => store.crossCheckInputs());
@@ -394,6 +426,7 @@ const commands: Record<string, () => Promise<void>> = {
   rates: () => updateRates(log),
   "uni-info": uniInfo,
   crosscheck: crossCheckAll,
+  refield,
   official,
   discover,
   "discover-all": discoverAll,
@@ -416,7 +449,7 @@ process.on("unhandledRejection", (e) => {
 
 const run = command ? commands[command] : undefined;
 if (!run) {
-  console.log("Commands: seed, seed-top, discover, discover-all, grow, add, check, official, rates, uni-info, crosscheck. See robot/README.md.");
+  console.log("Commands: seed, seed-top, discover, discover-all, grow, add, check, official, rates, uni-info, crosscheck, refield. See robot/README.md.");
   process.exitCode = 1;
 } else {
   try {
