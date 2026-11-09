@@ -22,9 +22,11 @@ export function Header() {
   return (
     <header className="sticky top-0 z-30 bg-canvas/90 backdrop-blur-sm lite:backdrop-blur-none">
       <div className="flex items-center justify-between gap-3 px-4 py-2">
-        <Link href="/" aria-label={t("home", { name: site.name })} className="inline-flex min-h-tap items-center text-heading font-bold tracking-tight">
-          <span className="text-ink">amar</span>
-          <span className="text-primary-ink">Abroad</span>
+        <Link href="/" aria-label={t("home", { name: site.name })} className="inline-flex min-h-tap items-center gap-2 text-heading font-bold tracking-tight">
+          {/* eslint-disable-next-line @next/next/no-img-element -- a tiny SVG logo; next/image adds nothing here */}
+          <img src="/brand/amarabroad-icon.svg" alt="" width={32} height={32} className="size-8 shrink-0" />
+          <span><span className="text-ink">amar</span>
+          <span className="text-primary-ink">Abroad</span></span>
         </Link>
         <nav aria-label={nav("main")} className="hidden lg:block">
           <ul className="flex items-center gap-1">

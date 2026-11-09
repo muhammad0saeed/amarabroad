@@ -30,6 +30,8 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         <div className="mx-auto w-full max-w-5xl px-4 pb-16">
           <header className="flex flex-wrap items-center justify-between gap-3 py-4">
             <Link href="/admin/" className="text-heading font-bold tracking-tight">
+              {/* eslint-disable-next-line @next/next/no-img-element -- a tiny SVG logo */}
+              <img src="/brand/amarabroad-icon.svg" alt="" width={28} height={28} className="mr-2 inline-block size-7 align-[-6px]" />
               amar<span className="text-accent">Abroad</span> <span className="text-ink-muted">admin</span>
             </Link>
             {admin && (
