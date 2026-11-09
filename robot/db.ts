@@ -5,6 +5,7 @@ import { stable, type PlannedChange, type ProgramRow } from "./checks.ts";
 import type { FetchedPage } from "./pipeline.ts";
 import { everyRow, fromDataset } from "./official-data.ts";
 import type { InfoFact } from "./university-info.ts";
+import { titleKey } from "./titles.ts";
 
 let client: SupabaseClient | null = null;
 export function db(): SupabaseClient {
@@ -148,10 +149,46 @@ export async function loadProgram(slug: string): Promise<(ProgramRow & { publish
 }
 
 /** A program at this university with the same title whose facts came from an official dataset (official-data.ts). */
+/** The same course imported from an official list, matched by title key (robot/titles.ts): page titles add
+ *  "Study the…", ": University of X" or course codes that the list doesn't have. */
 export async function datasetTwin(university: string, title: string): Promise<string | null> {
-  const pattern = title.trim().replace(/[\\%_]/g, (c) => `\\${c}`);
-  const { data } = await db().from("programs").select("slug, source_url").eq("university", university).ilike("title", pattern).limit(5);
-  return ((data ?? []) as { slug: string; source_url: string }[]).find((p) => fromDataset(p.source_url))?.slug ?? null;
+  const key = titleKey(title);
+  const { data } = await db().from("programs").select("slug, title, source_url").eq("university", university).limit(3000);
+  return ((data ?? []) as { slug: string; title: string; source_url: string }[]).find((p) => fromDataset(p.source_url) && titleKey(p.title) === key)?.slug ?? null;
+}
+
+/**
+ * One-off and repeatable: page programs that are really an official-list program (same university, same
+ * title key). Each page's source is pointed at the list program and re-read on the next check (so the
+ * page's deadline, English scores and documents go into the list program, with the usual checks), and the
+ * duplicate page program is hidden (not deleted).
+ */
+export async function mergeTwins(dry: boolean): Promise<{ pairs: number; sources: number }> {
+  const rows = await everyRow<{ slug: string; title: string; university: string; source_url: string; published: boolean }>(
+    (from, to) => db().from("programs").select("slug, title, university, source_url, published").order("slug").range(from, to),
+    "programs",
+  );
+  const lists = new Map<string, string>();
+  for (const r of rows) if (fromDataset(r.source_url)) lists.set(`${r.university}|${titleKey(r.title)}`, r.slug);
+  const pairs = rows.flatMap((r) => {
+    if (fromDataset(r.source_url)) return [];
+    const twin = lists.get(`${r.university}|${titleKey(r.title)}`);
+    return twin ? [{ page: r.slug, list: twin, published: r.published }] : [];
+  });
+  let sources = 0;
+  if (!dry) {
+    for (const p of pairs) {
+      const { data } = await db()
+        .from("sources")
+        .update({ entity_slug: p.list, content_hash: null, http_etag: null, http_last_modified: null, next_check_at: new Date().toISOString() })
+        .eq("entity_type", "program")
+        .eq("entity_slug", p.page)
+        .select("id");
+      sources += data?.length ?? 0;
+      if (p.published) await db().from("programs").update({ published: false }).eq("slug", p.page);
+    }
+  }
+  return { pairs: pairs.length, sources };
 }
 
 export async function slugTaken(slug: string): Promise<boolean> {
@@ -316,9 +353,12 @@ const INFO_DAYS = 30;
 
 /** Universities with programs on the site whose general pages weren't read in the last 30 days, never-read first. */
 export async function universitiesNeedingInfo(): Promise<{ slug: string; website: string }[]> {
-  const withPrograms = new Set(
-    (await everyRow<{ university: string }>((from, to) => db().from("programs").select("university").eq("published", true).order("slug").range(from, to), "programs")).map((r) => r.university),
-  );
+  // Programs per university: the ones with the most programs go first (their gaps matter most).
+  const counts = new Map<string, number>();
+  for (const r of await everyRow<{ university: string }>((from, to) => db().from("programs").select("university").eq("published", true).order("slug").range(from, to), "programs")) {
+    counts.set(r.university, (counts.get(r.university) ?? 0) + 1);
+  }
+  const withPrograms = new Set(counts.keys());
   const unis = await everyRow<{ slug: string; website: string | null; info_checked_at: string | null }>(
     (from, to) => db().from("universities").select("slug, website, info_checked_at").order("slug").range(from, to),
     "universities",
@@ -326,7 +366,7 @@ export async function universitiesNeedingInfo(): Promise<{ slug: string; website
   const due = Date.now() - INFO_DAYS * DAY;
   return unis
     .filter((u) => withPrograms.has(u.slug) && u.website && (!u.info_checked_at || Date.parse(u.info_checked_at) < due))
-    .sort((a, b) => (a.info_checked_at ?? "").localeCompare(b.info_checked_at ?? ""))
+    .sort((a, b) => (a.info_checked_at ?? "").localeCompare(b.info_checked_at ?? "") || (counts.get(b.slug) ?? 0) - (counts.get(a.slug) ?? 0))
     .map((u) => ({ slug: u.slug, website: u.website! }));
 }
 

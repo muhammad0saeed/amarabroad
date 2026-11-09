@@ -38,6 +38,8 @@ export function htmlToText(html: string): string {
   s = s.replace(/<br\s*\/?>/gi, "\n");
   s = s.replace(/<[^>]+>/g, " ");
   s = decodeEntities(s);
+  // HTML kept as text inside page data ("<p>With credit: 3 December</p>\r\n<p>…"): make it lines again.
+  s = s.replace(/\\r\\n|\\n/g, "\n").replace(/<\/?(p|br|li|div|h[1-6])\b[^>]*>/gi, "\n").replace(/<\/?[a-z][a-z0-9]*\b[^<>]{0,200}>/gi, " ");
   return s
     .split("\n")
     .map((line) => line.replace(/[ \t ]+/g, " ").replace(/^\s*\|\s*/, "").trim())

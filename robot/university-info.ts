@@ -43,7 +43,8 @@ export function linkScore(link: Pick<PageLink, "url" | "text">, kind: InfoKind):
   } catch {
     return 0;
   }
-  const hay = `${link.text} ${path}`;
+  // Addresses join words with hyphens ("english-language-requirements"): read them as words.
+  const hay = `${link.text} ${path} ${path.replace(/[-_/]+/g, " ")}`;
   if (AVOID.test(path) || !KIND[kind].test(hay)) return 0;
   return 5 + (INTERNATIONAL.test(hay) ? 3 : 0) + (KIND[kind].test(link.text) ? 2 : 0) - Math.max(0, path.split("/").filter(Boolean).length - 4);
 }
@@ -65,9 +66,48 @@ async function page(url: string): Promise<{ html: string; finalUrl: string } | n
   }
 }
 
+/** Sitemap files that list study and admissions pages; news, events and people archives are skipped. */
+const SITEMAP_SKIP = /(news|event|blog|press|people|person|staff|profile|research|publication|story|stories|media|image|video)/i;
+const SITEMAP_PREFER = /(international|admission|study|apply|page|course|future)/i;
+
+/**
+ * Page addresses from the site's sitemaps (a few files, at most 8 fetches): deep pages such as
+ * ".../english-language-requirements" or ".../key-dates" that no menu on the homepage links to.
+ */
+export async function sitemapPages(website: string, maxFiles = 8): Promise<PageLink[]> {
+  const origin = new URL(website).origin;
+  let robots = "";
+  try {
+    const r = await politeFetch(`${origin}/robots.txt`, {}, "text/plain,*/*;q=0.5");
+    robots = r.status < 400 ? (r.body ?? "") : "";
+  } catch {
+    robots = "";
+  }
+  const queue = [...robots.matchAll(/^sitemap:\s*(\S+)/gim)].map((m) => m[1]!).slice(0, 3);
+  if (!queue.length) queue.push(`${origin}/sitemap.xml`);
+  const out: PageLink[] = [];
+  for (let read = 0; queue.length && read < maxFiles; read++) {
+    let xml = "";
+    try {
+      const r = await politeFetch(queue.shift()!, {}, "application/xml,text/xml;q=0.9,*/*;q=0.5");
+      xml = r.status < 400 ? (r.body ?? "") : "";
+    } catch {
+      continue;
+    }
+    const locs = [...xml.matchAll(/<loc>\s*([^<\s]+)\s*<\/loc>/gi)].map((m) => m[1]!.replace(/&amp;/g, "&"));
+    if (/<sitemapindex/i.test(xml)) {
+      queue.push(...locs.filter((u) => !SITEMAP_SKIP.test(u)).sort((a, b) => Number(SITEMAP_PREFER.test(b)) - Number(SITEMAP_PREFER.test(a))));
+      continue;
+    }
+    // Sitemap pages have no link text: the address is all there is to judge them by.
+    for (const url of locs) out.push({ url, text: "" });
+  }
+  return out;
+}
+
 /**
  * The best general pages on a university's site for each kind of info (at most `perKind` each), from
- * its homepage and up to three hub pages (International, Admissions, How to apply): about 5 fetches.
+ * its homepage, up to three hub pages (International, Admissions, How to apply) and its sitemap.
  */
 export async function findInfoPages(website: string, perKind = 2): Promise<{ url: string; kind: InfoKind }[]> {
   const site = registrable(new URL(website).hostname);
@@ -82,6 +122,7 @@ export async function findInfoPages(website: string, perKind = 2): Promise<{ url
     const h = await page(hub);
     if (h) links.push(...extractLinks(h.html, h.finalUrl));
   }
+  links.push(...(await sitemapPages(start.finalUrl)));
   const sameSite = links.filter((l) => {
     try {
       return registrable(new URL(l.url).hostname) === site;

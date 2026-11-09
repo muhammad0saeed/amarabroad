@@ -3,6 +3,7 @@
 // (an amount with a currency, a date, a score), in English, German, Italian and Hungarian.
 // The lines a fact was found in become its `quote`, so every value on the site can show its source.
 
+import { cleanTitle } from "./titles.ts";
 import type { PageMeta } from "./clean.ts";
 import { EMPTY_FACTS, type Applies, type DocumentKey, type ProgramFacts } from "./facts.ts";
 
@@ -232,8 +233,32 @@ function teachingLanguages(lines: string[]): { fact: NonNullable<ProgramFacts["t
 
 const LANGUAGE_NAMES: Record<string, string> = { en: "English", de: "German", it: "Italian", hu: "Hungarian", fr: "French", es: "Spanish", nl: "Dutch" };
 
+/** "English language skills at level C1 (CEFR)", "B2 level of English": a CEFR level for English. */
+const ENGLISH_LEVEL = [
+  // "Englischkenntnisse": German joins words, so "englisch" may start a longer word.
+  /\b(english|englisch\w*)[^\n.;]{0,60}?\b(B2|C1|C2)\b(?![-–]\d)/i,
+  /\b(B2|C1|C2)\b(?:\s*(?:level|niveau))?[^\n.;]{0,40}?\b(english|englisch\w*)/i,
+];
+/** Lines about other languages or about modules/courses, not the entry requirement. */
+const NOT_ENGLISH_ENTRY = /(german|deutsch|french|spanish|italian|dutch|finnish|swedish|module|course unit|you will (reach|achieve)|after (the|this) (course|program))/i;
+
+/** The English entry level as CEFR, for English-taught programs that don't name a test score. */
+export function englishLevel(lines: string[]): ProgramFacts["language_requirement"] {
+  for (const line of lines) {
+    if (line.length > 400 || NOT_ENGLISH_ENTRY.test(line)) continue;
+    for (const re of ENGLISH_LEVEL) {
+      const m = line.match(re);
+      if (!m) continue;
+      const level = (m[2]!.length === 2 ? m[2]! : m[1]!).toUpperCase();
+      return { value: `English ${level} (CEFR)`, quote: line.slice(0, 220) };
+    }
+  }
+  return null;
+}
+
 function languageRequirement(lines: string[], lang: string | undefined): ProgramFacts["language_requirement"] {
-  if (!lang || lang === "en") return null;
+  // English-taught, or the teaching language isn't stated (most English pages): the English level.
+  if (!lang || lang === "en") return englishLevel(lines);
   for (const line of lines) {
     const m = line.match(/\b(german|deutsch|italian|hungarian|french|spanish|dutch)\b[^\n]{0,60}?\b(A1|A2|B1|B2|C1|C2|DSH[- ]?[123]|TestDaF(?:\s*\d)?)\b/i) ?? line.match(/\b(DSH[- ]?[123]|TestDaF(?:\s*\d)?|Goethe[- ]Zertifikat\s*[ABC][12])\b/i);
     if (m) return { value: m[0]!.slice(0, 80), quote: line.slice(0, 220) };
@@ -319,18 +344,39 @@ function startMonthIn(text: string): number | null {
   return name ? MONTHS[name.toLowerCase()] ?? null : null;
 }
 
-function intakes(lines: string[], today: string): ProgramFacts["intakes"] {
-  // A start month stated once for the whole program ("Start: winter semester only").
-  let programStart: number | null = null;
-  for (const line of lines) if (START_KEY.test(line) && (programStart = startMonthIn(line))) break;
+/** A linked page about applying: its deadlines can stand in when the program page states none. */
+const APPLY_PAGE = /(apply|application|admission|deadline|bewerbung|frist|how-to-apply|key-dates|important-dates)/i;
+
+/** Linked pages whose dates are for other kinds of study. */
+const NOT_APPLY_PAGE = /(online|doctoral|phd|research-degree|exchange|short-course|summer-school)/i;
+/** Dates near a deadline that aren't one: teaching starts, results, accepting an offer, PhD start. */
+const NOT_A_DEADLINE = /(teaching (starts|begins)|classes (start|begin)|lectures (start|begin)|(semester|term|course|programme|program|studies) (starts|begins)|orientation|results|informed|notified|accept (only )?(one|the|your) (offer|place)|offer of admission|doctoral|study right starts|enrol?ment (starts|period))/i;
+
+/** A start month stated once for the whole program ("Start: winter semester only"). */
+function programStartIn(lines: string[]): number | null {
+  for (const line of lines) {
+    const m = START_KEY.test(line) ? startMonthIn(line) : null;
+    if (m) return m;
+  }
+  return null;
+}
+
+function intakes(lines: string[], today: string, startFrom: number | null = programStartIn(lines)): ProgramFacts["intakes"] {
+  const programStart = startFrom;
 
   const out: ProgramFacts["intakes"] = [];
   for (let i = 0; i < lines.length; i++) {
     if (!DEADLINE_KEY.test(lines[i]!)) continue;
     for (let j = i; j <= Math.min(i + 5, lines.length - 1); j++) {
       if (j > i && DEADLINE_KEY.test(lines[j]!) && datesIn(lines[j]!).length === 0) break;
-      const dates = datesIn(lines[j]!);
+      // Read only up to "Teaching starts…" / "results by…": the dates after it aren't deadlines.
+      const cut = lines[j]!.search(NOT_A_DEADLINE);
+      if (cut === 0) continue;
+      const text = cut > 0 ? lines[j]!.slice(0, cut) : lines[j]!;
+      const dates = datesIn(text);
       if (!dates.length) continue;
+      // "Application period opens 7 January": one date that opens the period isn't its deadline.
+      if (dates.length === 1 && /\b(opens|opening|open from|starts on)\b/i.test(text) && !/\b(close|closes|closing|deadline|until|by)\b/i.test(text)) continue;
       // A period "01.02. – 31.05." ends on its deadline: the last date on the line.
       const last = dates.at(-1)!;
       const deadline = resolveYear(last, today);
@@ -516,9 +562,9 @@ export function programTitle(meta: PageMeta | undefined): string | null {
   const parts = meta.title.split(/\s+[|–—-]\s+/).map((x) => x.trim()).filter(Boolean);
   // Drop the site name at the end ("TUM", "University of X").
   if (parts.length >= 2 && parts.at(-1)!.length <= 40 && !DEGREE.master.test(parts.at(-1)!) && !DEGREE.bachelor.test(parts.at(-1)!)) parts.pop();
-  const fromTitle = parts.join(" – ");
+  const fromTitle = cleanTitle(parts.join(" – "));
   if (fromTitle && (DEGREE.master.test(fromTitle) || DEGREE.bachelor.test(fromTitle))) return fromTitle.slice(0, 200);
-  return (meta.h1 || fromTitle || "").slice(0, 200) || null;
+  return cleanTitle(meta.h1 || fromTitle || "").slice(0, 200) || null;
 }
 
 // ---------------------------------------------------------------- putting it together
@@ -543,9 +589,18 @@ export function readFacts(pages: RulePage[], today: string): ProgramFacts {
   f.tuition = tuition(lines);
   f.other_fees_per_year = otherFees(lines);
   f.application_fee = applicationFee(lines);
-  // Deadlines come only from the program's own page. General university pages list dates that may not apply
-  // (TU Munich's Singapore programs have their own); a missing deadline shows as "Not found", never as a guess.
-  f.intakes = intakes(lineWindows(main.text), today);
+  // Deadlines come from the program's own page first. Only when it has none, from the application pages it
+  // links to ("How to apply", "Application deadlines"), which many universities use for every program.
+  // Other general pages list dates that may not apply (TU Munich's Singapore programs have their own).
+  const mainLines = lineWindows(main.text);
+  f.intakes = intakes(mainLines, today);
+  if (!f.intakes.length) {
+    const applyPages = pages.slice(1).filter((p) => APPLY_PAGE.test(p.url) && !NOT_APPLY_PAGE.test(p.url));
+    const start = programStartIn(mainLines);
+    const found = applyPages.length ? intakes(applyPages.flatMap((p) => lineWindows(p.text)), today, start).filter((x) => !start || x.start_month === start) : [];
+    // More than 3 dates: a calendar for many programs or terms, not this program's deadline.
+    if (found.length <= 3) f.intakes = found;
+  }
   f.english_tests = englishTests(lines);
   f.accepts_moi = yesNo(
     lines,
@@ -568,6 +623,10 @@ export function readFacts(pages: RulePage[], today: string): ProgramFacts {
 
   // It's a program page when it names a degree and states at least two program facts.
   const signals = [f.duration_months, f.ects_credits, f.tuition, f.intakes.length ? 1 : null, f.english_tests.length ? 1 : null, f.teaching_language].filter(Boolean).length;
-  f.is_program_page = Boolean(f.degree_level) && signals >= 2;
+  // Events (webinars, thesis defences), news, stories and thesis pages mention degrees but aren't programs.
+  f.is_program_page = Boolean(f.degree_level) && signals >= 2 && !NOT_A_PROGRAM_URL.test(main.url);
   return f;
 }
+
+/** Page addresses that are never a program's own page (sitemaps list them next to programs). */
+export const NOT_A_PROGRAM_URL = /(\/events?\/|\/news\/|\/blogs?\/|\/stories\/|\/press\/|\/podcasts?\/|\/theses\/|webinar|defen[cs]e-of-(the-)?(dissertation|thesis|doctoral)|dissertation-guidelines|thesis-and-dissertation|salary-expectations|testimonial)/i;

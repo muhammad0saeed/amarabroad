@@ -447,6 +447,11 @@ const commands: Record<string, () => Promise<void>> = {
   refield,
   scholarships: () => checkScholarships(log),
   news: () => checkNews(log),
+  "merge-twins": async () => {
+    const dry = rest.includes("--dry");
+    const r = await store.mergeTwins(dry);
+    log(`${dry ? "Would join" : "Joined"} ${r.pairs} page programs to their official-list twin${dry ? "" : `; ${r.sources} pages will be re-read on the next check`}.`);
+  },
   tidy,
   official,
   discover,
