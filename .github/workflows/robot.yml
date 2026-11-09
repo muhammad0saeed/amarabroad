@@ -8,6 +8,7 @@
 #                                           then each again every 30 days; adds the next 500 by rank when few are left
 #   info      2 jobs: the gap-filler, universities' general pages (fees, deadlines, English, documents),
 #                                           then the cross-checker (program pages vs those general pages)
+#   deadlines 2 jobs × 30 websites: programs with no upcoming deadline re-read with the latest rules, best ranked first
 #   rates     every shift: exchange rates to taka for every currency (free public-domain dataset)
 #   extras    every shift: scholarship rounds (official pages), news links (official and education-news feeds;
 #                                           expired and dead links removed), tidying the change log
@@ -99,6 +100,34 @@ jobs:
           ROBOT_CONTACT_URL: ${{ vars.ROBOT_CONTACT_URL }}
       - name: Check program pages
         run: npm run robot -- check --parallel 50 --minutes ${{ needs.plan.outputs.check_minutes }} --shard ${{ matrix.shard }}/${{ strategy.job-total }}
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          ROBOT_CONTACT_URL: ${{ vars.ROBOT_CONTACT_URL }}
+
+  # Deadlines first: programs with no upcoming deadline are read again with the latest rules, best-ranked
+  # universities first, each page once per rules version (robot/deadlines.ts). Ends early when none are left.
+  deadlines:
+    needs: plan
+    if: needs.plan.outputs.full == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1]
+    concurrency:
+      group: robot-deadlines-${{ matrix.shard }}
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Re-read programs that have no deadline
+        run: npm run robot -- deadlines --parallel 30 --minutes 300 --shard ${{ matrix.shard }}/2
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}

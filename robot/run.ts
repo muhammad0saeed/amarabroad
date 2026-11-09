@@ -21,6 +21,7 @@ import { seedCountry, slugify } from "./seed.ts";
 import { seedTop } from "./seed-top.ts";
 import { interleave, pool, shardOf } from "./pool.ts";
 import { nextCheckHours } from "./schedule.ts";
+import { deadlineCoverage, deadlineTargets } from "./deadlines.ts";
 import { importOfficial } from "./official-data.ts";
 import { updateRates } from "./rates.ts";
 import { checkNews } from "./news.ts";
@@ -38,7 +39,8 @@ const flag = (name: string, fallback?: string) => {
 const today = () => new Date().toISOString().slice(0, 10);
 const log = (...parts: unknown[]) => console.log(new Date().toISOString().slice(11, 19), ...parts);
 /** Version of the reading rules, saved with every extraction so results can be traced to the rules that made them. */
-const RULES_VERSION = "rules-v1";
+// v2 (2026-11-10): deadlines kept without a start month, real calendar days, US month-first dates, more wording.
+const RULES_VERSION = "rules-v2";
 
 async function newProgramSlug(title: string, university: string): Promise<string> {
   const base = slugify(`${title} ${university}`);
@@ -440,8 +442,42 @@ async function tidy() {
   if (mb !== null) log(`Database: ${mb} MB of 500 MB (robot stops adding new pages at ${store.DATABASE_BRAKE_MB} MB).`);
 }
 
+/**
+ * Deadlines first: re-reads, with today's rules, the pages of programs that have no upcoming deadline,
+ * best-ranked universities first (pages are otherwise read again only when they change).
+ *   --parallel 50  --minutes 300  --shard 0/2   as for check
+ */
+async function deadlinesFirst() {
+  const parallel = Number(flag("parallel", "10"));
+  const minutes = Number(flag("minutes", "0"));
+  const stop = minutes > 0 ? Date.now() + minutes * 60_000 : Infinity;
+  const [shard, shards] = (flag("shard", "0/1") ?? "0/1").split("/").map(Number) as [number, number];
+  const before = await retry(() => deadlineCoverage(today()));
+  log(`Deadlines: ${before.withDeadline} of ${before.published} published programs have an upcoming deadline (${before.percent}%)`);
+  const { sources, missing } = await retry(() => deadlineTargets(RULES_VERSION, today()));
+  const mine = sources.filter((s) => shardOf(s.university ?? s.url, shards) === shard);
+  log(`${missing} programs have no upcoming deadline; ${mine.length} pages to re-read in this shard with ${RULES_VERSION}`);
+  const validFields = new Set((await store.fieldList()).map((f) => f.split(":")[0]!));
+  const run = await store.startRun(process.env.GITHUB_ACTIONS ? "schedule" : "manual");
+  const stats: Stats = { pages_checked: 0, pages_changed: 0, changes_applied: 0, changes_held: 0, errors: 0, cost_usd: 0 };
+  // Best-ranked first, but alternating websites inside each slice of 500 so parallel workers stay polite.
+  const ordered = Array.from({ length: Math.ceil(mine.length / 500) }, (_, i) => interleave(mine.slice(i * 500, i * 500 + 500))).flat();
+  await pool(ordered, parallel, stop, async (source) => {
+    try {
+      await checkOne(source, validFields, stats, true);
+    } catch (e) {
+      stats.errors++;
+      await store.markChecked(source, { error: (e instanceof Error ? e.message : String(e)).slice(0, 500) }).catch(() => {});
+    }
+  });
+  await store.finishRun(run, { ...stats, notes: "deadlines first" });
+  const after = await retry(() => deadlineCoverage(today()));
+  log(`Done: ${stats.pages_checked} pages re-read. Deadlines now: ${after.withDeadline} of ${after.published} (${after.percent}%, was ${before.percent}%)`);
+}
+
 const commands: Record<string, () => Promise<void>> = {
   check,
+  deadlines: deadlinesFirst,
   rates: () => updateRates(log),
   "uni-info": uniInfo,
   crosscheck: crossCheckAll,

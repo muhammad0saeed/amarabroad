@@ -83,3 +83,20 @@ describe("when to visit a page next", () => {
     expect(nextCheckHours({ changedNow: false, lastChangedAt: null, deadlines: [], now })).toBe(HOURS.normal);
   });
 });
+
+describe("deadlines first", () => {
+  it("counts only deadlines that are still ahead (a week's grace)", async () => {
+    const { hasUpcomingDeadline } = await import("@/robot/deadlines");
+    expect(hasUpcomingDeadline([{ deadline: "2027-01-15" }], "2026-11-10")).toBe(true);
+    expect(hasUpcomingDeadline([{ deadline: "2026-11-05" }], "2026-11-10")).toBe(true);
+    expect(hasUpcomingDeadline([{ deadline: "2026-10-01" }], "2026-11-10")).toBe(false);
+    expect(hasUpcomingDeadline([], "2026-11-10")).toBe(false);
+    expect(hasUpcomingDeadline(null, "2026-11-10")).toBe(false);
+  });
+
+  it("puts the best-ranked universities first", async () => {
+    const { byRank } = await import("@/robot/deadlines");
+    const rank = new Map([["oxford", 7], ["harvard", 2]]);
+    expect(byRank([{ university: "unranked" }, { university: "oxford" }, { university: "harvard" }], rank).map((r) => r.university)).toEqual(["harvard", "oxford", "unranked"]);
+  });
+});
