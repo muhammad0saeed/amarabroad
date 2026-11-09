@@ -180,3 +180,40 @@ describe("subjects for titles the first TUM run couldn't place", () => {
     expect(subjectOf(title)).toBe(slug);
   });
 });
+
+describe("deadlines: real calendar days, US dates, more wording", () => {
+  const deadlines = (url: string, text: string) => readFacts([{ url, text }], TODAY).intakes.map((i) => i.deadline);
+
+  it("never accepts a day the calendar doesn't have", () => {
+    expect(datesIn("29 February 2027")).toEqual([]);
+    expect(datesIn("31 April 2027")).toEqual([]);
+    expect(datesIn("29 February 2028").map((d) => d.day)).toEqual([29]);
+    // No year: the end of February, the 28th in a year without a 29th.
+    expect(resolveYear({ day: 29, month: 2, year: null, index: 0 }, TODAY)).toBe("2027-02-28");
+  });
+
+  it("reads 03/01/2027 as 1 March on US sites and 3 January elsewhere", () => {
+    expect(deadlines("https://www.example.edu/ms-data", "Application deadline: 03/01/2027")).toEqual(["2027-03-01"]);
+    expect(deadlines("https://www.example.ac.uk/msc-data", "Application deadline: 03/01/2027")).toEqual(["2027-01-03"]);
+    // A part above 12 settles it whatever the site.
+    expect(deadlines("https://www.example.ac.uk/msc-data", "Application deadline: 01/15/2027")).toEqual(["2027-01-15"]);
+  });
+
+  it("knows more ways of saying the last day to apply", () => {
+    expect(deadlines("https://federation.edu.au/msc", "Applications close 21 February 2027.")).toEqual(["2027-02-21"]);
+    expect(deadlines("https://www.uu.se/en/master", "Sista ansökningsdag: 15 januari 2027")).toEqual(["2027-01-15"]);
+    expect(deadlines("https://www.uis.no/en/master", "Søknadsfrist: 01.03.2027")).toEqual(["2027-03-01"]);
+    expect(deadlines("https://www.uc3m.es/master", "Plazo de solicitud: hasta el 30.04.2027")).toEqual(["2027-04-30"]);
+  });
+});
+
+describe("a deadline without a start month is kept", () => {
+  it("estimates the start from the country's usual intakes and says so", () => {
+    const intake = (url: string, text: string) => readFacts([{ url, text }], TODAY).intakes[0];
+    expect(intake("https://www.example.ac.uk/msc", "Application deadline: 15 January 2027")).toMatchObject({ deadline: "2027-01-15", start_month: 9, start_year: 2027, start_estimated: true });
+    expect(intake("https://www.example.edu.au/master", "Applications close 30 November 2026")).toMatchObject({ deadline: "2026-11-30", start_month: 2, start_year: 2027, start_estimated: true });
+    expect(intake("https://www.example.de/msc", "Bewerbungsfrist: 15.07.2027")).toMatchObject({ start_month: 10, start_estimated: true });
+    // A stated start month is used as is, with no estimate flag.
+    expect(intake("https://www.example.ac.uk/msc", "September 2027 entry: application deadline 15 January 2027")?.start_estimated).toBeUndefined();
+  });
+});

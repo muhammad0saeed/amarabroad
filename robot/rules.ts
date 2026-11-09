@@ -112,14 +112,22 @@ interface DateHit {
 }
 
 /** Dates written as 31.05.2027, 31.05., 2027-05-31, 31 May 2027, May 31, 31. Mai, 2027. május 31. */
-export function datesIn(text: string): DateHit[] {
+export function datesIn(text: string, order: DateOrder = "dmy"): DateHit[] {
   const hits: DateHit[] = [];
   const push = (d: number, m: number, y: string | undefined, index: number) => {
-    if (d >= 1 && d <= 31 && m >= 1 && m <= 12) hits.push({ day: d, month: m, year: y ? Number(y.length === 2 ? `20${y}` : y) : null, index });
+    const year = y ? Number(y.length === 2 ? `20${y}` : y) : null;
+    // A real calendar day only: 31 April or 29 February 2027 are typos or misreads, never deadlines.
+    // Without a year, 29 February is allowed here; resolveYear moves it to the 28th in other years.
+    if (m >= 1 && m <= 12 && d >= 1 && d <= daysInMonth(year ?? 2028, m)) hits.push({ day: d, month: m, year, index });
   };
   for (const m of text.matchAll(/\b(\d{4})-(\d{2})-(\d{2})\b/g)) push(Number(m[3]), Number(m[2]), m[1], m.index!);
   for (const m of text.matchAll(/\b(\d{1,2})\.(\d{1,2})\.(\d{4}|\d{2}(?!\d))?/g)) push(Number(m[1]), Number(m[2]), m[3], m.index!);
-  for (const m of text.matchAll(/\b(\d{1,2})\/(\d{1,2})\/(\d{4})\b/g)) push(Number(m[1]), Number(m[2]), m[3], m.index!);
+  // 03/01/2027: 1 March on US pages, 3 January elsewhere. A part above 12 settles it either way.
+  for (const m of text.matchAll(/\b(\d{1,2})\/(\d{1,2})\/(\d{4})\b/g)) {
+    const [a, b] = [Number(m[1]), Number(m[2])];
+    const monthFirst = b > 12 || (a <= 12 && order === "mdy");
+    push(monthFirst ? b : a, monthFirst ? a : b, m[3], m.index!);
+  }
   for (const m of text.matchAll(new RegExp(`\\b(\\d{1,2})(?:st|nd|rd|th)?\\.?\\s+(?:of\\s+)?${MONTH_RE}(?:,?\\s+(\\d{4}))?`, "gi"))) push(Number(m[1]), MONTHS[m[2]!.toLowerCase()]!, m[3], m.index!);
   for (const m of text.matchAll(new RegExp(`\\b${MONTH_RE}\\s+(\\d{1,2})(?:st|nd|rd|th)?\\b(?:,?\\s+(\\d{4}))?`, "gi"))) push(Number(m[2]), MONTHS[m[1]!.toLowerCase()]!, m[3], m.index!);
   for (const m of text.matchAll(new RegExp(`\\b(\\d{4})\\.\\s*${MONTH_RE}\\s*(\\d{1,2})\\.`, "gi"))) push(Number(m[3]), MONTHS[m[2]!.toLowerCase()]!, m[1], m.index!);
@@ -134,8 +142,50 @@ const iso = (y: number, m: number, d: number) => `${y}-${String(m).padStart(2, "
 export function resolveYear(hit: DateHit, today: string): string {
   if (hit.year) return iso(hit.year, hit.month, hit.day);
   const y = Number(today.slice(0, 4));
-  const candidate = iso(y, hit.month, hit.day);
-  return Date.parse(candidate) >= Date.parse(today) - 7 * 86_400_000 ? candidate : iso(y + 1, hit.month, hit.day);
+  // "29 February" with no year means the end of February: the 28th in years without a 29th.
+  const on = (year: number) => iso(year, hit.month, Math.min(hit.day, daysInMonth(year, hit.month)));
+  const candidate = on(y);
+  return Date.parse(candidate) >= Date.parse(today) - 7 * 86_400_000 ? candidate : on(y + 1);
+}
+
+export type DateOrder = "dmy" | "mdy";
+
+/** Months teaching usually starts in a country, from the site's address (used only when the page says nothing). */
+export function usualStartsFor(url: string): number[] {
+  let host = "";
+  try {
+    host = new URL(url).hostname;
+  } catch {
+    return [9];
+  }
+  if (/\.(au|nz)$/.test(host)) return [2, 7];
+  if (/\.jp$/.test(host)) return [4, 10];
+  if (/\.kr$/.test(host)) return [3, 9];
+  if (/\.my$/.test(host)) return [2, 9];
+  if (/\.cn$/.test(host)) return [3, 9];
+  if (/\.(de|at)$/.test(host)) return [4, 10];
+  return [9];
+}
+
+/** The first usual start month after the deadline's month (wrapping into next year). */
+export function nextUsualStart(deadline: string, usual: number[]): number {
+  const m = Number(deadline.slice(5, 7));
+  const sorted = [...usual].sort((a, b) => a - b);
+  return sorted.find((s) => s > m) ?? sorted[0]!;
+}
+
+export function daysInMonth(year: number, month: number): number {
+  return new Date(Date.UTC(year, month, 0)).getUTCDate();
+}
+
+/** US sites write 03/01/2027 for 1 March. Everyone else (Europe, UK, Australia, Asia) writes the day first. */
+export function dateOrderFor(url: string): DateOrder {
+  try {
+    const host = new URL(url).hostname;
+    return /\.(edu|us)$/.test(host) ? "mdy" : "dmy";
+  } catch {
+    return "dmy";
+  }
 }
 
 const WORD_NUMBERS: Record<string, number> = { one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, ten: 10, "one and a half": 1.5 };
@@ -328,7 +378,20 @@ function applicationFee(lines: string[]): ProgramFacts["application_fee"] {
   return null;
 }
 
-const DEADLINE_KEY = /(deadline|application period|application window|application dates|apply (by|until|before|from)|closing date|bewerbungsfrist|bewerbungszeitraum|bewerbungsschluss|scadenza|termine (di|per)|határidő|jelentkezési időszak)/i;
+// Ways universities say "the last day to apply", in our countries' languages. "Applications open…" alone is
+// not one; intakes() skips a single opening date.
+const DEADLINE_KEY = new RegExp(
+  [
+    "deadline", "application period", "application window", "application dates", "apply (by|until|before|from)", "closing date",
+    "applications? (close|closes|closing|due|end|ends)", "applications? (must|should) be (received|submitted)", "submit (your )?applications? (by|before)",
+    "last (date|day) (to|for) (apply|application|submission)", "key dates", "important dates",
+    "bewerbungsfrist", "bewerbungszeitraum", "bewerbungsschluss", "einschreibefrist",
+    "scadenza", "termine (di|per)", "date limite", "délai de candidature", "plazo de (solicitud|inscripci|preinscripci|admisi)",
+    "prazo de candidatura", "uiterste (aanmeld|inschrijf)datum", "aanmelddeadline", "sista ansökningsdag", "ansökningsperiod",
+    "søknadsfrist", "ansøgningsfrist", "hakuaika", "termin (rekrutacji|składania)", "határidő", "jelentkezési időszak", "son başvuru",
+  ].join("|"),
+  "i",
+);
 const START_LABELS: [RegExp, number][] = [
   [/winter\s*semester|wintersemester|wise\b|ws\b/i, 10],
   [/summer\s*semester|sommersemester|sose\b|ss\b/i, 4],
@@ -339,7 +402,8 @@ const START_KEY = /(start|begin|beginn|commence|intake|inizio|kezdés)/i;
 
 function startMonthIn(text: string): number | null {
   for (const [re, month] of START_LABELS) if (re.test(text)) return month;
-  const m = text.match(new RegExp(`${MONTH_RE}\\s*(intake|start|entry)|(starts?|begins?|commences?|intake)[^\\n]{0,30}?${MONTH_RE}`, "i"));
+  // "September intake", "September 2027 entry", "starts in September".
+  const m = text.match(new RegExp(`${MONTH_RE}\\s*(?:\\d{4}\\s*)?(intake|start|entry)|(starts?|begins?|commences?|intake)[^\\n]{0,30}?${MONTH_RE}`, "i"));
   const name = m?.[1] ?? m?.[4];
   return name ? MONTHS[name.toLowerCase()] ?? null : null;
 }
@@ -361,19 +425,19 @@ function programStartIn(lines: string[]): number | null {
   return null;
 }
 
-function intakes(lines: string[], today: string, startFrom: number | null = programStartIn(lines)): ProgramFacts["intakes"] {
+function intakes(lines: string[], today: string, startFrom: number | null = programStartIn(lines), order: DateOrder = "dmy", usualStarts: number[] = [9]): ProgramFacts["intakes"] {
   const programStart = startFrom;
 
   const out: ProgramFacts["intakes"] = [];
   for (let i = 0; i < lines.length; i++) {
     if (!DEADLINE_KEY.test(lines[i]!)) continue;
     for (let j = i; j <= Math.min(i + 5, lines.length - 1); j++) {
-      if (j > i && DEADLINE_KEY.test(lines[j]!) && datesIn(lines[j]!).length === 0) break;
+      if (j > i && DEADLINE_KEY.test(lines[j]!) && datesIn(lines[j]!, order).length === 0) break;
       // Read only up to "Teaching starts…" / "results by…": the dates after it aren't deadlines.
       const cut = lines[j]!.search(NOT_A_DEADLINE);
       if (cut === 0) continue;
       const text = cut > 0 ? lines[j]!.slice(0, cut) : lines[j]!;
-      const dates = datesIn(text);
+      const dates = datesIn(text, order);
       if (!dates.length) continue;
       // "Application period opens 7 January": one date that opens the period isn't its deadline.
       if (dates.length === 1 && /\b(opens|opening|open from|starts on)\b/i.test(text) && !/\b(close|closes|closing|deadline|until|by)\b/i.test(text)) continue;
@@ -382,13 +446,14 @@ function intakes(lines: string[], today: string, startFrom: number | null = prog
       const deadline = resolveYear(last, today);
       // Past deadlines (last year's calendar) say nothing about the next intake.
       if (Date.parse(deadline) < Date.parse(today) - 7 * 86_400_000) continue;
-      const label = startMonthIn(lines[j]!) ?? startMonthIn(lines[i]!) ?? programStart;
-      if (!label) continue;
+      // No start month on the page: keep the deadline (it matters most) and take the country's usual intake after it.
+      const stated = startMonthIn(lines[j]!) ?? startMonthIn(lines[i]!) ?? programStart;
+      const label = stated ?? nextUsualStart(deadline, usualStarts);
       const dl = Date.parse(deadline);
       let year = Number(deadline.slice(0, 4));
       if (Date.parse(iso(year, label, 1)) <= dl) year += 1;
       const context = lines.slice(i, j + 1).join(" ");
-      out.push({ start_month: label, start_year: year, deadline, deadline_for: NON_EU.test(context) ? "non_eu" : EU_ONLY.test(context) ? "eu" : "all", quote: quoteOf(lines, i === j ? j : i, j).slice(0, 220) });
+      out.push({ start_month: label, start_year: year, deadline, deadline_for: NON_EU.test(context) ? "non_eu" : EU_ONLY.test(context) ? "eu" : "all", quote: quoteOf(lines, i === j ? j : i, j).slice(0, 220), ...(stated ? {} : { start_estimated: true }) });
     }
   }
   // One deadline per start month: non-EU first, then the earliest.
@@ -593,11 +658,13 @@ export function readFacts(pages: RulePage[], today: string): ProgramFacts {
   // links to ("How to apply", "Application deadlines"), which many universities use for every program.
   // Other general pages list dates that may not apply (TU Munich's Singapore programs have their own).
   const mainLines = lineWindows(main.text);
-  f.intakes = intakes(mainLines, today);
+  const order = dateOrderFor(main.url);
+  const usual = usualStartsFor(main.url);
+  f.intakes = intakes(mainLines, today, programStartIn(mainLines), order, usual);
   if (!f.intakes.length) {
     const applyPages = pages.slice(1).filter((p) => APPLY_PAGE.test(p.url) && !NOT_APPLY_PAGE.test(p.url));
     const start = programStartIn(mainLines);
-    const found = applyPages.length ? intakes(applyPages.flatMap((p) => lineWindows(p.text)), today, start).filter((x) => !start || x.start_month === start) : [];
+    const found = applyPages.length ? intakes(applyPages.flatMap((p) => lineWindows(p.text)), today, start, order, usual).filter((x) => !start || x.start_month === start) : [];
     // More than 3 dates: a calendar for many programs or terms, not this program's deadline.
     if (found.length <= 3) f.intakes = found;
   }

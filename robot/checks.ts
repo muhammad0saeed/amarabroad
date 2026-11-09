@@ -211,7 +211,7 @@ export function planChanges(old: ProgramRow | null, f: ProgramFacts, today: stri
 
   const intakes = f.intakes
     .filter((i) => i.deadline !== null)
-    .map((i) => ({ month: i.start_month, year: i.start_year, deadline: i.deadline!, quote: i.quote }))
+    .map((i) => ({ month: i.start_month, year: i.start_year, deadline: i.deadline!, quote: i.quote, ...(i.start_estimated ? { estimated: true } : {}) }))
     .sort((a, b) => (a.deadline < b.deadline ? -1 : 1));
   if (intakes.length) {
     const bad = intakes.find((i) => i.month < 1 || i.month > 12 || daysBetween(today, i.deadline) < -7 || daysBetween(today, i.deadline) > 760);

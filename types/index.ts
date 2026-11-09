@@ -145,6 +145,8 @@ export interface Intake {
   year: number;
   /** Application deadline for non-EU applicants. */
   deadline: ISODate;
+  /** The official page gave the deadline but not the start month; month is the country's usual intake. */
+  estimated?: boolean;
 }
 
 /**

@@ -33,7 +33,7 @@ export interface ProgramFacts {
   tuition: { amount_per_year: number; currency: string; applies_to: Applies; quote: string } | null;
   other_fees_per_year: { amount: number; currency: string; quote: string } | null;
   application_fee: { amount: number; currency: string; quote: string } | null;
-  intakes: { start_month: number; start_year: number; deadline: string | null; deadline_for: Applies; quote: string }[];
+  intakes: { start_month: number; start_year: number; deadline: string | null; deadline_for: Applies; quote: string; /** The page gave no start month: it is the country's usual intake after the deadline. */ start_estimated?: boolean }[];
   english_tests: { test: "ielts" | "toefl_ibt" | "pte" | "duolingo"; min_score: number; quote: string }[];
   accepts_moi: Fact<boolean> | null;
   accepts_3yr_bachelor: Fact<boolean> | null;
