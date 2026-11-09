@@ -387,10 +387,17 @@ export default async function ProgramPage({ params }: Props) {
             <li key={i.deadline}>
               <Card className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <p className="font-semibold">{t("intakeStarts", { month: formatMonthYear(i.month, i.year, L) })}</p>
+                  <p className="font-semibold">{t(i.estimated ? "intakeStartsEstimated" : "intakeStarts", { month: formatMonthYear(i.month, i.year, L) })}</p>
                   <p className="mt-0.5 flex flex-wrap items-center gap-2 text-meta text-ink-muted">
                     {t("applyBy", { date: formatDate(i.deadline, L) })} <DaysLeft date={i.deadline} />
                   </p>
+                  {/* Never shown as the program's own: the program page states none, the university's general page does. */}
+                  {i.university_wide && (
+                    <p className="mt-1.5 max-w-prose text-meta text-ink-muted">
+                      <span className="font-semibold text-ink">{t("universityWideTitle")}</span> {t("universityWideNote")}{" "}
+                      {i.source_url && <ExternalLink href={i.source_url}>{t("universityWideLink")}</ExternalLink>}
+                    </p>
+                  )}
                 </div>
                 <AddToCalendar
                   fileSlug={`${p.slug}-${i.year}-${i.month}`}

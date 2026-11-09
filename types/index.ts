@@ -147,6 +147,10 @@ export interface Intake {
   deadline: ISODate;
   /** The official page gave the deadline but not the start month; month is the country's usual intake. */
   estimated?: boolean;
+  /** The program page states no deadline: this is the university's general deadline (labelled on the site). */
+  university_wide?: boolean;
+  /** The general page the university-wide deadline came from. */
+  source_url?: string;
 }
 
 /**

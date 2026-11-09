@@ -215,7 +215,8 @@ export function planChanges(old: ProgramRow | null, f: ProgramFacts, today: stri
     .sort((a, b) => (a.deadline < b.deadline ? -1 : 1));
   if (intakes.length) {
     const bad = intakes.find((i) => i.month < 1 || i.month > 12 || daysBetween(today, i.deadline) < -7 || daysBetween(today, i.deadline) > 760);
-    const value = intakes.map(({ month, year, deadline }) => ({ month, year, deadline }));
+    // A program's own deadline always replaces a university-wide fallback (which carries university_wide: true).
+    const value = intakes.map(({ month, year, deadline, estimated }) => ({ month, year, deadline, ...(estimated ? { estimated: true } : {}) }));
     propose("intakes", value, intakes.map((i) => i.quote).join(" / "), bad ? `deadline ${bad.deadline} is in the past or too far ahead` : null);
   }
 

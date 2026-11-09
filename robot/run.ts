@@ -21,7 +21,7 @@ import { seedCountry, slugify } from "./seed.ts";
 import { seedTop } from "./seed-top.ts";
 import { interleave, pool, shardOf } from "./pool.ts";
 import { nextCheckHours } from "./schedule.ts";
-import { deadlineCoverage, deadlineTargets } from "./deadlines.ts";
+import { applyUniversityFallbacks, deadlineCoverage, deadlineTargets } from "./deadlines.ts";
 import { importOfficial } from "./official-data.ts";
 import { updateRates } from "./rates.ts";
 import { checkNews } from "./news.ts";
@@ -475,9 +475,21 @@ async function deadlinesFirst() {
   log(`Done: ${stats.pages_checked} pages re-read. Deadlines now: ${after.withDeadline} of ${after.published} (${after.percent}%, was ${before.percent}%)`);
 }
 
+/** University-wide deadlines as labelled fallbacks for programs whose page states none. --dry: only count. */
+async function uniDeadlines() {
+  const dry = rest.includes("--dry");
+  const r = await retry(() => applyUniversityFallbacks(today(), dry));
+  log(`${dry ? "Would give" : "Gave"} ${r.added} programs their university's general deadline (${r.universities} universities); ${r.refreshed} refreshed, ${r.removed} removed`);
+  if (!dry) {
+    const c = await retry(() => deadlineCoverage(today()));
+    log(`Deadlines now: ${c.withDeadline} of ${c.published} published programs (${c.percent}%)`);
+  }
+}
+
 const commands: Record<string, () => Promise<void>> = {
   check,
   deadlines: deadlinesFirst,
+  "uni-deadlines": uniDeadlines,
   rates: () => updateRates(log),
   "uni-info": uniInfo,
   crosscheck: crossCheckAll,

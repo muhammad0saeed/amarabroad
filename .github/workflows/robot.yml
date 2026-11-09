@@ -8,7 +8,8 @@
 #                                           then each again every 30 days; adds the next 500 by rank when few are left
 #   info      2 jobs: the gap-filler, universities' general pages (fees, deadlines, English, documents),
 #                                           then the cross-checker (program pages vs those general pages)
-#   deadlines 2 jobs × 30 websites: programs with no upcoming deadline re-read with the latest rules, best ranked first
+#   deadlines 2 jobs × 30 websites: programs with no upcoming deadline re-read with the latest rules, best ranked first;
+#                                           university-wide deadlines (strict filter) as labelled fallbacks for programs whose page states none
 #   rates     every shift: exchange rates to taka for every currency (free public-domain dataset)
 #   extras    every shift: scholarship rounds (official pages), news links (official and education-news feeds;
 #                                           expired and dead links removed), tidying the change log
@@ -126,6 +127,13 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
+      - name: University-wide deadlines as labelled fallbacks (strict filter)
+        if: matrix.shard == 0
+        continue-on-error: true
+        run: npm run robot -- uni-deadlines
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
       - name: Re-read programs that have no deadline
         run: npm run robot -- deadlines --parallel 30 --minutes 300 --shard ${{ matrix.shard }}/2
         env:

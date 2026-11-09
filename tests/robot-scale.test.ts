@@ -100,3 +100,47 @@ describe("deadlines first", () => {
     expect(byRank([{ university: "unranked" }, { university: "oxford" }, { university: "harvard" }], rank).map((r) => r.university)).toEqual(["harvard", "oxford", "unranked"]);
   });
 });
+
+describe("university-wide fallback deadlines", () => {
+  const fact = (quote: string, deadline: string, extra: Partial<{ level: "bachelor" | "master" | null; for: string; source_url: string }> = {}) => ({
+    university: "u",
+    level: extra.level ?? null,
+    value: { deadline, for: extra.for ?? "all" },
+    quote,
+    source_url: extra.source_url ?? "https://www.example.ac.uk/apply",
+  });
+
+  it("accepts only plain, general application deadlines", async () => {
+    const { isGeneralApplicationDeadline: ok } = await import("@/robot/deadlines");
+    expect(ok("For 2027 entry, the closing date for receipt of applications is 13 January 2027 at 6pm")).toBe(true);
+    expect(ok("• Application deadline: 15 January 2027")).toBe(true);
+    expect(ok("Deadline: November 15")).toBe(true);
+    // money, after admission, other students, not final, one program, not a deadline
+    expect(ok("November 15 Deadline to submit the CSS Financial Aid/PROFILE and FAFSA")).toBe(false);
+    expect(ok("Deadline to accept fall offer of admission dated April 1")).toBe(false);
+    expect(ok("Academic appeal deadline: April 1")).toBe(false);
+    expect(ok("Fall 2027 Transfer Admissions Application deadline December 11")).toBe(false);
+    expect(ok("Nov. 15 - Early Action Deadline")).toBe(false);
+    expect(ok("Application deadline for Engineering programs (excluding Architecture) – January 15")).toBe(false);
+    expect(ok("Term 2 application closing dates With credit: 3 February 2027 Teaching starts: 8 March 2027")).toBe(false);
+    expect(ok("Please refer to the specific programs for information on application deadlines")).toBe(false);
+  });
+
+  it("estimates the start month, prefers the program's level, and skips unclear calendars", async () => {
+    const { fallbackFor } = await import("@/robot/deadlines");
+    const today = "2026-11-10";
+    expect(fallbackFor([fact("Application deadline: 30 November 2026", "2026-11-30", { source_url: "https://www.uts.edu.au/apply" })], "master", today)).toMatchObject([
+      { deadline: "2026-11-30", month: 2, year: 2027, estimated: true, university_wide: true },
+    ]);
+    // A bachelor-only page beats a page for both levels.
+    const both = [fact("Application deadline: 15 January 2027", "2027-01-15", { level: "bachelor" }), fact("Application deadline: 1 March 2027", "2027-03-01")];
+    expect(fallbackFor(both, "bachelor", today).map((i) => i.deadline)).toEqual(["2027-01-15"]);
+    expect(fallbackFor(both, "master", today).map((i) => i.deadline)).toEqual(["2027-03-01"]);
+    // North America: "spring/winter" is a January start; a sentence with both fall and spring is skipped.
+    expect(fallbackFor([fact("• Nov. 15 : General application deadline for Winter term", "2026-11-15", { source_url: "https://www.unb.ca/apply" })], "master", today)[0]).toMatchObject({ month: 1, year: 2027 });
+    expect(fallbackFor([fact("Application Deadlines • Fall Semester: June 30 • Spring Semester: November 30", "2026-11-30", { source_url: "https://www.wright.edu/apply" })], "master", today)).toEqual([]);
+    // EU-only and past deadlines are never used.
+    expect(fallbackFor([fact("Application deadline: 15 January 2027", "2027-01-15", { for: "eu" })], "master", today)).toEqual([]);
+    expect(fallbackFor([fact("Application deadline: 1 October 2026", "2026-10-01")], "master", today)).toEqual([]);
+  });
+});
