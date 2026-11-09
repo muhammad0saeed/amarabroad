@@ -26,36 +26,41 @@ async function withRetry<T>(label: string, run: () => Promise<T>): Promise<T> {
   }
 }
 
-/** Slices of published programs: 900 per slice leaves room for programs published since the bounds were read. */
-const SLICE = 900;
+/**
+ * Lanes of the program list by slug, read side by side. The split only balances the work (most slugs
+ * start with "bachelor-of-" or "master-of-"); every lane is read to its end, so nothing is ever skipped.
+ */
+const LANES = ["", "bachelor-of-c", "bachelor-of-i", "bachelor-of-n", "bachelor-of-s", "c", "g", "master-of-a", "master-of-e", "master-of-m", "master-of-s", "n"];
 
 /**
- * All published programs, read slice by slice between slugs (supabase/18_catalog_ranges.sql). Unlike
- * reading page 8 with OFFSET 7000, every slice is a short index read, so none hits the database's
- * 8-second limit while the robots keep it busy. Falls back to pages when the function isn't there.
+ * All published programs. Each lane is read 1,000 at a time, every request continuing after the last slug
+ * it got ("slug > last", a short index read). Reading page 8 with OFFSET 7000 instead made the database walk
+ * past 7,000 programs first, which went over its 8-second limit while the robots kept it busy and failed
+ * deploys (supabase/18_catalog_ranges.sql adds the index this uses).
  */
-async function allPublishedPrograms<T>(columns: string): Promise<T[]> {
+async function allPublishedPrograms<T extends Record<string, unknown>>(columns: string): Promise<T[]> {
   const db = serviceClient();
-  const bounds = await withRetry("program slices", async () => {
-    const { data, error } = await db.rpc("catalog_slug_bounds", { p_size: SLICE });
-    if (error) throw new Error(`Supabase program slices: ${error.message}`);
-    return (data ?? []) as string[];
-  }).catch(() => null);
-  if (!bounds) return all<T>("programs", columns, ((q: { eq: (c: string, v: unknown) => unknown }) => q.eq("published", true)) as never);
-  const slice = (i: number) =>
-    withRetry(`programs slice ${i + 1}`, async () => {
-      let query = db.from("programs").select(columns).eq("published", true).gte("slug", bounds[i]!).order("slug").limit(PAGE);
-      if (i + 1 < bounds.length) query = query.lt("slug", bounds[i + 1]!);
-      const { data, error } = await query;
-      if (error) throw new Error(`Supabase programs: ${error.message}`);
-      return (data ?? []) as T[];
-    });
-  const rows: T[] = [];
-  for (let first = 0; first < bounds.length; first += PARALLEL) {
-    const parts = await Promise.all(bounds.slice(first, first + PARALLEL).map((_, k) => slice(first + k)));
-    for (const p of parts) rows.push(...p);
-  }
-  return rows;
+  const lane = async (i: number): Promise<T[]> => {
+    const end = LANES[i + 1];
+    const out: T[] = [];
+    let after: string | null = null;
+    for (;;) {
+      const from = after;
+      const part = await withRetry(`programs lane ${i + 1}`, async () => {
+        let query = db.from("programs").select(columns).eq("published", true).order("slug").limit(PAGE);
+        query = from === null ? query.gte("slug", LANES[i]!) : query.gt("slug", from);
+        if (end) query = query.lt("slug", end);
+        const { data, error } = await query;
+        if (error) throw new Error(`Supabase programs: ${error.message}`);
+        return (data ?? []) as unknown as T[];
+      });
+      out.push(...part);
+      if (part.length < PAGE) return out;
+      after = part.at(-1)!.slug as string;
+    }
+  };
+  const lanes = await Promise.all(LANES.map((_, i) => lane(i)));
+  return lanes.flat();
 }
 
 /** Reads every row of a table, 1,000 at a time (Supabase's per-request limit), several pages at once. */

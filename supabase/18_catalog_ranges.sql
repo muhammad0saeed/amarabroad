@@ -1,7 +1,7 @@
--- Loading the program list in slices without OFFSET. With OFFSET, the 8th slice of 1,000 made the database
--- walk past 7,000 programs first; while the robots kept it busy, that went over the 8-second limit for
--- website requests and failed deploys. Now one call returns where each slice starts, and each slice is
--- read straight from the index. Run after 17_country_guides_content.sql.
+-- The program list is read without OFFSET: lib/supabase/catalog.ts reads lanes of slugs, each request
+-- continuing after the last slug ("slug > last"), using this index. With OFFSET, page 8 (OFFSET 7000) went over
+-- the database's 8-second limit while the robots kept it busy and failed deploys.
+-- catalog_slug_bounds is no longer used by the site (it was too slow under load). Run after 17_country_guides_content.sql.
 
 create index if not exists programs_published_slug_idx on public.programs (slug) where published;
 
