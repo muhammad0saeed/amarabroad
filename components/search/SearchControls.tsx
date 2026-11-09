@@ -3,6 +3,7 @@
 // Search bar, the phone filter sheet, sort menu and removable chips for every active filter.
 
 import { useLocale, useTranslations } from "next-intl";
+import { languageName } from "@/lib/language";
 import { useState } from "react";
 import { Icon } from "@/components/icons";
 import { BottomSheet } from "@/components/ui/BottomSheet";
@@ -133,7 +134,7 @@ export function ActiveFilters() {
     ...(f.level ? [{ key: "level", label: labels(`level.${f.level}`), remove: { level: null } }] : []),
     ...f.fieldGroups.map((v) => ({ key: `a-${v}`, label: t(`areas.${v}`), remove: { fieldGroups: without(f.fieldGroups, v) } })),
     ...f.fields.map((v) => ({ key: `f-${v}`, label: nm(options.fields.find((x) => x.slug === v)) || v, remove: { fields: without(f.fields, v) } })),
-    ...f.languages.map((v) => ({ key: `l-${v}`, label: labels(`lang.${v}`), remove: { languages: without(f.languages, v) } })),
+    ...f.languages.map((v) => ({ key: `l-${v}`, label: languageName(labels, v, locale), remove: { languages: without(f.languages, v) } })),
     ...f.durations.map((v) => ({ key: `d-${v}`, label: t(`dur.${v}`), remove: { durations: without(f.durations, v) } })),
     ...(f.maxBudgetLakh !== null ? [{ key: "budget", label: t("underLakh", { amount: d(f.maxBudgetLakh) }), remove: { maxBudgetLakh: null } }] : []),
     ...(f.maxTuitionLakh !== null ? [{ key: "tuition", label: t("tuitionUnder", { amount: d(f.maxTuitionLakh) }), remove: { maxTuitionLakh: null } }] : []),

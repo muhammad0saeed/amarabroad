@@ -24,10 +24,13 @@ export default async function CountriesPage({ params }: LocaleParams) {
     <>
       <BrowseHeader tab="countries" title={t("countriesTitle")} subtitle={t("countriesSubtitle")} />
       <ul className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {countries.map((c) => {
+        {[...countries].sort((a, b) => programs.filter((p) => p.country.slug === b.slug).length - programs.filter((p) => p.country.slug === a.slug).length).map((c) => {
           const inCountry = programs.filter((p) => p.country.slug === c.slug);
           const unis = universities.filter((u) => cityCountry[u.city] === c.slug).length;
-          const cityNames = cities.filter((x) => x.country === c.slug).map((x) => (locale === "bn" ? x.name_bn : x.name_en));
+          // Only cities that have programs, up to 6 (the database also holds every city the robot will search later).
+          const withPrograms = new Set(inCountry.map((p) => p.city.slug));
+          const names = cities.filter((x) => x.country === c.slug && withPrograms.has(x.slug)).map((x) => (locale === "bn" ? x.name_bn : x.name_en));
+          const cityNames = names.length > 6 ? [...names.slice(0, 6), `+${names.length - 6}`] : names;
           return (
             <li key={c.slug}>
               <PlaceCard

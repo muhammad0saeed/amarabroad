@@ -5,6 +5,7 @@
 // Desktop shows it as a sidebar; phones open the same panel in a bottom sheet.
 
 import { useLocale, useTranslations } from "next-intl";
+import { languageName } from "@/lib/language";
 import { useId, useState, type ReactNode } from "react";
 import { GROUP_ICON, Icon } from "@/components/icons";
 import {
@@ -117,7 +118,7 @@ export function FilterPanel() {
         <Chips legend={t("language")}>
           {languages.map((lang) => (
             <Chip key={lang} pressed={f.languages.includes(lang)} count={n(facets.languages[lang])} onClick={() => update({ languages: toggle(f.languages, lang) })}>
-              {labels(`lang.${lang}`)}
+              {languageName(labels, lang, locale)}
             </Chip>
           ))}
         </Chips>

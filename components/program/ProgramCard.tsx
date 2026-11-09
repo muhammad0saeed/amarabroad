@@ -1,4 +1,5 @@
 import { useLocale, useTranslations } from "next-intl";
+import { languageName } from "@/lib/language";
 import type { ReactNode } from "react";
 import { GROUP_ICON, Icon } from "@/components/icons";
 import { NextDeadline } from "@/components/ui/NextDeadline";
@@ -107,7 +108,7 @@ export function ProgramCard({
           <div>
             <dt className="text-ink-muted">{p.language === "en" || p.language === null ? "IELTS" : t("teaching")}</dt>
             <dd className="font-semibold">
-              {p.language === "en" || p.language === null ? ielts ? localizeDigits(String(ielts.min_score), locale) : <NotFound /> : labels(`lang.${p.language}`)}
+              {p.language === "en" || p.language === null ? ielts ? localizeDigits(String(ielts.min_score), locale) : <NotFound /> : languageName(labels, p.language, locale)}
             </dd>
           </div>
         </dl>

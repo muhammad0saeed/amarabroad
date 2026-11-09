@@ -1,6 +1,7 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
+import { languageName } from "@/lib/language";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 import { FitBadge } from "@/components/fit/FitScore";
@@ -86,7 +87,7 @@ export function CompareView({ fitContext }: { fitContext: FitContext }) {
     [t("row.place"), (x) => `${name(x.city)}, ${name(x.country)}`],
     [t("row.level"), (x) => labels(`level.${x.degree_level}`)],
     [t("row.duration"), (x) => (x.duration_months === null ? <NotFound /> : p("months", { count: x.duration_months }))],
-    [t("row.language"), (x) => (x.language === null ? <NotFound /> : labels(`lang.${x.language}`))],
+    [t("row.language"), (x) => (x.language === null ? <NotFound /> : languageName(labels, x.language, locale))],
     [
       t("row.tuition"),
       (x) =>
