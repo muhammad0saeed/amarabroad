@@ -124,7 +124,49 @@ export interface Catalog {
   degreeMappings: DegreeMapping[];
 }
 
+/**
+ * During a build, many worker processes render pages at once and each would load the whole catalogue (15
+ * workers x 12 lanes of requests swamped the small database and timed out). The first worker loads it and
+ * saves it to a file; the others wait for that file and read it. Outside builds this does nothing.
+ */
 export async function loadCatalogFromSupabase(): Promise<Catalog> {
+  if (process.env.NEXT_PHASE !== "phase-production-build") return loadCatalogNow();
+  const { mkdir, open, readFile, rename, rm, stat, writeFile } = await import("node:fs/promises");
+  const dir = `${process.cwd()}/.next/cache`;
+  // One file per build: the workers share their parent build process (or the Vercel deployment); the build
+  // cache restored from an earlier deploy never feeds old data into a new one.
+  const file = `${dir}/amar-catalog-${process.env.VERCEL_DEPLOYMENT_ID ?? process.ppid}.json`;
+  const lock = `${file}.lock`;
+  const fresh = async () => ((await stat(file).catch(() => null))?.mtimeMs ?? 0) > Date.now() - 15 * 60_000;
+  const read = async () => JSON.parse(await readFile(file, "utf8")) as Catalog;
+  await mkdir(dir, { recursive: true });
+  if (await fresh()) return read();
+  const mine = await open(lock, "wx").then((h) => h.close().then(() => true)).catch(() => false);
+  if (mine) {
+    try {
+      const catalog = await loadCatalogNow();
+      await writeFile(`${file}.tmp`, JSON.stringify(catalog));
+      await rename(`${file}.tmp`, file);
+      // Earlier builds' copies (kept in the build cache) aren't needed any more.
+      const { readdir } = await import("node:fs/promises");
+      for (const old of await readdir(dir).catch(() => [] as string[])) {
+        if (old.startsWith("amar-catalog-") && `${dir}/${old}` !== file && !old.endsWith(".lock")) await rm(`${dir}/${old}`, { force: true });
+      }
+      return catalog;
+    } finally {
+      await rm(lock, { force: true });
+    }
+  }
+  // Another worker is loading it: wait up to 3 minutes for the file (or load ourselves if it gave up).
+  for (let waited = 0; waited < 180_000; waited += 1000) {
+    await new Promise((r) => setTimeout(r, 1000));
+    if (await fresh()) return read();
+    if (!(await stat(lock).catch(() => null))) break;
+  }
+  return loadCatalogNow();
+}
+
+async function loadCatalogNow(): Promise<Catalog> {
   const published = (q: { eq: (c: string, v: unknown) => unknown }) => q.eq("published", true);
   const [countries, cities, universities, programs, scholarships, exchangeRates, glossary, fields, degreeMappings] = await Promise.all([
     all<Record<string, unknown>>("countries"),
