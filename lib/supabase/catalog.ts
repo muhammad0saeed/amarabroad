@@ -11,6 +11,53 @@ const PAGE = 1000;
 /** Pages of one table read at the same time (one after another took 13 s for 18,000 programs). */
 const PARALLEL = 8;
 
+// A busy database (the robots writing) sometimes drops or times out a request; try it up to 6 times
+// over about 45 seconds before giving up, so a busy moment doesn't fail a deploy or a refresh.
+const WAITS = [1, 3, 6, 12, 20];
+async function withRetry<T>(label: string, run: () => Promise<T>): Promise<T> {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      return await run();
+    } catch (e) {
+      if (attempt >= WAITS.length) throw e;
+      console.warn(`${e instanceof Error ? e.message : String(e)} (${label}); trying again in ${WAITS[attempt]} s`);
+      await new Promise((r) => setTimeout(r, WAITS[attempt]! * 1000));
+    }
+  }
+}
+
+/** Slices of published programs: 900 per slice leaves room for programs published since the bounds were read. */
+const SLICE = 900;
+
+/**
+ * All published programs, read slice by slice between slugs (supabase/18_catalog_ranges.sql). Unlike
+ * reading page 8 with OFFSET 7000, every slice is a short index read, so none hits the database's
+ * 8-second limit while the robots keep it busy. Falls back to pages when the function isn't there.
+ */
+async function allPublishedPrograms<T>(columns: string): Promise<T[]> {
+  const db = serviceClient();
+  const bounds = await withRetry("program slices", async () => {
+    const { data, error } = await db.rpc("catalog_slug_bounds", { p_size: SLICE });
+    if (error) throw new Error(`Supabase program slices: ${error.message}`);
+    return (data ?? []) as string[];
+  }).catch(() => null);
+  if (!bounds) return all<T>("programs", columns, ((q: { eq: (c: string, v: unknown) => unknown }) => q.eq("published", true)) as never);
+  const slice = (i: number) =>
+    withRetry(`programs slice ${i + 1}`, async () => {
+      let query = db.from("programs").select(columns).eq("published", true).gte("slug", bounds[i]!).order("slug").limit(PAGE);
+      if (i + 1 < bounds.length) query = query.lt("slug", bounds[i + 1]!);
+      const { data, error } = await query;
+      if (error) throw new Error(`Supabase programs: ${error.message}`);
+      return (data ?? []) as T[];
+    });
+  const rows: T[] = [];
+  for (let first = 0; first < bounds.length; first += PARALLEL) {
+    const parts = await Promise.all(bounds.slice(first, first + PARALLEL).map((_, k) => slice(first + k)));
+    for (const p of parts) rows.push(...p);
+  }
+  return rows;
+}
+
 /** Reads every row of a table, 1,000 at a time (Supabase's per-request limit), several pages at once. */
 async function all<T>(table: string, columns = "*", filter?: (q: ReturnType<ReturnType<typeof serviceClient>["from"]>["select"]) => unknown): Promise<T[]> {
   const db = serviceClient();
@@ -22,20 +69,7 @@ async function all<T>(table: string, columns = "*", filter?: (q: ReturnType<Retu
     if (error) throw new Error(`Supabase ${table}: ${error.message}`);
     return (data ?? []) as T[];
   };
-  // A busy database (the robots writing) sometimes drops or times out a request; try a page up to
-  // 6 times over about 45 seconds before giving up, so a busy moment doesn't fail a deploy or a refresh.
-  const WAITS = [1, 3, 6, 12, 20];
-  const page = async (n: number): Promise<T[]> => {
-    for (let attempt = 0; ; attempt++) {
-      try {
-        return await once(n);
-      } catch (e) {
-        if (attempt >= WAITS.length) throw e;
-        console.warn(`${e instanceof Error ? e.message : String(e)} (page ${n + 1}); trying again in ${WAITS[attempt]} s`);
-        await new Promise((r) => setTimeout(r, WAITS[attempt]! * 1000));
-      }
-    }
-  };
+  const page = (n: number) => withRetry(`page ${n + 1}`, () => once(n));
   const rows: T[] = [];
   for (let first = 0; ; first += PARALLEL) {
     const pages = await Promise.all(Array.from({ length: PARALLEL }, (_, i) => page(first + i)));
@@ -91,7 +125,7 @@ export async function loadCatalogFromSupabase(): Promise<Catalog> {
     all<Record<string, unknown>>("countries"),
     all<Record<string, unknown>>("cities"),
     all<Record<string, unknown>>("universities"),
-    all<Record<string, unknown>>("programs", LIST_COLUMNS, published as never),
+    allPublishedPrograms<Record<string, unknown>>(LIST_COLUMNS),
     all<Record<string, unknown>>("scholarships", "*", published as never),
     all<Record<string, unknown>>("exchange_rates", "*", published as never),
     all<Record<string, unknown>>("glossary_terms", "*", published as never),
