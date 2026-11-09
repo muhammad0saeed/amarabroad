@@ -28,6 +28,7 @@ import { checkScholarships } from "./scholarships.ts";
 import { subjectOf } from "./rules.ts";
 import { readUniversityInfo } from "./university-info.ts";
 import { crossCheck } from "../lib/crosscheck.ts";
+import { exportCatalog } from "./export-catalog.ts";
 
 const [command, ...rest] = process.argv.slice(2);
 const flag = (name: string, fallback?: string) => {
@@ -459,6 +460,7 @@ const commands: Record<string, () => Promise<void>> = {
   grow,
   add,
   seed: () => seedCountry(rest[0] ?? "", Number(flag("limit", "30"))),
+  "export-catalog": () => exportCatalog(rest[0] ?? "catalog.json.gz"),
   "seed-top": () => seedTop({ total: Number(flag("total", "5000")), floor: Number(flag("floor", "50")), fresh: rest.includes("--fresh"), dry: rest.includes("--dry") }),
 };
 // GitHub turns output lines starting with "::error" / "::warning" into notes on the run page that anyone can

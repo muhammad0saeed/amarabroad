@@ -1,0 +1,39 @@
+# Packs the published catalogue into one file for the website, every 30 minutes (robot/export-catalog.ts).
+# The site downloads it from this repository's "catalog" release instead of reading ~25,000 programs from the
+# database on every server start, so visitors never wait on a database the robots are busy with.
+name: Site data file
+
+on:
+  schedule:
+    - cron: "10,40 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write # to replace the file on the "catalog" release
+
+concurrency:
+  group: site-data-file
+  cancel-in-progress: false
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Pack the catalogue
+        run: npm run robot -- export-catalog catalog.json.gz
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+      - name: Publish it for the website
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view catalog >/dev/null 2>&1 || gh release create catalog --title "Site data (updated every 30 minutes)" --notes "Packed catalogue the website reads. Replaced automatically; do not delete." --latest=false
+          gh release upload catalog catalog.json.gz --clobber
