@@ -68,7 +68,8 @@
     "privacyLink": "Privacy",
     "reportProblem": "Report a problem",
     "about": "About {name}",
-    "live": "Program facts are read automatically from each university's own website and checked daily. Each fact links to its source."
+    "live": "Program facts are read automatically from each university's own website and checked daily. Each fact links to its source.",
+    "credits": "Photo credits"
   },
   "home": {
     "freshness": "Updated by our robot {time} (Dhaka time) · {count} new programs this week",
@@ -1060,5 +1061,10 @@
       "work": "Work",
       "cost": "Costs"
     }
+  },
+  "credits": {
+    "title": "Photo credits",
+    "subtitle": "The photographers whose work appears on this site. Each name links to the original photo and its licence.",
+    "note": "Photos from Wikimedia Commons are used under the Creative Commons licence shown; photos from Pexels under the Pexels License. They are resized for this site."
   }
 }

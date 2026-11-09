@@ -1,0 +1,103 @@
+{
+  "_about": "Photos for countries without a written guide yet (guides keep theirs in data/country-guides.json). Free licences; each credit is shown on the page with a link to the original.",
+  "austria": {
+    "src": "/photos/austria.webp",
+    "credit": "Diego Delso, CC BY-SA 4.0, via Wikimedia Commons",
+    "source_url": "https://commons.wikimedia.org/wiki/File:Iglesia_de_San_Carlos_Borromeo,_Viena,_Austria,_2020-01-31,_DD_164-166_HDR.jpg"
+  },
+  "china": {
+    "src": "/photos/china.webp",
+    "credit": "King of Hearts, CC BY-SA 4.0, via Wikimedia Commons",
+    "source_url": "https://commons.wikimedia.org/wiki/File:Pudong_Shanghai_November_2017_panorama.jpg"
+  },
+  "cyprus": {
+    "src": "/photos/cyprus.webp",
+    "credit": "Anatoliy Smaga, CC BY-SA 4.0, via Wikimedia Commons",
+    "source_url": "https://commons.wikimedia.org/wiki/File:Boats_in_Paphos_harbour_2.JPG"
+  },
+  "czech-republic": {
+    "src": "/photos/czech-republic.webp",
+    "credit": "Tiia Monto, CC BY-SA 4.0, via Wikimedia Commons",
+    "source_url": "https://commons.wikimedia.org/wiki/File:Charles_Bridge_-_panorama_2.jpg"
+  },
+  "denmark": {
+    "src": "/photos/denmark.webp",
+    "credit": "OleNeitzel, CC BY 4.0, via Wikimedia Commons",
+    "source_url": "https://commons.wikimedia.org/wiki/File:Nyhavn_houses_and_boats.jpg"
+  },
+  "estonia": {
+    "src": "/photos/estonia.webp",
+    "credit": "Smiley.toerist, CC BY-SA 4.0, via Wikimedia Commons",
+    "source_url": "https://commons.wikimedia.org/wiki/File:Tallinn_panorama_2003_4.jpg"
+  },
+  "hungary": {
+    "src": "/photos/hungary.webp",
+    "credit": "Pexels",
+    "source_url": "https://www.pexels.com/photo/scenic-view-of-esztergom-by-the-danube-river-38440205/"
+  },
+  "italy": {
+    "src": "/photos/italy.webp",
+    "credit": "Pexels",
+    "source_url": "https://www.pexels.com/photo/aerial-view-of-florence-with-historic-architecture-31357708/"
+  },
+  "japan": {
+    "src": "/photos/japan.webp",
+    "credit": "Fred Cherrygarden, CC BY-SA 4.0, via Wikimedia Commons",
+    "source_url": "https://commons.wikimedia.org/wiki/File:A_View_of_Mount_Fuji_from_Ichikawa.jpg"
+  },
+  "latvia": {
+    "src": "/photos/latvia.webp",
+    "credit": "Dmitrijs Purgalvis, CC BY 3.0, via Wikimedia Commons",
+    "source_url": "https://commons.wikimedia.org/wiki/File:Riga_skyline_-_panoramio_(1).jpg"
+  },
+  "lithuania": {
+    "src": "/photos/lithuania.webp",
+    "credit": "Abrget47j, CC BY-SA 3.0, via Wikimedia Commons",
+    "source_url": "https://commons.wikimedia.org/wiki/File:VilniusCathedral_square_2014.jpg"
+  },
+  "malaysia": {
+    "src": "/photos/malaysia.webp",
+    "credit": "James Kerwin from Tbilisi, CC BY 2.0, via Wikimedia Commons",
+    "source_url": "https://commons.wikimedia.org/wiki/File:The_Twins_SE_Asia_2019_(49171985716).jpg"
+  },
+  "malta": {
+    "src": "/photos/malta.webp",
+    "credit": "MrPanyGoff, CC BY-SA 3.0, via Wikimedia Commons",
+    "source_url": "https://commons.wikimedia.org/wiki/File:Grand_Harbour_-_Senglea.jpg"
+  },
+  "norway": {
+    "src": "/photos/norway.webp",
+    "credit": "kallerna, CC BY-SA 4.0, via Wikimedia Commons",
+    "source_url": "https://commons.wikimedia.org/wiki/File:Oslo_Opera_House_2023_1.jpg"
+  },
+  "poland": {
+    "src": "/photos/poland.webp",
+    "credit": "Ingo Mehling, CC BY-SA 4.0, via Wikimedia Commons",
+    "source_url": "https://commons.wikimedia.org/wiki/File:Wawel_-_Castle_from_Sandomierz_Tower.jpg"
+  },
+  "portugal": {
+    "src": "/photos/portugal.webp",
+    "credit": "Jakub Hałun, CC BY 4.0, via Wikimedia Commons",
+    "source_url": "https://commons.wikimedia.org/wiki/File:View_of_Ribeira_from_Cais_de_Gaia,_20250605_1628_9890.jpg"
+  },
+  "south-korea": {
+    "src": "/photos/south-korea.webp",
+    "credit": "Frank Schulenburg, CC BY-SA 4.0, via Wikimedia Commons",
+    "source_url": "https://commons.wikimedia.org/wiki/File:Gyeonghoeru_(Royal_Banquet_Hall)_at_Gyeongbokgung_Palace,_Seoul.jpg"
+  },
+  "spain": {
+    "src": "/photos/spain.webp",
+    "credit": "Anual, CC BY-SA 4.0, via Wikimedia Commons",
+    "source_url": "https://commons.wikimedia.org/wiki/File:Plaza_mayor_salamanca_2011001.jpg"
+  },
+  "sweden": {
+    "src": "/photos/sweden.webp",
+    "credit": "Julian Herzog, CC BY 4.0, via Wikimedia Commons",
+    "source_url": "https://commons.wikimedia.org/wiki/File:Skeppsbrokajen_Gamla_Stan_from_Skeppsholmen_Stockholm_2016_01.jpg"
+  },
+  "turkey": {
+    "src": "/photos/turkey.webp",
+    "credit": "Alexxx1979, CC BY-SA 3.0, via Wikimedia Commons",
+    "source_url": "https://commons.wikimedia.org/wiki/File:Istanbul_Galata_Tower_IMG_7475_1800.jpg"
+  }
+}

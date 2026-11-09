@@ -26,7 +26,7 @@ export function PlaceCard({
       <div className={`relative bg-surface-2 lite:hidden ${size === "lg" ? "aspect-[4/3] sm:aspect-[3/2]" : "aspect-[16/10]"}`}>
         {photo && (
           // eslint-disable-next-line @next/next/no-img-element -- already sized WebP; next/image would re-encode it.
-          <img src={photo.src} alt="" loading="lazy" decoding="async" width={960} height={640} className="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover/place:scale-[1.03]" />
+          <img src={photo.src} alt="" title={`Photo: ${photo.credit}`} loading="lazy" decoding="async" width={960} height={640} className="absolute inset-0 size-full object-cover transition-transform duration-500 group-hover/place:scale-[1.03]" />
         )}
         <div aria-hidden="true" className="absolute inset-0 bg-linear-to-t from-black/70 via-black/10 to-transparent" />
         <div className="absolute inset-x-0 bottom-0 p-4 text-white">
