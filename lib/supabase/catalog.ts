@@ -22,15 +22,17 @@ async function all<T>(table: string, columns = "*", filter?: (q: ReturnType<Retu
     if (error) throw new Error(`Supabase ${table}: ${error.message}`);
     return (data ?? []) as T[];
   };
-  // A busy database (the robot writing) sometimes drops one request; try a page up to 4 times
-  // before giving up, so one hiccup doesn't fail a deploy or a refresh.
+  // A busy database (the robots writing) sometimes drops or times out a request; try a page up to
+  // 6 times over about 45 seconds before giving up, so a busy moment doesn't fail a deploy or a refresh.
+  const WAITS = [1, 3, 6, 12, 20];
   const page = async (n: number): Promise<T[]> => {
-    for (let attempt = 1; ; attempt++) {
+    for (let attempt = 0; ; attempt++) {
       try {
         return await once(n);
       } catch (e) {
-        if (attempt >= 4) throw e;
-        await new Promise((r) => setTimeout(r, 1000 * 2 ** (attempt - 1)));
+        if (attempt >= WAITS.length) throw e;
+        console.warn(`${e instanceof Error ? e.message : String(e)} (page ${n + 1}); trying again in ${WAITS[attempt]} s`);
+        await new Promise((r) => setTimeout(r, WAITS[attempt]! * 1000));
       }
     }
   };

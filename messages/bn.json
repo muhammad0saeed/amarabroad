@@ -659,7 +659,21 @@
     "embassyLink": "দূতাবাস",
     "citiesTitle": "শহর",
     "livingFrom": "জীবনযাত্রার খরচ মাসে প্রায় {amount}",
-    "scholarshipsTitle": "স্কলারশিপ"
+    "scholarshipsTitle": "স্কলারশিপ",
+    "programs": "প্রোগ্রাম",
+    "living": "থাকা-খাওয়ার খরচ",
+    "perMonth": "মাসে, হিসেবি শিক্ষার্থী",
+    "beforeTitle": "শুরু করার আগে",
+    "workTitle": "পড়ার সময় ও পরে কাজ",
+    "minWage": "ন্যূনতম মজুরি",
+    "perHour": "ঘণ্টায় {amount}",
+    "aboutTaka": "প্রায় {amount}",
+    "jobsTitle": "শিক্ষার্থীদের জনপ্রিয় কাজ",
+    "jobSites": "কোথায় কাজ খুঁজবেন",
+    "programCount": "{count, plural, other {#টি প্রোগ্রাম}}",
+    "readingTitle": "আরও পড়ুন",
+    "readingNote": "অফিসিয়াল ও নির্ভরযোগ্য পেজ, প্রকাশকের নামসহ লিংক দেওয়া। নিয়ম বদলায়: আবেদনের আগে মিলিয়ে নিন।",
+    "photoBy": "ছবি:"
   },
   "scholarship": {
     "title": "স্কলারশিপ",

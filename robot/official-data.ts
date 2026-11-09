@@ -591,10 +591,21 @@ export async function loadDataset(country: OfficialCountry, file: string | undef
   let files: Map<string, () => Buffer>;
   if (file) files = openLocal(file);
   else {
-    const page = await (await fetch(SCORECARD_DATA_PAGE, { headers: { "User-Agent": userAgent } })).text();
+    // The page is sometimes mid-update (links missing for a while): read it again once after a minute.
+    const linkIn = (page: string, kind: string) => {
+      const href = page.match(new RegExp(`[^"'\\s]*Most-Recent-Cohorts-${kind}[^"'\\s]*\\.zip`))?.[0];
+      return href ? new URL(href, SCORECARD_DATA_PAGE).href : null;
+    };
+    const readPage = async () => (await fetch(SCORECARD_DATA_PAGE, { headers: { "User-Agent": userAgent } })).text();
+    let page = await readPage();
+    if (!linkIn(page, "Field-of-Study") || !linkIn(page, "Institution")) {
+      log("Download links not on the page yet; trying again in a minute");
+      await new Promise((r) => setTimeout(r, 60_000));
+      page = await readPage();
+    }
     files = new Map();
     for (const kind of ["Field-of-Study", "Institution"]) {
-      const url = need(page.match(new RegExp(`https://[^"']+/Most-Recent-Cohorts-${kind}[^"']*\\.zip`))?.[0] ?? null, `the ${kind} download link on ${SCORECARD_DATA_PAGE}`);
+      const url = need(linkIn(page, kind), `the ${kind} download link on ${SCORECARD_DATA_PAGE}`);
       log(`Downloading ${url}`);
       for (const [name, read] of unzip(await download(url, userAgent))) files.set(name, read);
     }

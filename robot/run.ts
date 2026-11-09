@@ -305,6 +305,9 @@ async function discoverAll() {
     searched += mine.length;
     await pool(mine, parallel, deadline, async (slug) => {
       try {
+        // Marked "try again in 3 days" first; a finished search overwrites it. If a website ever crashes
+        // the whole job, the next shift skips that university instead of crashing on it again.
+        await store.markDiscoveryFailed(slug).catch(() => {});
         total += await discoverOne(slug);
       } catch (e) {
         log(`  ${slug}: ${e instanceof Error ? e.message : String(e)}`);
@@ -463,6 +466,19 @@ function oneLine(e: unknown): string {
 process.on("unhandledRejection", (e) => {
   log(`Ignored an error nobody was waiting for: ${oneLine(e)}`);
   if (process.env.GITHUB_ACTIONS) console.log(`::warning title=Robot kept going after an error::${oneLine(e)}`);
+});
+// The same for errors thrown outside any promise (a broken connection or stream from some website):
+// without this, Node stops the whole job with exit code 1 and no note saying why.
+let strayErrors = 0;
+process.on("uncaughtException", (e) => {
+  strayErrors++;
+  log(`Kept going after a stray error: ${oneLine(e)}`);
+  if (process.env.GITHUB_ACTIONS && strayErrors <= 5) console.log(`::warning title=Robot kept going after a stray error::${oneLine(e)}`);
+  // Many in a row means something is really broken: stop, and say why.
+  if (strayErrors > 200) {
+    if (process.env.GITHUB_ACTIONS) console.log(`::error title=Robot stopped::too many stray errors; last: ${oneLine(e)}`);
+    process.exit(1);
+  }
 });
 
 const run = command ? commands[command] : undefined;

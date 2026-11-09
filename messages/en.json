@@ -659,7 +659,21 @@
     "embassyLink": "Embassy",
     "citiesTitle": "Cities",
     "livingFrom": "Living costs about {amount} a month",
-    "scholarshipsTitle": "Scholarships"
+    "scholarshipsTitle": "Scholarships",
+    "programs": "Programs",
+    "living": "Living costs",
+    "perMonth": "a month, careful student",
+    "beforeTitle": "Before you start",
+    "workTitle": "Work while studying and after",
+    "minWage": "Minimum wage",
+    "perHour": "{amount} an hour",
+    "aboutTaka": "about {amount}",
+    "jobsTitle": "Popular student jobs",
+    "jobSites": "Where to look for jobs",
+    "programCount": "{count, plural, one {# program} other {# programs}}",
+    "readingTitle": "Further reading",
+    "readingNote": "Official and trusted pages, linked with credit to their publishers. Rules change: check them before you apply.",
+    "photoBy": "Photo:"
   },
   "scholarship": {
     "title": "Scholarships",

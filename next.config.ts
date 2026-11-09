@@ -8,6 +8,9 @@ const nextConfig: NextConfig = {
   // and refreshed when the admin saves a change; forms and /admin run on the server.
   // Keeps the Stage 1 addresses (/en/programs/...).
   trailingSlash: true,
+  // Pages load the whole catalogue from the database while building; when the robots keep the database
+  // busy, a page may need several retries. Give it 3 minutes instead of 1 before failing the deploy.
+  staticPageGenerationTimeout: 180,
   // Lets a phone on the same Wi-Fi load the dev server (npm run dev:phone).
   allowedDevOrigins: ["192.168.*.*", "10.*.*.*", "172.*.*.*"],
   // Public pages send no cookies and are kept out of search engines while this is a private preview.

@@ -50,7 +50,7 @@ function levelOf(text: string): "master" | "bachelor" | null {
 /** Sitemap URLs shaped like program pages. */
 export async function sitemapPrograms(website: string, max = 3000): Promise<string[]> {
   const origin = new URL(website).origin;
-  const robots = await fetch(`${origin}/robots.txt`, { headers: { "User-Agent": USER_AGENT } })
+  const robots = await fetch(`${origin}/robots.txt`, { headers: { "User-Agent": USER_AGENT }, signal: AbortSignal.timeout(25_000) })
     .then((r) => (r.ok ? r.text() : ""))
     .catch(() => "");
   const sitemaps = [...robots.matchAll(/^sitemap:\s*(\S+)/gim)].map((m) => m[1]!);

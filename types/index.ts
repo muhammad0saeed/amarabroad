@@ -78,6 +78,11 @@ export interface Country extends Provenance {
   hsc_entry_note_en?: string | null;
   hsc_entry_note_bn?: string | null;
   hsc_entry_source_url?: string | null;
+  /** Country guide (16_country_guides.sql): steps before applying, popular student jobs, job sites, further reading. */
+  before_start?: Bilingual[];
+  part_time_jobs?: Bilingual[];
+  job_links?: { name: string; url: string }[];
+  reading?: { title: string; source: string; url: string }[];
 }
 
 export type LanguageNeed = "essential" | "helpful" | "not_needed";
