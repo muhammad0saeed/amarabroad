@@ -8,6 +8,7 @@ describe("program titles", () => {
     expect(cleanTitle("Master of Teaching (Secondary) : The University of Western Australia")).toBe("Master of Teaching (Secondary)");
     expect(cleanTitle("Bachelor of Software Engineering Honours (VSENH1 – 2027)")).toBe("Bachelor of Software Engineering Honours");
     expect(cleanTitle("Informatics – Master of Science (M.Sc.)")).toBe("Informatics – Master of Science (M.Sc.)");
+    expect(cleanTitle("BSc Biology with Professional Placement – Study at Bristol")).toBe("BSc Biology with Professional Placement");
   });
 
   it("gives a page title and its official-list title the same key", () => {

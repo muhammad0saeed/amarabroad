@@ -296,7 +296,9 @@
     "costLivingShort": "জীবনযাত্রার খরচ",
     "tag3yrUnknown": "৩ বছরের ডিগ্রি: উল্লেখ নেই",
     "tagMoiUnknown": "MOI: উল্লেখ নেই",
-    "tagProvisionalUnknown": "আগাম আবেদন: উল্লেখ নেই"
+    "tagProvisionalUnknown": "আগাম আবেদন: উল্লেখ নেই",
+    "nationalDeadline": "জাতীয় ডেডলাইন: {date}",
+    "nationalSource": "{source}-এ অফিসিয়াল তারিখ"
   },
   "fit": {
     "title": "আপনার ফিট স্কোর",

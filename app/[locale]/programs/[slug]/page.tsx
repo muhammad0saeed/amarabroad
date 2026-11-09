@@ -20,6 +20,7 @@ import { programCost } from "@/lib/cost";
 import { crossCheck } from "@/lib/crosscheck";
 import { DATA_SOURCE, getProgramContext, hasGuide, listPrograms, listScholarshipsForProgram } from "@/lib/data";
 import { formatDate, formatMonthYear } from "@/lib/format";
+import { nationalDeadline } from "@/lib/nationalDeadlines";
 import { formatNumber, isFallback, localizeDigits, pick, pickList, type AppLocale } from "@/lib/localize";
 import { formatBDT, formatMoney } from "@/lib/money";
 import { getFieldInfo, getFieldNames, getFitContext, getRates, initPage } from "@/lib/server";
@@ -57,6 +58,8 @@ export default async function ProgramPage({ params }: Props) {
   const rates = await getRates();
   const cost = programCost(ctx, rates);
   const scholarships = await listScholarshipsForProgram(p.slug);
+  // A national deadline (UCAS) for programs whose page states none; the page is rebuilt every 10 minutes.
+  const national = nationalDeadline(country.slug, p.degree_level, new Date().toISOString().slice(0, 10));
   // Robot-read programs: the exact words on the official page behind each fact.
   const evidence = DATA_SOURCE === "supabase" && p.origin === "robot" ? await (await import("@/lib/supabase/evidence")).getEvidence(p.slug) : {};
   // Gaps on the program's own page, filled (labelled) from the university's general pages.
@@ -358,6 +361,15 @@ export default async function ProgramPage({ params }: Props) {
       <UniversityInfo facts={universityFacts} gaps={[...gaps]} level={p.degree_level} university={u.name} />
 
       <Section title={t("intakes")} id="intakes">
+        {p.intakes.length === 0 && national && (
+          <Card className="mb-2 space-y-2 border border-accent">
+            <p className="flex flex-wrap items-center gap-2 font-semibold">
+              {t("nationalDeadline", { date: formatDate(national.date, L) })} <DaysLeft date={national.date} />
+            </p>
+            <p className="text-meta">{L === "bn" ? national.note_bn : national.note_en}</p>
+            <ExternalLink href={national.url}>{t("nationalSource", { source: national.source })}</ExternalLink>
+          </Card>
+        )}
         {p.intakes.length === 0 && (
           <Card className="space-y-2">
             <p className="font-semibold">{t("deadlineMissingTitle")}</p>

@@ -10,6 +10,8 @@ const INSTITUTION = /\b(universit(y|ät|é|à|eit|at)|college|institute|hochschu
 export function cleanTitle(title: string): string {
   let t = title.replace(/\s+/g, " ").trim();
   t = t.replace(/^(study|discover|explore)\s+(the|a|an|our)?\s*/i, "");
+  // "BSc Biology – Study at Bristol": a site slogan after the name.
+  t = t.replace(/\s+[–—|:-]\s+(study|studying|apply) (at|in|with) [^–—|:]+$/i, "");
   // "Master of X : The University of Y" / "… | University of Y": keep the part with the degree.
   const parts = t.split(/\s+[:|]\s+/);
   if (parts.length > 1) t = parts.filter((p) => !(INSTITUTION.test(p) && !DEGREE.test(p))).join(" : ") || parts[0]!;

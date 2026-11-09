@@ -296,7 +296,9 @@
     "costLivingShort": "Living costs",
     "tag3yrUnknown": "3-year degree: not stated",
     "tagMoiUnknown": "MOI: not stated",
-    "tagProvisionalUnknown": "Early application: not stated"
+    "tagProvisionalUnknown": "Early application: not stated",
+    "nationalDeadline": "National deadline: {date}",
+    "nationalSource": "Official dates on {source}"
   },
   "fit": {
     "title": "Your Fit Score",
