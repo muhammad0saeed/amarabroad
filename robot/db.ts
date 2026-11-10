@@ -112,7 +112,9 @@ export async function databaseMB(): Promise<number | null> {
 }
 
 /** Stop adding new pages and universities above this size (free plan: 500 MB, read-only when full). */
-export const DATABASE_BRAKE_MB = Number(process.env.ROBOT_DB_LIMIT_MB ?? 430);
+// 350 of the free plan's 500 MB: Said wants the database never near full (a 150 MB margin for the site,
+// reports and bloat). Above it the robot only updates what it already has.
+export const DATABASE_BRAKE_MB = Number(process.env.ROBOT_DB_LIMIT_MB ?? 350);
 
 export async function saveExtraction(row: { source: string; snapshot: number | null; model: string; result: unknown; input_tokens: number; output_tokens: number; cost_usd: number }): Promise<number> {
   return (must(await db().from("extractions").insert(row).select("id").single(), "extraction") as { id: number }).id;
@@ -139,13 +141,13 @@ export async function fieldList(): Promise<string[]> {
 const PROGRAM_COLUMNS =
   "slug, title, degree_level, field, related_bachelor_fields, duration_months, ects_credits, language, language_requirement_en, currency, tuition_per_year, other_fees_per_year, application_fee, intakes, english_tests, accepts_moi, accepts_3yr_bachelor, accepts_provisional, min_gpa_requirement, seats_total, seats_non_eu, required_documents, overview_en, career_paths_en";
 
-export async function loadProgram(slug: string): Promise<(ProgramRow & { published: boolean; origin: string }) | null> {
-  const { data, error } = await db().from("programs").select(`${PROGRAM_COLUMNS}, published, origin, locked_fields`).eq("slug", slug).maybeSingle();
+export async function loadProgram(slug: string): Promise<(ProgramRow & { published: boolean; origin: string; last_verified: string | null }) | null> {
+  const { data, error } = await db().from("programs").select(`${PROGRAM_COLUMNS}, published, origin, locked_fields, last_verified`).eq("slug", slug).maybeSingle();
   if (error) throw new Error(`load program: ${error.message}`);
   if (!data) return null;
   const row = data as Record<string, unknown>;
   for (const k of ["tuition_per_year", "other_fees_per_year", "application_fee"]) if (row[k] !== null) row[k] = Number(row[k]);
-  return row as unknown as ProgramRow & { published: boolean; origin: string };
+  return row as unknown as ProgramRow & { published: boolean; origin: string; last_verified: string | null };
 }
 
 /** A program at this university with the same title whose facts came from an official dataset (official-data.ts). */

@@ -67,17 +67,20 @@ describe("when to visit a page next", () => {
   const ago = (days: number) => new Date(now.getTime() - days * 86_400_000).toISOString();
   const ahead = (days: number) => new Date(now.getTime() + days * 86_400_000).toISOString().slice(0, 10);
 
-  it("visits pages that just changed or changed this week every 6 hours", () => {
-    expect(nextCheckHours({ changedNow: true, lastChangedAt: null, deadlines: [], now })).toBe(HOURS.hot);
-    expect(nextCheckHours({ changedNow: false, lastChangedAt: ago(3), deadlines: [], now })).toBe(HOURS.hot);
-  });
-
-  it("visits pages with a deadline in the next 45 days every 6 hours", () => {
-    expect(nextCheckHours({ changedNow: false, lastChangedAt: ago(200), deadlines: [ahead(20)], now })).toBe(HOURS.hot);
+  it("visits pages with a deadline in the next 45 days twice a day, before anything else", () => {
+    expect(HOURS.deadline).toBe(12);
+    expect(nextCheckHours({ changedNow: false, lastChangedAt: ago(200), deadlines: [ahead(20)], now })).toBe(HOURS.deadline);
+    expect(nextCheckHours({ changedNow: true, lastChangedAt: null, deadlines: [ahead(10)], now })).toBe(HOURS.deadline);
     expect(nextCheckHours({ changedNow: false, lastChangedAt: ago(30), deadlines: [ahead(120)], now })).toBe(HOURS.normal);
   });
 
-  it("visits long-quiet pages every 2 days, the rest daily", () => {
+  it("visits pages that just changed or changed this week daily", () => {
+    expect(nextCheckHours({ changedNow: true, lastChangedAt: null, deadlines: [], now })).toBe(HOURS.changed);
+    expect(nextCheckHours({ changedNow: false, lastChangedAt: ago(3), deadlines: [], now })).toBe(HOURS.changed);
+  });
+
+  it("visits long-quiet pages weekly, the rest every 3 days", () => {
+    expect([HOURS.normal, HOURS.quiet]).toEqual([72, 168]);
     expect(nextCheckHours({ changedNow: false, lastChangedAt: ago(120), deadlines: [ahead(-30)], now })).toBe(HOURS.quiet);
     expect(nextCheckHours({ changedNow: false, lastChangedAt: ago(30), deadlines: [], now })).toBe(HOURS.normal);
     expect(nextCheckHours({ changedNow: false, lastChangedAt: null, deadlines: [], now })).toBe(HOURS.normal);
@@ -142,5 +145,14 @@ describe("university-wide fallback deadlines", () => {
     // EU-only and past deadlines are never used.
     expect(fallbackFor([fact("Application deadline: 15 January 2027", "2027-01-15", { for: "eu" })], "master", today)).toEqual([]);
     expect(fallbackFor([fact("Application deadline: 1 October 2026", "2026-10-01")], "master", today)).toEqual([]);
+  });
+});
+
+describe("fewer database writes", () => {
+  it("saves 'still the same' at most every 3 days", async () => {
+    const { confirmDue } = await import("@/robot/schedule");
+    expect(confirmDue(null, "2026-11-11")).toBe(true);
+    expect(confirmDue("2026-11-10", "2026-11-11")).toBe(false);
+    expect(confirmDue("2026-11-08", "2026-11-11")).toBe(true);
   });
 });

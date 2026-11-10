@@ -3,7 +3,7 @@
 #
 # It works non-stop: a new shift starts every 6 hours and each job works for about 5½ hours.
 #   check     6 jobs × 25 websites at once  visit due program pages and update what changed
-#                                           (hot pages every 6 h, normal daily, quiet every 2 days; see robot/schedule.ts)
+#                                           (deadline within 45 days every 12 h, changed daily, normal every 3 days, quiet weekly; robot/schedule.ts)
 #   discover  4 jobs × 25 universities      search universities for program pages: new ones first (best ranked first),
 #                                           then each again every 30 days; adds the next 500 by rank when few are left
 #   info      2 jobs: the gap-filler, universities' general pages (fees, deadlines, English, documents),

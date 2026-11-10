@@ -20,7 +20,7 @@ import { fetchPage, fetchPageDetailed, preferEnglish, readPages, relatedCandidat
 import { seedCountry, slugify } from "./seed.ts";
 import { seedTop } from "./seed-top.ts";
 import { interleave, pool, shardOf } from "./pool.ts";
-import { nextCheckHours } from "./schedule.ts";
+import { confirmDue, nextCheckHours } from "./schedule.ts";
 import { applyUniversityFallbacks, deadlineCoverage, deadlineTargets } from "./deadlines.ts";
 import { importOfficial } from "./official-data.ts";
 import { updateRates } from "./rates.ts";
@@ -80,7 +80,7 @@ async function checkOne(source: store.SourceRow, validFields: Set<string>, stats
       }
       const existing = childChanged ? null : await store.loadProgram(source.entity_slug);
       if (existing) {
-        await store.confirmProgram(existing.slug, today());
+        if (confirmDue(existing.last_verified, today())) await store.confirmProgram(existing.slug, today());
         await store.markChecked(source, { hours: nextCheckHours({ changedNow: false, lastChangedAt: source.last_changed_at, deadlines: existing.intakes.map((i) => i.deadline) }) });
         log("  not modified, confirmed");
         return;
@@ -124,7 +124,8 @@ async function checkOne(source: store.SourceRow, validFields: Set<string>, stats
   const existing = source.entity_slug ? await store.loadProgram(source.entity_slug) : null;
 
   if (!changed && existing) {
-    await store.confirmProgram(existing.slug, today());
+    // "Still the same" is saved at most every 3 days: every write uses the free plan's small disk allowance.
+    if (confirmDue(existing.last_verified, today())) await store.confirmProgram(existing.slug, today());
     const hours = nextCheckHours({ changedNow: false, lastChangedAt: source.last_changed_at, deadlines: existing.intakes.map((i) => i.deadline) });
     await store.markChecked(source, { hash: main.hash, etag: main.etag, lastModified: main.lastModified, hours });
     for (const c of childPages) await store.markChecked(c.source!, { hash: c.page.hash, etag: c.page.etag, lastModified: c.page.lastModified });

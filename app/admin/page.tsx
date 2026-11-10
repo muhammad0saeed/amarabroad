@@ -12,7 +12,7 @@ export const metadata: Metadata = { title: "Overview" };
 const STALE_DAYS = 60;
 /** The free database plan's size, and where the robot stops adding new pages (robot/db.ts). */
 const DB_LIMIT_MB = 500;
-const DB_BRAKE_MB = 430;
+const DB_BRAKE_MB = 350;
 /** A robot shift runs at most ~6 hours; an unfinished run older than this was stopped. */
 const RUN_MAX_HOURS = 7;
 
