@@ -4,6 +4,7 @@ import "server-only";
 // Uses the secret key so places the robot created but whose guide isn't written yet (unpublished
 // countries and cities) can still give programs their names; only published programs are read.
 
+import { cache } from "react";
 import type { Program } from "@/types";
 import { serviceClient } from "./clients";
 import { NUMERIC, numbers, readCatalog, type Catalog } from "./catalog-core";
@@ -87,8 +88,10 @@ export async function loadCatalogFromSupabase(): Promise<Catalog> {
 const loadCatalogNow = () => readCatalog(serviceClient());
 
 /** One published program with every column, for its own page. */
-export async function loadProgramFromSupabase(slug: string): Promise<Program | undefined> {
-  const { data, error } = await serviceClient().from("programs").select("*").eq("slug", slug).eq("published", true).maybeSingle();
+// Once per request: the page and its title both ask, and a busy database should only make the visitor wait once.
+export const loadProgramFromSupabase = cache(async (slug: string): Promise<Program | undefined> => {
+  // A few seconds at most: when the database is busy (robot shifts), the page uses the catalogue copy instead of waiting.
+  const { data, error } = await serviceClient().from("programs").select("*").eq("slug", slug).eq("published", true).abortSignal(AbortSignal.timeout(4000)).maybeSingle();
   if (error) throw new Error(`Supabase programs: ${error.message}`);
   return data ? (numbers(data as Record<string, unknown>, NUMERIC.programs) as unknown as Program) : undefined;
-}
+});

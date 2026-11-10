@@ -21,7 +21,8 @@ export async function getEvidence(programSlug: string): Promise<Record<string, E
     .eq("entity_slug", programSlug)
     .eq("status", "applied")
     .order("created_at", { ascending: false })
-    .limit(200);
+    .limit(200)
+    .abortSignal(AbortSignal.timeout(3000));
   if (error || !data) return {};
   const out: Record<string, Evidence> = {};
   for (const row of data as { field: string; evidence: string | null; source_url: string | null; decided_at: string | null; created_at: string }[]) {
@@ -48,7 +49,8 @@ export async function getUniversityFacts(university: string): Promise<University
     .from("university_facts")
     .select("field, level, value, quote, source_url, checked_at")
     .eq("university", university)
-    .limit(100);
+    .limit(100)
+    .abortSignal(AbortSignal.timeout(3000));
   if (error || !data) return [];
   return data as UniversityFact[];
 }

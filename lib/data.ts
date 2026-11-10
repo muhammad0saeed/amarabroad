@@ -195,7 +195,12 @@ export async function getProgramContext(slug: string): Promise<ProgramContext | 
   let program = s.index.program.get(slug);
   if (DATA_SOURCE === "supabase") {
     const { loadProgramFromSupabase } = await import("./supabase/catalog");
-    program = (await loadProgramFromSupabase(slug)) ?? program;
+    try {
+      program = (await loadProgramFromSupabase(slug)) ?? program;
+    } catch (e) {
+      // Database busy or down: show the program from the catalogue file (every fact the lists use) rather than an error.
+      console.warn(`Program ${slug}: live row unavailable (${e instanceof Error ? e.message : String(e)}); using the catalogue copy`);
+    }
   }
   return (program && contextOf(s, program)) || undefined;
 }

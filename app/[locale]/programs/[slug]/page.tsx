@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import type { Evidence, UniversityFact } from "@/lib/supabase/evidence";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { FitScoreCard, ScholarshipFitBadge } from "@/components/fit/FitScore";
@@ -45,6 +46,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return ctx ? { title: `${ctx.program.title} · ${ctx.university.name}`, description: ctx.program.overview_en } : {};
 }
 
+/** "tum.de" from a link; empty when the link can't be read. */
+function hostOf(url: string): string {
+  try {
+    return new URL(url).hostname.replace(/^www\./, "");
+  } catch {
+    return "";
+  }
+}
+
 export default async function ProgramPage({ params }: Props) {
   const locale = await initPage(params);
   const { slug } = await params;
@@ -52,6 +62,8 @@ export default async function ProgramPage({ params }: Props) {
   if (!ctx) notFound();
 
   const { program: p, university: u, city, country } = ctx;
+  // The program's official page; the university's website if the link is ever missing (never a broken button).
+  const applyUrl = p.official_url || u.website;
   const t = await getTranslations("program");
   const labels = await getTranslations("labels");
   const common = await getTranslations("common");
@@ -60,8 +72,13 @@ export default async function ProgramPage({ params }: Props) {
   const scholarships = await listScholarshipsForProgram(p.slug);
   // A national deadline (UCAS) for programs whose page states none; the page is rebuilt every 10 minutes.
   const national = nationalDeadline(country.slug, p.degree_level, new Date().toISOString().slice(0, 10));
-  // Robot-read programs: the exact words on the official page behind each fact.
-  const evidence = DATA_SOURCE === "supabase" && p.origin === "robot" ? await (await import("@/lib/supabase/evidence")).getEvidence(p.slug) : {};
+  // Robot-read programs: the exact words on the official page behind each fact. Both lookups run side by side
+  // (each gives up after a few seconds when the database is busy; the page then shows without them).
+  const sourcesLib = DATA_SOURCE === "supabase" ? await import("@/lib/supabase/evidence") : null;
+  const [evidence, universityFacts] = await Promise.all([
+    sourcesLib && p.origin === "robot" ? sourcesLib.getEvidence(p.slug) : Promise.resolve<Record<string, Evidence>>({}),
+    sourcesLib ? sourcesLib.getUniversityFacts(u.slug) : Promise.resolve<UniversityFact[]>([]),
+  ]);
   // Gaps on the program's own page, filled (labelled) from the university's general pages.
   const gaps = [
     ...(p.intakes.length === 0 ? (["deadline"] as const) : []),
@@ -69,7 +86,6 @@ export default async function ProgramPage({ params }: Props) {
     ...(p.english_tests.length === 0 ? (["english"] as const) : []),
     ...(p.required_documents.length === 0 ? (["document"] as const) : []),
   ];
-  const universityFacts = DATA_SOURCE === "supabase" ? await (await import("@/lib/supabase/evidence")).getUniversityFacts(u.slug) : [];
   // The cross-checker: the program page's facts against the university's general pages.
   const checks = Object.fromEntries(crossCheck(p, universityFacts).map((c) => [c.field === "tuition" ? "tuition_per_year" : "english_tests", c]));
   const sources = await getTranslations("sources");
@@ -255,11 +271,11 @@ export default async function ProgramPage({ params }: Props) {
 
       {/* Main action: students apply on the university's own program page, never through us. */}
       <div className="space-y-1.5">
-        <a href={p.official_url} target="_blank" rel="noopener noreferrer" className={buttonClass("primary", "md", true)}>
+        <a href={applyUrl} target="_blank" rel="noopener noreferrer" className={buttonClass("primary", "md", true)}>
           {t("applyCta")}
           <Icon name="external" className="size-4" />
         </a>
-        <p className="text-center text-meta text-ink-muted">{t("applyNote", { host: new URL(p.official_url).hostname.replace(/^www\./, "") })}</p>
+        <p className="text-center text-meta text-ink-muted">{t("applyNote", { host: hostOf(applyUrl) })}</p>
       </div>
 
       <ProgramPageActions slug={p.slug} title={p.title} />
@@ -405,7 +421,7 @@ export default async function ProgramPage({ params }: Props) {
                     uid: `program-${p.slug}-${i.year}-${i.month}@amarabroad`,
                     title: t("calendarTitle", { title: p.title }),
                     description: `${u.name}. ${common("calendarNote")}`,
-                    url: p.official_url,
+                    url: applyUrl,
                     date: i.deadline,
                   }}
                 />
@@ -550,7 +566,7 @@ export default async function ProgramPage({ params }: Props) {
       <Card className="flex flex-col gap-1">
         <h2 className="font-semibold">{t("officialTitle")}</h2>
         <p className="text-meta text-ink-muted">{t("officialBody", { date: formatDate(p.last_verified, L) })}</p>
-        <ExternalLink href={p.official_url}>{t("officialLink")}</ExternalLink>
+        <ExternalLink href={applyUrl}>{t("officialLink")}</ExternalLink>
       </Card>
 
       <div className="space-y-3">

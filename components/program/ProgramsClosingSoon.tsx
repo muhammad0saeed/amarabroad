@@ -36,7 +36,7 @@ export function ProgramsClosingSoon({ programs, limit = 6 }: { programs: Program
 
   if (open.length === 0) return <p className="text-ink-muted">{t("programsClosingSoonNone")}</p>;
   return (
-    <ul className="grid gap-2 sm:grid-cols-2">
+    <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">
       {open.map((p) => (
         <li key={p.slug} className="relative flex items-center gap-3 rounded-card bg-surface p-3 shadow-card">
           <span className="lite:hidden">

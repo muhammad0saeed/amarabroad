@@ -95,8 +95,8 @@ export default async function HomePage({ params }: LocaleParams) {
     <ClientMessages namespaces={["home", "labels", "common"]}>
       <div className="space-y-12 pt-2 pb-6">
         {/* Hero: text on the left, illustration on the right. */}
-        <section className="relative grid items-center gap-6 md:grid-cols-[1.15fr_0.85fr] md:pt-6">
-          <div className="relative z-10">
+        <section className="relative grid grid-cols-1 items-center gap-6 md:grid-cols-[1.15fr_0.85fr] md:pt-6">
+          <div className="relative z-10 min-w-0">
             <div className="flex flex-wrap items-center gap-2">
               <SampleBadge />
               <span className="text-meta text-ink-muted">{t("eyebrow")}</span>

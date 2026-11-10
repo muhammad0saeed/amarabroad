@@ -91,9 +91,11 @@ export const LIST_COLUMNS = [
   "duration_months", "ects_credits", "currency", "tuition_per_year", "other_fees_per_year", "application_fee", "intakes",
   "seats_non_eu", "min_gpa_requirement", "accepts_3yr_bachelor", "accepts_moi", "accepts_provisional", "open_to_bd_citizens",
   "english_tests", "related_bachelor_fields", "last_verified", "is_sample", "updated_at", "created_at",
+  // The "Apply at the university" link: kept in the list so a program page still works when the database is busy.
+  "official_url",
 ].join(",");
 /** What the list leaves out, filled with empty values so every program has the same shape. */
-const LIST_DEFAULTS = { seats_total: null, required_documents: [], overview_en: "", career_paths_en: [], official_url: "" };
+const LIST_DEFAULTS = { seats_total: null, required_documents: [], overview_en: "", career_paths_en: [] };
 
 /** Postgres numeric columns arrive as strings ("6000.00"). */
 const num = (v: unknown) => (v === null || v === undefined ? null : Number(v));

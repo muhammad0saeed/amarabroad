@@ -2,13 +2,13 @@
 # Needs two repository secrets (Settings → Secrets and variables → Actions): SUPABASE_URL, SUPABASE_SECRET_KEY.
 #
 # It works non-stop: a new shift starts every 6 hours and each job works for about 5½ hours.
-#   check     6 jobs × 50 websites at once  visit due program pages and update what changed
+#   check     6 jobs × 25 websites at once  visit due program pages and update what changed
 #                                           (hot pages every 6 h, normal daily, quiet every 2 days; see robot/schedule.ts)
-#   discover  4 jobs × 40 universities      search universities for program pages: new ones first (best ranked first),
+#   discover  4 jobs × 25 universities      search universities for program pages: new ones first (best ranked first),
 #                                           then each again every 30 days; adds the next 500 by rank when few are left
 #   info      2 jobs: the gap-filler, universities' general pages (fees, deadlines, English, documents),
 #                                           then the cross-checker (program pages vs those general pages)
-#   deadlines 2 jobs × 30 websites: programs with no upcoming deadline re-read with the latest rules, best ranked first;
+#   deadlines 2 jobs × 15 websites: programs with no upcoming deadline re-read with the latest rules, best ranked first;
 #                                           university-wide deadlines (strict filter) as labelled fallbacks for programs whose page states none
 #   rates     every shift: exchange rates to taka for every currency (free public-domain dataset)
 #   extras    every shift: scholarship rounds (official pages), news links (official and education-news feeds;
@@ -18,6 +18,7 @@
 #                                           websites block the robot (all of them would overfill the free database).
 #                                           The UK list is downloaded by a person; see robot/README.md.
 #
+# Parallelism halved on 11 Nov: the free Supabase plan overloaded (database API down for an hour) at 300 websites at once.
 # Full speed is free only while the repository is PUBLIC. While it is private, GitHub gives 2,000 minutes
 # a month, so the "plan" job switches to a small version that fits inside that: a few minutes of page checks per
 # shift and no discovery (a rushed search would mark universities as searched after only a shallow look).
@@ -91,6 +92,8 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
+      # Staggered start (check jobs start 40 s apart): 14 jobs opening at once overloaded the database on 10 Nov.
+      - run: sleep $(( ${{ matrix.shard }} * 40 ))
       - name: Exchange rates to taka (once per shift)
         if: matrix.shard == 0
         continue-on-error: true
@@ -100,7 +103,7 @@ jobs:
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
           ROBOT_CONTACT_URL: ${{ vars.ROBOT_CONTACT_URL }}
       - name: Check program pages
-        run: npm run robot -- check --parallel 50 --minutes ${{ needs.plan.outputs.check_minutes }} --shard ${{ matrix.shard }}/${{ strategy.job-total }}
+        run: npm run robot -- check --parallel 25 --minutes ${{ needs.plan.outputs.check_minutes }} --shard ${{ matrix.shard }}/${{ strategy.job-total }}
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
@@ -127,6 +130,8 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
+      # Staggered start (deadline jobs start 20+ min into the shift): 14 jobs opening at once overloaded the database on 10 Nov.
+      - run: sleep $(( 1200 + ${{ matrix.shard }} * 120 ))
       - name: University-wide deadlines as labelled fallbacks (strict filter)
         if: matrix.shard == 0
         continue-on-error: true
@@ -135,7 +140,7 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
       - name: Re-read programs that have no deadline
-        run: npm run robot -- deadlines --parallel 30 --minutes 300 --shard ${{ matrix.shard }}/2
+        run: npm run robot -- deadlines --parallel 15 --minutes 300 --shard ${{ matrix.shard }}/2
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
@@ -160,6 +165,8 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
+      # Staggered start (discovery starts 2-5 min in): 14 jobs opening at once overloaded the database on 10 Nov.
+      - run: sleep $(( 120 + ${{ matrix.shard }} * 60 ))
       - name: Add more universities when few are left to search
         if: matrix.shard == 0
         run: npm run robot -- grow --step 500 --when-below 500
@@ -167,7 +174,7 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
       - name: Discover program pages
-        run: npm run robot -- discover-all --limit 100000 --parallel 40 --minutes ${{ needs.plan.outputs.discover_minutes }} --uni-minutes ${{ needs.plan.outputs.uni_minutes }} --shard ${{ matrix.shard }}/${{ strategy.job-total }}
+        run: npm run robot -- discover-all --limit 100000 --parallel 25 --minutes ${{ needs.plan.outputs.discover_minutes }} --uni-minutes ${{ needs.plan.outputs.uni_minutes }} --shard ${{ matrix.shard }}/${{ strategy.job-total }}
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
@@ -194,8 +201,10 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
+      # Staggered start (gap-filler starts 10-12 min in): 14 jobs opening at once overloaded the database on 10 Nov.
+      - run: sleep $(( 600 + ${{ matrix.shard }} * 120 ))
       - name: Read universities' general pages
-        run: npm run robot -- uni-info --limit 2000 --parallel 25 --minutes 120 --shard ${{ matrix.shard }}/2
+        run: npm run robot -- uni-info --limit 2000 --parallel 15 --minutes 108 --shard ${{ matrix.shard }}/2
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
@@ -223,6 +232,8 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
+      # Staggered start (extras start 5 min in): 14 jobs opening at once overloaded the database on 10 Nov.
+      - run: sleep $(( 300 ))
       - name: Scholarship rounds and deadlines
         continue-on-error: true
         run: npm run robot -- scholarships
