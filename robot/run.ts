@@ -251,7 +251,8 @@ async function check() {
     if (Date.now() >= deadline) log("Time budget used up; the rest are first in line tomorrow.");
   }
   const mb = await store.databaseMB();
-  await store.finishRun(run, { ...stats, notes: mb === null ? undefined : `database ${mb} MB` });
+  // The work is done; a busy database refusing the summary line must not mark the job as failed.
+  await store.finishRun(run, { ...stats, notes: mb === null ? undefined : `database ${mb} MB` }).catch((e) => log(`Could not save the run summary: ${e instanceof Error ? e.message.slice(0, 120) : String(e)}`));
   log(`Done: ${stats.pages_checked} pages, ${stats.pages_changed} changed, ${stats.changes_applied} values applied, ${stats.changes_held} held, ${stats.errors} errors`);
 }
 
@@ -470,7 +471,7 @@ async function deadlinesFirst() {
       await store.markChecked(source, { error: (e instanceof Error ? e.message : String(e)).slice(0, 500) }).catch(() => {});
     }
   });
-  await store.finishRun(run, { ...stats, notes: "deadlines first" });
+  await store.finishRun(run, { ...stats, notes: "deadlines first" }).catch((e) => log(`Could not save the run summary: ${e instanceof Error ? e.message.slice(0, 120) : String(e)}`));
   const after = await retry(() => deadlineCoverage(today()));
   log(`Done: ${stats.pages_checked} pages re-read. Deadlines now: ${after.withDeadline} of ${after.published} (${after.percent}%, was ${before.percent}%)`);
 }

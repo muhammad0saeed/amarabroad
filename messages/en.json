@@ -76,8 +76,8 @@
   "home": {
     "freshness": "Updated by our robot {time} (Dhaka time) · {count} new programs this week",
     "eyebrow": "Made for students and parents in Bangladesh",
-    "title": "Study abroad, with the real cost in taka",
-    "subtitle": "Search programs in 30 countries, check whether your Bangladeshi degree fits, and see what the whole thing costs before you apply.",
+    "title": "Study abroad, made clear",
+    "subtitle": "Deadlines, total cost in taka and entry rules for {count}+ programs in {countries} countries, straight from official pages.",
     "quickFilters": "Quick filters",
     "matchEyebrow": "Match me",
     "matchTitle": "Which programs fit your profile?",

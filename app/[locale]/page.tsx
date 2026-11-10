@@ -79,6 +79,8 @@ export default async function HomePage({ params }: LocaleParams) {
     citiesWithPrograms.set(p.city.slug, { ...p.city, country: p.country.slug });
   }
   const activeCountries = countries.filter((c) => programCount.has(c.slug)).sort((a, b) => programCount.get(b.slug)! - programCount.get(a.slug)!);
+  // "25,000+": the program count rounded down to the thousand, so the headline claim is always true.
+  const heroCount = programs.length >= 1000 ? Math.floor(programs.length / 1000) * 1000 : programs.length;
   const updatedAt = coverage.lastUpdated
     ? new Intl.DateTimeFormat(locale === "bn" ? "bn-BD" : "en-GB", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Dhaka" }).format(new Date(coverage.lastUpdated))
     : null;
@@ -102,7 +104,7 @@ export default async function HomePage({ params }: LocaleParams) {
               <span className="text-meta text-ink-muted">{t("eyebrow")}</span>
             </div>
             <h1 className="mt-4 text-[2.125rem] leading-[1.04] font-bold tracking-[-0.04em] text-balance sm:text-[3.25rem] lg:text-[3.75rem]">{t("title")}</h1>
-            <p className="mt-4 max-w-[46ch] text-ink-muted sm:text-[1.0625rem]">{t("subtitle")}</p>
+            <p className="mt-4 max-w-[46ch] text-ink-muted sm:text-[1.0625rem]">{t("subtitle", { count: localizeDigits(heroCount.toLocaleString("en"), locale), countries: n(activeCountries.length) })}</p>
 
             {/* Works without JavaScript: a plain GET to the search page. */}
             <form role="search" action={`/${locale}/programs/`} method="get" className="mt-6 flex max-w-xl items-center gap-1 rounded-full border border-border bg-surface p-1 pl-4 shadow-float focus-within:border-accent">

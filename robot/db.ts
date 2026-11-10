@@ -397,8 +397,11 @@ export async function crossCheckInputs() {
 
 /** Replaces all cross-check results with this run's. */
 export async function saveFactChecks(rows: Record<string, unknown>[]) {
+  // One result per program and fact (the table's key): a program can be compared twice in one pass
+  // (twin pages, several general pages), and a repeat must not stop the job (it did on 10 Nov).
+  const unique = [...new Map(rows.map((r) => [`${r.program}|${r.field}`, r])).values()];
   must(await db().from("fact_checks").delete().neq("field", ""), "clear fact checks");
-  for (let i = 0; i < rows.length; i += 500) must(await db().from("fact_checks").insert(rows.slice(i, i + 500)), "save fact checks");
+  for (let i = 0; i < unique.length; i += 500) must(await db().from("fact_checks").upsert(unique.slice(i, i + 500), { onConflict: "program,field" }), "save fact checks");
 }
 
 // ---------------------------------------------------------------- re-sorting subjects (refield)
