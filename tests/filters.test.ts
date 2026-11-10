@@ -170,3 +170,14 @@ describe("new filters", () => {
     expect(counts.budget["40"]).toBe(run(f).filter((p) => p.total_bdt! <= 40e5).length);
   });
 });
+
+describe("when the next round is expected", () => {
+  it("moves the latest passed deadline on to next year, and says nothing while an intake is open", async () => {
+    const { expectedNextRound } = await import("@/lib/summary");
+    const today = "2026-11-10";
+    expect(expectedNextRound([{ month: 10, year: 2026, deadline: "2026-07-15" }, { month: 4, year: 2026, deadline: "2026-01-15" }], today)).toEqual({ month: 7, year: 2027 });
+    expect(expectedNextRound([{ month: 10, year: 2025, deadline: "2025-03-01" }], today)).toEqual({ month: 3, year: 2027 });
+    expect(expectedNextRound([{ month: 9, year: 2027, deadline: "2027-01-15" }], today)).toBeNull();
+    expect(expectedNextRound([], today)).toBeNull();
+  });
+});

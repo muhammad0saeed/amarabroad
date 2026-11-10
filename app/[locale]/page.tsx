@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { GROUP_ICON, Icon, type IconName } from "@/components/icons";
 import { ClientMessages } from "@/components/layout/ClientMessages";
 import { PlaceCard } from "@/components/place/PlaceCard";
+import { ProgramsClosingSoon, type ProgramDeadlineTeaser } from "@/components/program/ProgramsClosingSoon";
 import { ClosingSoon } from "@/components/scholarship/ClosingSoon";
 import { SampleBadge } from "@/components/ui/SampleBadge";
 import { Link } from "@/i18n/navigation";
@@ -10,10 +11,14 @@ import { getCoverage, listCountries, listScholarships, listUniversities } from "
 import { localizeDigits } from "@/lib/localize";
 import { formatBDT } from "@/lib/money";
 import { getCatalogue, getSearchOptions } from "@/lib/search";
-import { lowestTotal } from "@/lib/summary";
+import { lowestTotal, nextDeadline } from "@/lib/summary";
+import { addDays, todayISO } from "@/lib/dates";
 import { initPage, type LocaleParams } from "@/lib/server";
 import { countryHref } from "@/lib/places";
 import { getPublicRobotStats } from "@/lib/supabase/robotStats";
+
+/** Pages the robot saved as programs that are really FAQs, requirement or fee pages: kept out of the home showcase. */
+const NOT_A_PROGRAM_TITLE = /(frequently asked|\bfaqs?\b|requirements?|admissions?\b|how to apply|application process|tuition|\bfees?\b|scholarships?|fellowships?|funding|\bnews\b|events?\b|information session|contact us)/i;
 
 export default async function HomePage({ params }: LocaleParams) {
   const locale = await initPage(params);
@@ -38,7 +43,33 @@ export default async function HomePage({ params }: LocaleParams) {
     { href: "/programs?3yr=1", label: t("popular3yr") },
     { href: "/programs?moi=1", label: t("popularMoi") },
     { href: "/programs?free=1", label: t("popularFree") },
+    { href: "/programs?deadline=soon&sort=deadline", label: t("popularClosing") },
   ];
+
+  // Deadlines first: the programs whose deadlines come next. A few weeks' worth is sent; the visitor's own
+  // "today" picks the open ones (a cached page must never show a deadline that has just passed).
+  const serverToday = todayISO();
+  const in45 = addDays(serverToday, 45);
+  // At most 2 per university (the list shows one each; the second covers a deadline passing before the visit).
+  const perUni = new Map<string, number>();
+  const closing: ProgramDeadlineTeaser[] = programs
+    .map((p) => ({ p, next: nextDeadline(p.intakes, serverToday) }))
+    .filter((x) => x.next && x.next.deadline <= in45 && !NOT_A_PROGRAM_TITLE.test(x.p.title))
+    .sort((a, b) => (a.next!.deadline < b.next!.deadline ? -1 : 1))
+    .filter(({ p }) => {
+      const n = perUni.get(p.university.slug) ?? 0;
+      perUni.set(p.university.slug, n + 1);
+      return n < 2;
+    })
+    .slice(0, 40)
+    .map(({ p, next }) => ({
+      slug: p.slug,
+      title: p.title,
+      university: p.university.name,
+      country: { en: p.country.name_en, bn: p.country.name_bn },
+      deadline: next!.deadline,
+      universityWide: Boolean(next!.university_wide),
+    }));
 
   // Only places that have programs: the database also holds every city the robot will search later.
   const programCount = new Map<string, number>();
@@ -183,6 +214,22 @@ export default async function HomePage({ params }: LocaleParams) {
             <p className="mt-4 max-w-[70ch] text-meta text-ink-muted">{t("robotNote")}</p>
           </section>
         )}
+
+        {/* Programs closing soon: deadlines matter most. */}
+        <section aria-labelledby="program-closing-title">
+          <div className="mb-3 flex flex-wrap items-end justify-between gap-x-3 gap-y-1">
+            <div>
+              <h2 id="program-closing-title" className="text-heading font-semibold">
+                {t("programsClosingSoon")}
+              </h2>
+              <p className="text-meta text-ink-muted">{t("programsClosingSoonBody")}</p>
+            </div>
+            <Link href="/programs?deadline=soon&sort=deadline" className="inline-flex min-h-tap items-center gap-1 text-meta font-semibold text-primary-ink hover:underline">
+              {t("seeAllClosing")} <Icon name="arrowRight" className="size-4" />
+            </Link>
+          </div>
+          <ProgramsClosingSoon programs={closing} />
+        </section>
 
         {/* Match quiz. */}
         <section className="relative overflow-hidden rounded-card bg-ink p-6 text-canvas shadow-card sm:p-8">

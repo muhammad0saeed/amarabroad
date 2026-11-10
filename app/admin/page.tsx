@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { requireAdmin } from "@/lib/admin/auth";
 import { getRobotStats, type RobotRun } from "@/lib/supabase/robotStats";
+import { todayISO } from "@/lib/dates";
+import { getCatalogue } from "@/lib/search";
+import { nextDeadline } from "@/lib/summary";
 import { PageTitle, when } from "./ui";
 
 export const metadata: Metadata = { title: "Overview" };
@@ -19,7 +22,7 @@ export default async function AdminOverview() {
   const count = async (q: PromiseLike<{ count: number | null }>) => (await q).count ?? 0;
   const head = { count: "exact" as const, head: true };
 
-  const [wrongNew, problemNew, outcomesPending, published, total, stale, unis, robot] = await Promise.all([
+  const [wrongNew, problemNew, outcomesPending, published, total, stale, unis, robot, catalogue] = await Promise.all([
     count(db.from("wrong_info_reports").select("id", head).eq("status", "new")),
     count(db.from("problem_reports").select("id", head).eq("status", "new")),
     count(db.from("outcome_reports").select("id", head).eq("status", "pending")),
@@ -28,7 +31,16 @@ export default async function AdminOverview() {
     count(db.from("programs").select("slug", head).eq("published", true).lt("last_verified", staleBefore)),
     count(db.from("universities").select("slug", head)),
     getRobotStats(15000),
+    getCatalogue(),
   ]);
+
+  // Deadlines matter most: how many programs on the site show an upcoming deadline, and how many of
+  // those are a university-wide fallback (the program page states none).
+  const today = todayISO();
+  const upcoming = catalogue.map((p) => nextDeadline(p.intakes, today)).filter((d) => d !== null);
+  const withDeadline = upcoming.length;
+  const universityWide = upcoming.filter((d) => d.university_wide).length;
+  const deadlinePct = catalogue.length ? Math.round((withDeadline / catalogue.length) * 1000) / 10 : 0;
 
   const todo = [
     { href: "/admin/reports/", label: "New reports", value: wrongNew + problemNew, note: `${wrongNew} wrong info · ${problemNew} ${problemNew === 1 ? "problem" : "problems"}` },
@@ -108,6 +120,8 @@ export default async function AdminOverview() {
       <dl className="grid grid-cols-2 gap-x-6 gap-y-4 border-t border-border pt-4 sm:grid-cols-4">
         <Stat label="Programs on the site" value={`${published.toLocaleString("en")} of ${total.toLocaleString("en")}`} />
         <Stat label="Universities" value={unis} />
+        <Stat label="With an upcoming deadline" value={`${withDeadline.toLocaleString("en")} (${deadlinePct}%)`} warn={deadlinePct < 30} />
+        <Stat label="Of those, university-wide (labelled)" value={universityWide} />
         <Stat label={`Not re-read for ${STALE_DAYS}+ days`} value={stale} warn={stale > 0} />
         <Stat label="Hidden (missing a subject or date)" value={total - published} />
       </dl>

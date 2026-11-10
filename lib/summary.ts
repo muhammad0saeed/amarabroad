@@ -90,6 +90,21 @@ export function nextDeadline(intakes: Intake[], today: ISODate): Intake | null {
   );
 }
 
+/**
+ * Every deadline has passed: when the next round is likely, from last year's calendar (the latest past
+ * deadline, moved on a year at a time until it is ahead). Null when an intake is still open or none is known.
+ */
+export function expectedNextRound(intakes: Intake[], today: ISODate): { month: number; year: number } | null {
+  if (!intakes.length || nextDeadline(intakes, today)) return null;
+  const latest = [...intakes].sort((a, b) => (a.deadline < b.deadline ? -1 : 1)).at(-1)!;
+  let year = Number(latest.deadline.slice(0, 4));
+  const month = Number(latest.deadline.slice(5, 7));
+  const day = Number(latest.deadline.slice(8, 10));
+  const ahead = (y: number) => `${y}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}` >= today;
+  while (!ahead(year)) year++;
+  return { month, year };
+}
+
 /** Lowest known total cost among these programs, or null when none is known ("From ৳ X" on lists). */
 export function lowestTotal(programs: Pick<ProgramSummary, "total_bdt">[]): number | null {
   const known = programs.map((p) => p.total_bdt).filter((x): x is number => x !== null);
