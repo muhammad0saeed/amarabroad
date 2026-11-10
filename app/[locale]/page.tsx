@@ -155,7 +155,7 @@ export default async function HomePage({ params }: LocaleParams) {
           {updatedAt ? (
             <p className="mt-1 mb-3 flex flex-wrap items-center gap-x-1.5 text-meta text-ink-muted">
               <span aria-hidden="true" className="size-2 rounded-full bg-success" />
-              {t("freshness", { time: updatedAt, count: n(coverage.newThisWeek) })}
+              {t("freshness", { time: updatedAt, count: localizeDigits(coverage.newThisWeek.toLocaleString("en"), locale) })}
             </p>
           ) : (
             <div className="mb-3" />
