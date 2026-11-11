@@ -26,6 +26,7 @@ import type {
   University,
 } from "@/types";
 
+import { scholarshipCovers } from "./scholarshipPrograms";
 import { DATA_SOURCE } from "./source";
 export { DATA_SOURCE };
 
@@ -227,11 +228,7 @@ export async function listScholarshipsForProgram(slug: string): Promise<Scholars
   const program = s.index.program.get(slug);
   const ctx = program && contextOf(s, program);
   if (!program || !ctx) return [];
-  return s.scholarships.filter(
-    (x) =>
-      x.levels.includes(program.degree_level) &&
-      (x.programs.includes(program.slug) || x.universities.includes(ctx.university.slug) || x.countries.includes(ctx.country.slug)),
-  );
+  return s.scholarships.filter((x) => scholarshipCovers(x, ctx));
 }
 
 /** Scholarships linked to a university, or to its country, or to one of its programs. */

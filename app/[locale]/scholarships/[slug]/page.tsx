@@ -7,10 +7,11 @@ import { DaysLeft } from "@/components/ui/DaysLeft";
 import { Badge, Card, ExternalLink, Fact, PageHeader, Section } from "@/components/ui/primitives";
 import { Link } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
-import { DATA_SOURCE, getScholarship, listCountries, listProgramContexts, listScholarships, listScholarshipsForProgram, listUniversities } from "@/lib/data";
+import { DATA_SOURCE, getScholarship, listCountries, listProgramContexts, listScholarships, listUniversities } from "@/lib/data";
 import { formatDate } from "@/lib/format";
 import { localizeDigits, pick } from "@/lib/localize";
 import { formatMoney } from "@/lib/money";
+import { scholarshipAppliesGroups } from "@/lib/scholarshipPrograms";
 import { cycleOf, roundOf } from "@/lib/scholarshipRound";
 import { initPage } from "@/lib/server";
 
@@ -39,12 +40,10 @@ export default async function ScholarshipPage({ params }: Props) {
   const labels = await getTranslations("labels");
   const fit = await getTranslations("fit");
 
-  // Programs it applies to: the program list, or everything under its universities and countries, at its levels.
-  const contexts = await listProgramContexts();
-  const applies: typeof contexts = [];
-  for (const ctx of contexts) {
-    if ((await listScholarshipsForProgram(ctx.program.slug)).some((x) => x.slug === s.slug)) applies.push(ctx);
-  }
+  // Programs it applies to (its program list, or everything under its universities and countries, at its levels),
+  // a few per country with a link to the full search: a country-wide scholarship covers thousands.
+  const groups = scholarshipAppliesGroups(s, await listProgramContexts());
+  const appliesCount = groups.reduce((n, g) => n + g.total, 0);
   const countries = (await listCountries()).filter((c) => s.countries.includes(c.slug));
   const universities = (await listUniversities()).filter((u) => s.universities.includes(u.slug));
   const stipend = s.coverage.stipend;
@@ -151,20 +150,34 @@ export default async function ScholarshipPage({ params }: Props) {
               ))}
             </ul>
           )}
-          <p className="text-meta text-ink-muted">{t("programCount", { count: applies.length })}</p>
-          <ul className="divide-y divide-border">
-            {applies.map(({ program, university }) => (
-              <li key={program.slug}>
-                <Link href={`/programs/${program.slug}`} className="flex min-h-tap items-center justify-between gap-2 py-2 hover:underline">
-                  <span>
-                    <span className="block font-semibold">{program.title}</span>
-                    <span className="text-meta text-ink-muted">{university.name}</span>
-                  </span>
-                  <Icon name="chevronRight" className="shrink-0 text-ink-muted" />
-                </Link>
-              </li>
-            ))}
-          </ul>
+          <p className="text-meta text-ink-muted">{t("programCount", { count: appliesCount })}</p>
+          {groups.map(({ country, total, sample, searchHref }) => {
+            const countryName = locale === "bn" ? country.name_bn : country.name_en;
+            return (
+              <div key={country.slug}>
+                {groups.length > 1 && <h3 className="font-semibold">{countryName}</h3>}
+                <ul className="divide-y divide-border">
+                  {sample.map(({ program, university }) => (
+                    <li key={program.slug}>
+                      <Link href={`/programs/${program.slug}`} className="flex min-h-tap items-center justify-between gap-2 py-2 hover:underline">
+                        <span>
+                          <span className="block font-semibold">{program.title}</span>
+                          <span className="text-meta text-ink-muted">{university.name}</span>
+                        </span>
+                        <Icon name="chevronRight" className="shrink-0 text-ink-muted" />
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+                {searchHref && total > sample.length && (
+                  <Link href={searchHref} className="mt-1 inline-flex min-h-tap items-center gap-1 font-semibold text-primary-ink underline-offset-4 hover:underline">
+                    {t("seeAllIn", { count: total, country: countryName })}
+                    <Icon name="chevronRight" className="size-4 shrink-0" />
+                  </Link>
+                )}
+              </div>
+            );
+          })}
         </Card>
       </Section>
 

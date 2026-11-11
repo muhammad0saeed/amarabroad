@@ -711,6 +711,7 @@
     "evaluatesNote": "এই স্কলারশিপের ফিট স্কোরে এই অংশগুলো বেশি গুরুত্ব পায়।",
     "appliesTo": "কোথায় প্রযোজ্য",
     "programCount": "{count, plural, =0 {কোনো নমুনা প্রোগ্রাম নেই} other {# টি নমুনা প্রোগ্রাম}}",
+    "seeAllIn": "{count, plural, other {{country}-এর সব # টি প্রোগ্রাম দেখুন}}",
     "officialLink": "অফিসিয়াল স্কলারশিপ পেজ",
     "applyBy": "{date}-এর মধ্যে আবেদন",
     "usually": "সাধারণ সময়সূচি",

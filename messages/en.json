@@ -711,6 +711,7 @@
     "evaluatesNote": "Your Fit Score for this scholarship gives these parts extra weight.",
     "appliesTo": "Where it applies",
     "programCount": "{count, plural, =0 {No sample programs} one {# sample program} other {# sample programs}}",
+    "seeAllIn": "{count, plural, one {See the # program in {country}} other {See all # programs in {country}}}",
     "officialLink": "Official scholarship page",
     "applyBy": "Apply by {date}",
     "usually": "Usual timeline",
