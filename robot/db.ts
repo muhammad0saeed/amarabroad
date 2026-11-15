@@ -1,5 +1,6 @@
 // The robot's reads and writes in Supabase, with the secret key (server-only: never shipped to browsers).
 
+import { createHash } from "node:crypto";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { stable, type PlannedChange, type ProgramRow } from "./checks.ts";
 import type { FetchedPage } from "./pipeline.ts";
@@ -37,6 +38,8 @@ export interface SourceRow {
   consecutive_errors: number;
   next_check_at: string;
   last_changed_at: string | null;
+  /** Version of the reading rules that last read this page's facts (null: before versions were kept). */
+  read_rules: number | null;
 }
 
 /** Program pages due for a visit, longest-waiting first; `after` continues from the previous batch. */
@@ -65,8 +68,56 @@ export async function addSource(row: { url: string; kind: string; university: st
   if (error) throw new Error(`add source: ${error.message}`);
 }
 
+// ---------------------------------------------------------------- pages that turned out not to be programs
+//
+// A discovered page that isn't a program (or is gone, or closed to robots) used to stay in `sources`
+// for ever, ~800 bytes each: 44,000 of them took a third of the table. Now only a 52-bit fingerprint of
+// its address is kept (supabase/19_space_diet.sql), so discovery doesn't queue the same page again.
+// After 180 days a page gets another chance (it may have become a program, or the rules improved).
+
+export const REJECTED_FOR_DAYS = 180;
+
+/** True when a change's evidence is a sentence from a page, not the robot's own note in brackets. */
+export const hasQuote = (evidence: string | null | undefined) => !!evidence && !evidence.startsWith("(");
+
+/** Same number as SQL: ('x' || substr(md5(url), 1, 13))::bit(52)::bigint. 52 bits: exact in JavaScript. */
+export function urlHash(url: string): number {
+  return parseInt(createHash("md5").update(url).digest("hex").slice(0, 13), 16);
+}
+
+/** Forget a page that isn't a program: keep only its fingerprint. */
+export async function rejectSource(source: Pick<SourceRow, "id" | "url">) {
+  must(await db().from("rejected_pages").upsert({ url_hash: urlHash(source.url), rejected_at: new Date().toISOString().slice(0, 10) }, { onConflict: "url_hash" }), "remember rejected page");
+  must(await db().from("sources").delete().eq("id", source.id), "forget rejected page");
+}
+
+/** Of these addresses, the ones rejected in the last 180 days. */
+export async function recentlyRejected(urls: string[]): Promise<Set<string>> {
+  const since = new Date(Date.now() - REJECTED_FOR_DAYS * 86_400_000).toISOString().slice(0, 10);
+  const byHash = new Map(urls.map((u) => [urlHash(u), u]));
+  const hashes = [...byHash.keys()];
+  const out = new Set<string>();
+  for (let i = 0; i < hashes.length; i += 300) {
+    const rows = must(await db().from("rejected_pages").select("url_hash").in("url_hash", hashes.slice(i, i + 300)).gte("rejected_at", since), "rejected pages") as { url_hash: number }[];
+    for (const r of rows) out.add(byHash.get(Number(r.url_hash))!);
+  }
+  return out;
+}
+
+/** Queues newly discovered program pages, skipping ones recently rejected. Returns how many were queued. */
+export async function addDiscovered(urls: string[], university: string): Promise<number> {
+  const unique = [...new Set(urls)];
+  const rejected = await recentlyRejected(unique);
+  const fresh = unique.filter((u) => !rejected.has(u));
+  for (let i = 0; i < fresh.length; i += 200) {
+    const rows = fresh.slice(i, i + 200).map((url) => ({ url, kind: "program_page", university, entity_type: null, entity_slug: null, status: "discovered" }));
+    must(await db().from("sources").upsert(rows, { onConflict: "url", ignoreDuplicates: true }), "add discovered pages");
+  }
+  return fresh.length;
+}
+
 /** Next visit: after `hours` (see schedule.ts; daily by default), later after errors (1, 2, 4 … days, at most 14). */
-export async function markChecked(source: SourceRow, result: { hash?: string; etag?: string | null; lastModified?: string | null; changed?: boolean; error?: string; gone?: boolean; hours?: number }) {
+export async function markChecked(source: SourceRow, result: { hash?: string; etag?: string | null; lastModified?: string | null; changed?: boolean; error?: string; gone?: boolean; hours?: number; rules?: number }) {
   const errors = result.error ? source.consecutive_errors + 1 : 0;
   const hours = result.error ? Math.min(2 ** (errors - 1), 14) * 24 : (result.hours ?? 24);
   // A little random spread, so pages found together don't all fall due in the same minute.
@@ -81,6 +132,7 @@ export async function markChecked(source: SourceRow, result: { hash?: string; et
   if (result.etag !== undefined) update.http_etag = result.etag;
   if (result.lastModified !== undefined) update.http_last_modified = result.lastModified;
   if (result.changed) update.last_changed_at = new Date().toISOString();
+  if (result.rules) update.read_rules = result.rules;
   if (result.gone && errors >= 3) update.status = "gone";
   else if (errors >= 8) update.status = "paused";
   must(await db().from("sources").update(update).eq("id", source.id), "mark checked");
@@ -228,10 +280,14 @@ export async function applyProgram(args: {
   must(await db().from("programs").update(update).eq("slug", slug), "update program");
 
   // A held reading already waiting, or one an admin already said no to, isn't logged again.
-  const { data: waiting } = await db().from("field_changes").select("field, new_value").eq("entity_type", "program").eq("entity_slug", slug).in("status", ["held", "rejected"]);
+  const { data: waiting } = changes.some((c) => c.hold)
+    ? await db().from("field_changes").select("field, new_value").eq("entity_type", "program").eq("entity_slug", slug).in("status", ["held", "rejected"])
+    : { data: [] };
   const key = (field: string, value: unknown) => `${field}=${stable(value)}`;
   const seen = new Set(((waiting ?? []) as { field: string; new_value: unknown }[]).map((w) => key(w.field, w.new_value)));
-  const toLog = changes.filter((c) => !c.hold || !seen.has(key(c.field, c.newValue)));
+  // The log exists to show the sentence behind each fact. Applied values without one ("(subject chosen by
+  // the robot)", the robot's own summary) are on the program already; logging them cost 70,000 rows.
+  const toLog = changes.filter((c) => (c.hold ? !seen.has(key(c.field, c.newValue)) : hasQuote(c.evidence)));
   if (toLog.length) {
     must(
       await db()
@@ -418,15 +474,8 @@ export async function programsForRefield() {
 
 /** Changes only a program's subject (logged as the robot's judgement), then publishes it if it's now complete. */
 export async function setProgramField(p: { slug: string; field: string | null; source_url: string | null; official_url: string | null; published: boolean }, field: string): Promise<boolean> {
+  // Not logged: the subject is the robot's judgement, with no sentence to show (see applyProgram).
   must(await db().from("programs").update({ field }).eq("slug", p.slug), "set subject");
-  must(
-    await db().from("field_changes").insert({
-      entity_type: "program", entity_slug: p.slug, field: "field", old_value: p.field, new_value: field,
-      evidence: "(subject chosen by the robot)", source_url: p.source_url || p.official_url || "", extraction: null,
-      status: "applied", reason: null, decided_by: "robot", decided_at: new Date().toISOString(),
-    }),
-    "log subject",
-  );
   if (p.published) return false;
   const { error } = await db().from("programs").update({ published: true }).eq("slug", p.slug);
   return !error;
@@ -436,4 +485,27 @@ export async function setProgramField(p: { slug: string; field: string | null; s
 export async function fieldGroups(): Promise<Record<string, string>> {
   const rows = must(await db().from("fields").select("slug, field_group"), "fields") as { slug: string; field_group: string }[];
   return Object.fromEntries(rows.map((r) => [r.slug, r.field_group]));
+}
+
+// ---------------------------------------------------------------- pages shown as programs that aren't
+
+/**
+ * Published "programs" whose title or address shows they are a page about a program (FAQ, news, fees,
+ * how to apply…), not a program. `hide` switches them off the site (published = false): nothing is
+ * deleted, and switching one back on is a single edit in /admin.
+ */
+export async function nonPrograms(hide: boolean): Promise<{ slug: string; title: string; official_url: string }[]> {
+  const { isNotAProgramTitle, NOT_A_PROGRAM_URL } = await import("./rules.ts");
+  const rows = await everyRow<{ slug: string; title: string; official_url: string; locked_fields: string[] | null }>(
+    (from, to) => db().from("programs").select("slug, title, official_url, locked_fields").eq("published", true).order("slug").range(from, to),
+    "programs",
+  );
+  // A program you edited by hand is never hidden automatically.
+  const found = rows.filter((p) => !(p.locked_fields ?? []).length && (isNotAProgramTitle(p.title) || NOT_A_PROGRAM_URL.test(p.official_url ?? "")));
+  if (hide) {
+    for (let i = 0; i < found.length; i += 100) {
+      must(await db().from("programs").update({ published: false }).in("slug", found.slice(i, i + 100).map((p) => p.slug)), "hide non-programs");
+    }
+  }
+  return found;
 }

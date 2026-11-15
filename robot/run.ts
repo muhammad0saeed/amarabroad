@@ -21,6 +21,7 @@ import { seedCountry, slugify } from "./seed.ts";
 import { seedTop } from "./seed-top.ts";
 import { interleave, pool, shardOf } from "./pool.ts";
 import { confirmDue, nextCheckHours } from "./schedule.ts";
+import { ENGLISH_COUNTRY_NAMES } from "./repair.ts";
 import { applyUniversityFallbacks, deadlineCoverage, deadlineTargets } from "./deadlines.ts";
 import { importOfficial } from "./official-data.ts";
 import { updateRates } from "./rates.ts";
@@ -40,7 +41,11 @@ const today = () => new Date().toISOString().slice(0, 10);
 const log = (...parts: unknown[]) => console.log(new Date().toISOString().slice(11, 19), ...parts);
 /** Version of the reading rules, saved with every extraction so results can be traced to the rules that made them. */
 // v2 (2026-11-10): deadlines kept without a start month, real calendar days, US month-first dates, more wording.
-const RULES_VERSION = "rules-v2";
+// v3 (2026-11-16): tuition never from scholarship/deposit lines, unlabelled durations, overseas deadlines first,
+// integrated master's as bachelor entry, pages about a program rejected by title.
+const RULES_VERSION = "rules-v3";
+/** The same version as a number, saved on each page read (sources.read_rules). */
+const RULES_NUMBER = 3;
 
 async function newProgramSlug(title: string, university: string): Promise<string> {
   const base = slugify(`${title} ${university}`);
@@ -92,6 +97,14 @@ async function checkOne(source: store.SourceRow, validFields: Set<string>, stats
   stats.pages_checked++;
   if (!fetched.page) {
     const gone = fetched.status === 404 || fetched.status === 410;
+    // A page that was never a program and can't be read for good (gone three times, not a web page,
+    // closed to robots): forget it, keeping only a fingerprint so discovery doesn't queue it again.
+    const forGood = (gone && source.consecutive_errors + 1 >= 3) || fetched.reason === "not an HTML page" || fetched.reason.startsWith("robots.txt");
+    if (!source.entity_slug && forGood) {
+      await store.rejectSource(source);
+      log("  dropped:", fetched.reason);
+      return;
+    }
     await store.markChecked(source, { error: fetched.reason, gone });
     if (gone && source.entity_slug && source.consecutive_errors + 1 >= 3) await store.retireProgram(source.entity_slug, source.url);
     log("  skipped:", fetched.reason);
@@ -144,7 +157,10 @@ async function checkOne(source: store.SourceRow, validFields: Set<string>, stats
   const read = readPages([main, ...childPages.map((c) => c.page)], today());
   // Pages that aren't a program are not stored at all (saves database space).
   if (!read.facts.is_program_page || !read.facts.title || (!existing && !read.facts.degree_level)) {
-    await store.markChecked(source, { hash: main.hash, error: "not a single program page" });
+    // Never a program: forget the page (fingerprint only). A known program whose page stopped reading
+    // as one keeps its entry and is tried again later.
+    if (!source.entity_slug) await store.rejectSource(source);
+    else await store.markChecked(source, { hash: main.hash, error: "not a single program page", rules: RULES_NUMBER });
     log("  not a program page");
     return;
   }
@@ -153,14 +169,19 @@ async function checkOne(source: store.SourceRow, validFields: Set<string>, stats
   const current = existing ?? (twin ? await store.loadProgram(twin) : null);
   const slug = current?.slug ?? (await newProgramSlug(read.facts.title, uni.name));
   const changes = planChanges(current, read.facts, today(), validFields);
+  // UK, US, Australia, Ireland: teaching is in English unless the page names another language.
+  if (ENGLISH_COUNTRY_NAMES.has(uni.countryName) && !current?.language && !changes.some((c) => c.field === "language")) {
+    changes.push({ field: "language", oldValue: null, newValue: "en", evidence: "(a university in an English-speaking country; the page names no other teaching language)", hold: null });
+  }
 
-  const snapshot = await store.saveSnapshot(source.id, main);
-  // The full reading is kept only when a change waits for review (it explains that change); otherwise
-  // each fact's sentence is already in the change log, and the reading would cost ~2 KB per program.
-  const extraction = changes.some((c) => c.hold)
-    ? await store.saveExtraction({ source: source.id, snapshot, model: RULES_VERSION, result: { raw: read.raw, dropped: read.dropped }, input_tokens: 0, output_tokens: 0, cost_usd: 0 })
-    : null;
-  await store.pruneSource(source.id);
+  // The full reading (and the page fingerprint it points to) is kept only when a change waits for review:
+  // it explains that change. Otherwise each fact's sentence is already in the change log.
+  let extraction: number | null = null;
+  if (changes.some((c) => c.hold)) {
+    const snapshot = await store.saveSnapshot(source.id, main);
+    extraction = await store.saveExtraction({ source: source.id, snapshot, model: RULES_VERSION, result: { raw: read.raw, dropped: read.dropped }, input_tokens: 0, output_tokens: 0, cost_usd: 0 });
+    await store.pruneSource(source.id);
+  }
   const result = await store.applyProgram({
     slug,
     isNew: !current,
@@ -173,7 +194,7 @@ async function checkOne(source: store.SourceRow, validFields: Set<string>, stats
   stats.changes_applied += result.applied;
   stats.changes_held += result.held;
   if (!existing) await store.linkSource(source.id, slug);
-  await store.markChecked(source, { hash: main.hash, etag: main.etag, lastModified: main.lastModified, changed: true, hours: nextCheckHours({ changedNow: true, lastChangedAt: null, deadlines: [] }) });
+  await store.markChecked(source, { hash: main.hash, etag: main.etag, lastModified: main.lastModified, changed: true, rules: RULES_NUMBER, hours: nextCheckHours({ changedNow: true, lastChangedAt: null, deadlines: [] }) });
   for (const c of childPages) {
     if (c.source) await store.markChecked(c.source, { hash: c.page.hash, etag: c.page.etag, lastModified: c.page.lastModified, changed: true });
     else await store.addSource({ url: c.page.url, kind: "fees_page", university: uni.slug, entity_slug: slug });
@@ -265,10 +286,11 @@ async function discoverOne(slug: string): Promise<number> {
   // Nothing readable past the home page: the site blocked the robot (403) or is down. That is a failure
   // (retried in a few days), not "this university has no programs".
   if (!programs.length && method === "crawl" && fetched <= 2) throw new Error("website blocked the robot or did not answer");
-  for (const p of programs) await store.addSource({ url: p.url, kind: "program_page", university: slug, status: "discovered" });
+  // Pages already rejected as not-a-program in the last 180 days aren't queued again.
+  const queued = await store.addDiscovered(programs.map((p) => p.url), slug);
   await store.markDiscovered(slug, programs.length);
-  log(`  ${uni.name}: ${programs.length} program pages (${method}${fetched ? `, ${fetched} pages read` : ""})`);
-  return programs.length;
+  log(`  ${uni.name}: ${programs.length} program pages, ${queued} new to read (${method}${fetched ? `, ${fetched} pages read` : ""})`);
+  return queued;
 }
 
 async function discover() {
@@ -456,9 +478,9 @@ async function deadlinesFirst() {
   const [shard, shards] = (flag("shard", "0/1") ?? "0/1").split("/").map(Number) as [number, number];
   const before = await retry(() => deadlineCoverage(today()));
   log(`Deadlines: ${before.withDeadline} of ${before.published} published programs have an upcoming deadline (${before.percent}%)`);
-  const { sources, missing } = await retry(() => deadlineTargets(RULES_VERSION, today()));
+  const { sources, missing } = await retry(() => deadlineTargets(RULES_NUMBER, today()));
   const mine = sources.filter((s) => shardOf(s.university ?? s.url, shards) === shard);
-  log(`${missing} programs have no upcoming deadline; ${mine.length} pages to re-read in this shard with ${RULES_VERSION}`);
+  log(`${missing} programs miss a deadline, length, fee, language or English score; ${mine.length} pages not yet read with ${RULES_VERSION} in this shard`);
   const validFields = new Set((await store.fieldList()).map((f) => f.split(":")[0]!));
   const run = await store.startRun(process.env.GITHUB_ACTIONS ? "schedule" : "manual");
   const stats: Stats = { pages_checked: 0, pages_changed: 0, changes_applied: 0, changes_held: 0, errors: 0, cost_usd: 0 };
@@ -492,6 +514,25 @@ const commands: Record<string, () => Promise<void>> = {
   check,
   deadlines: deadlinesFirst,
   "uni-deadlines": uniDeadlines,
+  // Repairs after a rule was corrected (robot/repair.ts). Without --apply they only count.
+  "fix-tuition": async () => {
+    const { clearWrongTuition } = await import("./repair.ts");
+    const r = await clearWrongTuition(rest.includes("--apply"));
+    for (const w of r.wrong.slice(0, Number(flag("show", "25")))) log(`  ${w.amount}  ${w.quote}`);
+    log(`${rest.includes("--apply") ? "Removed" : "Found"} ${r.wrong.length} tuition figures read from a line about something else (of ${r.checked} checked).`);
+  },
+  "fill-english": async () => {
+    const { fillEnglish } = await import("./repair.ts");
+    const n = await fillEnglish(rest.includes("--apply"));
+    log(`${rest.includes("--apply") ? "Set" : "Would set"} "taught in English" on ${n} programs in the UK, US, Australia and Ireland that named no language.`);
+  },
+  // Pages about a program (FAQ, news, fees, how to apply) that were saved as programs: --hide switches them off the site.
+  "non-programs": async () => {
+    const hide = rest.includes("--hide");
+    const found = await store.nonPrograms(hide);
+    for (const p of found.slice(0, Number(flag("show", "40")))) log(`  ${p.title.slice(0, 90)}  <${p.official_url}>`);
+    log(`${hide ? "Hid" : "Found"} ${found.length} published entries that are not programs${hide ? " (not deleted; switch one back on in /admin)" : "; add --hide to switch them off the site"}.`);
+  },
   rates: () => updateRates(log),
   "uni-info": uniInfo,
   crosscheck: crossCheckAll,

@@ -22,19 +22,21 @@ export function byRank<T extends { university: string | null }>(rows: T[], rank:
   return [...rows].sort((a, b) => (rank.get(a.university ?? "") ?? Infinity) - (rank.get(b.university ?? "") ?? Infinity));
 }
 
-/** Program pages to re-read for deadlines: no upcoming deadline, not yet read with `rulesVersion`, not failing. */
-export async function deadlineTargets(rulesVersion: string, today: string): Promise<{ sources: SourceRow[]; missing: number; total: number }> {
-  const programs = await everyRow<{ slug: string; intakes: IntakeLike[] | null }>(
-    (from, to) => db().from("programs").select("slug, intakes").order("slug").range(from, to),
+/** True when a program lacks a fact students need: upcoming deadline, length, fee, teaching language or English score. */
+export function hasGap(p: { intakes: IntakeLike[] | null; duration_months: number | null; tuition_per_year: unknown; language: string | null; english_tests: unknown[] | null }, today: string): boolean {
+  return !hasUpcomingDeadline(p.intakes, today) || p.duration_months === null || p.tuition_per_year === null || !p.language || !(p.english_tests ?? []).length;
+}
+
+/**
+ * Program pages to read again: the program has a gap, and its page was last read with older rules
+ * (sources.read_rules). Each page is therefore re-read once per rules version, best-ranked universities first.
+ */
+export async function deadlineTargets(rulesNumber: number, today: string): Promise<{ sources: SourceRow[]; missing: number; total: number }> {
+  const programs = await everyRow<{ slug: string; intakes: IntakeLike[] | null; duration_months: number | null; tuition_per_year: unknown; language: string | null; english_tests: unknown[] | null }>(
+    (from, to) => db().from("programs").select("slug, intakes, duration_months, tuition_per_year, language, english_tests").order("slug").range(from, to),
     "programs",
   );
-  const missing = new Set(programs.filter((p) => !hasUpcomingDeadline(p.intakes, today)).map((p) => p.slug));
-
-  const readAlready = new Set(
-    (
-      await everyRow<{ source: string }>((from, to) => db().from("extractions").select("source").eq("model", rulesVersion).order("id").range(from, to), "extractions")
-    ).map((e) => e.source),
-  );
+  const missing = new Set(programs.filter((p) => hasGap(p, today)).map((p) => p.slug));
 
   const slugs = [...missing];
   const sources: SourceRow[] = [];
@@ -44,9 +46,10 @@ export async function deadlineTargets(rulesVersion: string, today: string): Prom
       .select("*")
       .eq("kind", "program_page")
       .eq("status", "active")
+      .or(`read_rules.is.null,read_rules.lt.${rulesNumber}`)
       .in("entity_slug", slugs.slice(i, i + 150));
     if (error) throw new Error(`deadline sources: ${error.message}`);
-    for (const s of (data ?? []) as SourceRow[]) if (!readAlready.has(s.id) && s.consecutive_errors < 3) sources.push(s);
+    for (const s of (data ?? []) as SourceRow[]) if (s.consecutive_errors < 3) sources.push(s);
   }
 
   const ranks = await everyRow<{ slug: string; ranking: { rank?: number } | null }>(

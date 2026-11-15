@@ -217,3 +217,47 @@ describe("a deadline without a start month is kept", () => {
     expect(intake("https://www.example.ac.uk/msc", "September 2027 entry: application deadline 15 January 2027")?.start_estimated).toBeUndefined();
   });
 });
+
+describe("pages about a program are not programs", () => {
+  it("rejects FAQs, questions, news, fee and how-to-apply pages by title", async () => {
+    const { isNotAProgramTitle: no } = await import("@/robot/rules");
+    for (const t of [
+      "Executive MBA Frequently Asked Questions", "MBA Digital Production Management: FAQ", "Why choose an MSc in project management?",
+      "What is the recognition of the MSc in Digital Marketing", "Graduation ceremony Faculty of Economics (Bachelor's programmes)",
+      "Executive MBA Best Rankings", "MSc in Nursing Virtual Open Day", "MBA Program Virtual Info Session", "Fees – Project Management – MSc",
+      "How to Apply: Master of Public Health (MPH)", "Language requirements for Bachelor's Degree Programmes", "MBA vs Masters in Finance: Which Should You Pick",
+      "BSc Finance Welcome Week timetable", "Scholarships & Financial aid",
+    ]) expect(no(t), t).toBe(true);
+  });
+
+  it("keeps real degrees with similar words", async () => {
+    const { isNotAProgramTitle: no } = await import("@/robot/rules");
+    for (const t of [
+      "Bachelor of Event and Tourism Management", "Curriculum and Instruction – Master's degree", "Mathematics (with Thesis)",
+      "MSc Financial Economics", "Master of Science in Information Systems", "News Media and Journalism BA", "LLM International Tax Law",
+      "Master of Research in Health", "Digital Marketing MSc", "International Business and Trade",
+    ]) expect(no(t), t).toBe(false);
+  });
+});
+
+describe("tuition is never a scholarship, deposit or printing budget", () => {
+  it("tells a fee line from money about something else", async () => {
+    const { tuitionLineOk: ok } = await import("@/robot/rules");
+    expect(ok("Tuition fee: £24,500 per year")).toBe(true);
+    expect(ok("• Tuition – $22,995 before financial aid and scholarships per undergraduate semester")).toBe(true);
+    expect(ok("We're offering up to 250 Global Excellence Scholarships worth £10,000")).toBe(false);
+    expect(ok("You will need to budget at least £100 for the cost of photocopying, printing and binding.")).toBe(false);
+    expect(ok("you will need to pay a non-refundable deposit of £2,500 towards your tuition fee")).toBe(false);
+    expect(ok("Excellence Award: £6,000 scholarship towards your tuition")).toBe(false);
+  });
+
+  it("reads a length without the word duration, and overseas deadlines before home ones", async () => {
+    const { durationUnlabelled } = await import("@/robot/rules");
+    expect(durationUnlabelled(["1 year, starting in September 2027"])?.value).toBe(12);
+    expect(durationUnlabelled(["4 years full-time"])?.value).toBe(48);
+    expect(durationUnlabelled(["Full-time: 18 months"])?.value).toBe(18);
+    expect(durationUnlabelled(["In 3 years you will learn a lot about many things in this long sentence here."])).toBeNull();
+    const d = readFacts([{ url: "https://www.example.ac.uk/msc", text: "MSc Data\nHome application deadline 13 January 2027\nOverseas application deadline 30 June 2027" }], TODAY).intakes;
+    expect(d.map((i) => i.deadline)).toEqual(["2027-06-30"]);
+  });
+});

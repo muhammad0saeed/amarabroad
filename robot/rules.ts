@@ -49,7 +49,7 @@ const CUR = "€|EUR|euros?|HUF|Ft|forint|CHF|£|GBP|SEK|NOK|DKK|PLN|zł|CZK|Kč
 const NUM = "\\d{1,3}(?:[.,\\s’'\\u00a0]\\d{3})+(?:[.,]\\d{1,2})?|\\d+(?:[.,]\\d{1,2})?";
 const AMOUNT = new RegExp(`(?:(${CUR})\\s?(${NUM}))|(?:(${NUM})\\s?(${CUR})(?![a-z]))`, "gi");
 
-const NON_EU = /(non[- ]?eu|non[- ]?eea|international (students|applicants)|third[- ]country|outside (the )?(eu|eea|european union)|non[- ]european|nicht[- ]eu|drittstaat|extra[- ]?ue|nem eu)/i;
+const NON_EU = /(non[- ]?eu|non[- ]?eea|international (students|applicants|applications?|fees?|tuition)|\boverseas\b|third[- ]country|outside (the )?(eu|eea|european union)|non[- ]european|nicht[- ]eu|drittstaat|extra[- ]?ue|nem eu)/i;
 const EU_ONLY = /\b(eu|eea|european union)\b.*\b(citizens|students|applicants|nationals)\b/i;
 /** Fees for the country's own students (UK "home" fees, US in-state…): never the international fee. */
 const HOME = /(\bhome (students?|fees?|applicants?)\b|\buk (students?|applicants?|fees?)\b|\b(uk|home)\/(eu|ireland|irish)\b|\bdomestic\b|\bin-state\b|\bresidents? of\b|\bscottish\b|\bnational students\b)/i;
@@ -233,6 +233,34 @@ function duration(lines: string[]): ProgramFacts["duration_months"] {
   return null;
 }
 
+const mainLines0 = (text: string) => text.split(/\n+/).map((l) => l.trim()).filter(Boolean);
+
+/**
+ * A length stated without the word "duration": "1 year, starting in September 2027", "3 years full-time",
+ * "Full-time: 12 months". Only short lines of their own count, full-time before part-time.
+ */
+export function durationUnlabelled(lines: string[]): ProgramFacts["duration_months"] {
+  const N = "(\\d+(?:[.,]5)?|one|two|three|four|five|six)";
+  const UNIT = "(years?|months?|semesters?)";
+  const patterns = [
+    new RegExp(`^(?:full[- ]time|duration)[:,]?\\s*${N}\\s*${UNIT}\\b`, "i"),
+    new RegExp(`^${N}\\s*${UNIT}\\s*(?:\\(?full[- ]time\\)?|,?\\s*starting\\b|,?\\s*including\\b|with (?:a )?(?:professional )?placement|\\(?\\d+ semesters\\)?)`, "i"),
+    new RegExp(`^${N}\\s*${UNIT}$`, "i"),
+  ];
+  for (const re of patterns) {
+    for (const line of lines) {
+      if (line.length > 70 || /part[- ]time/i.test(line.slice(0, 12))) continue;
+      const m = line.replace(/^[•\-–\s]+/, "").match(re);
+      if (!m) continue;
+      const n = WORD_NUMBERS[m[1]!.toLowerCase()] ?? Number(m[1]!.replace(",", "."));
+      const unit = m[2]!.toLowerCase();
+      const months = unit.startsWith("sem") ? n * 6 : unit.startsWith("year") ? n * 12 : n;
+      if (months >= 9 && months <= 72) return { value: months, quote: line.slice(0, 220) };
+    }
+  }
+  return null;
+}
+
 function ects(lines: string[]): ProgramFacts["ects_credits"] {
   for (const line of lines) {
     const m = line.match(/\b(\d{2,3})\s*(?:ects|ects[- ]credits|credit points|cfu|crediti|kredit)\b/i) ?? line.match(/\b(?:ects|credits)\s*[:\-]?\s*(\d{2,3})\b/i);
@@ -320,6 +348,17 @@ const TUITION_KEY = /(tuition|studiengebühr|studiengebuehr|tasse universitarie|
 const OTHER_FEE_KEY = /(semester (contribution|fee)|student (fees?|union|services)|semesterbeitrag|semesterticket|contributo|tassa regionale|administration fee|enrol?ment fee|registration fee|studentenwerk)/i;
 const FREE = /(no tuition|tuition[- ]free|free of (tuition|charge)|no tuition fees|keine studiengebühren|without tuition|tuition (fees )?(is|are) (waived|not charged)|nessuna tassa)/i;
 
+const NOT_TUITION = /(scholarships?|bursar(y|ies)|\bawards?\b|\bgrants?\b|discount|reduction|deposit|\bbudget\b|photocop|printing|binding|\bbooks?\b|equipment|field ?(trip|work)|accommodation|living (costs?|expenses)|maintenance|\bloans?\b|insurance|\bvisa\b|\bworth\b|\bup to\b|salary|stipend|earn)/i;
+
+/**
+ * False for a line whose money is probably not the tuition fee (it names a scholarship, deposit, budget,
+ * loan…), unless the amount comes straight after the word: "Tuition – $22,995 before scholarships".
+ */
+export function tuitionLineOk(line: string): boolean {
+  if (!NOT_TUITION.test(line)) return true;
+  return /(tuition( fees?)?|course fees?|programme fees?|program fees?)\s*(per year|a year|annual)?\s*[:–—-]?\s*(is|are|of)?\s*(?:[£$€]|eur|usd|gbp|aud|cad)?\s?\d/i.test(line);
+}
+
 function tuition(lines: string[]): ProgramFacts["tuition"] {
   const found: NonNullable<ProgramFacts["tuition"]>[] = [];
   for (let i = 0; i < lines.length; i++) {
@@ -331,6 +370,9 @@ function tuition(lines: string[]): ProgramFacts["tuition"] {
     if (FREE.test(line)) found.push({ amount_per_year: 0, currency: "EUR", applies_to: NON_EU.test(line) ? "non_eu" : applies, quote: line.slice(0, 220) });
     for (let j = i; j <= Math.min(i + 3, lines.length - 1); j++) {
       if (j > i && (OTHER_FEE_KEY.test(lines[j]!) || (TUITION_KEY.test(lines[j]!) && j !== i))) break;
+      // Money near the word "tuition" that is not the fee: scholarships ("worth £10,000"), printing budgets, deposits, loans.
+      // A missing fee ("Not found") is better than a wrong one, so such a line is skipped even if it also says "tuition".
+      if (!tuitionLineOk(lines[j]!)) continue;
       const amounts = amountsIn(lines[j]!).filter((a) => a.amount >= 100);
       if (!amounts.length) continue;
       const a = amounts[0]!;
@@ -453,7 +495,7 @@ function intakes(lines: string[], today: string, startFrom: number | null = prog
       let year = Number(deadline.slice(0, 4));
       if (Date.parse(iso(year, label, 1)) <= dl) year += 1;
       const context = lines.slice(i, j + 1).join(" ");
-      out.push({ start_month: label, start_year: year, deadline, deadline_for: NON_EU.test(context) ? "non_eu" : EU_ONLY.test(context) ? "eu" : "all", quote: quoteOf(lines, i === j ? j : i, j).slice(0, 220), ...(stated ? {} : { start_estimated: true }) });
+      out.push({ start_month: label, start_year: year, deadline, deadline_for: NON_EU.test(lines[j]!) ? "non_eu" : HOME.test(lines[j]!) ? "eu" : NON_EU.test(context) ? "non_eu" : EU_ONLY.test(context) || HOME.test(context) ? "eu" : "all", quote: quoteOf(lines, i === j ? j : i, j).slice(0, 220), ...(stated ? {} : { start_estimated: true }) });
     }
   }
   // One deadline per start month: non-EU first, then the earliest.
@@ -641,8 +683,13 @@ export function readFacts(pages: RulePage[], today: string): ProgramFacts {
   const f: ProgramFacts = { ...EMPTY_FACTS, intakes: [], english_tests: [], required_documents: [], related_bachelor_fields: [], career_paths_en: [] };
 
   f.degree_level = degreeLevel(pages);
+  // MEng / MSci (Hons) entered straight from school (UK "undergraduate" integrated master's): students apply
+  // with their HSC, so it is listed with bachelor's programs.
+  if (f.degree_level?.value === "master" && (/\/undergraduate[-/]/i.test(main.url) || /\b(MEng|MSci|MChem|MPhys|MMath|MPharm|MBiol|MComp|MGeol)\b.*\(Hons\)/.test(f.degree_level.quote))) {
+    f.degree_level = { value: "bachelor", quote: f.degree_level.quote };
+  }
   f.title = programTitle(main.meta);
-  f.duration_months = duration(lines);
+  f.duration_months = duration(lines) ?? durationUnlabelled(mainLines0(main.text));
   f.ects_credits = ects(lines);
   const languages = teachingLanguages(lines);
   f.teaching_language = languages?.fact ?? null;
@@ -691,9 +738,31 @@ export function readFacts(pages: RulePage[], today: string): ProgramFacts {
   // It's a program page when it names a degree and states at least two program facts.
   const signals = [f.duration_months, f.ects_credits, f.tuition, f.intakes.length ? 1 : null, f.english_tests.length ? 1 : null, f.teaching_language].filter(Boolean).length;
   // Events (webinars, thesis defences), news, stories and thesis pages mention degrees but aren't programs.
-  f.is_program_page = Boolean(f.degree_level) && signals >= 2 && !NOT_A_PROGRAM_URL.test(main.url);
+  f.is_program_page = Boolean(f.degree_level) && signals >= 2 && !NOT_A_PROGRAM_URL.test(main.url) && !isNotAProgramTitle(f.title);
   return f;
 }
 
+/**
+ * Titles of pages ABOUT a program (or about something else) that are not the program itself: FAQs,
+ * questions, news, rankings, ceremonies, open days, fee and how-to-apply pages. They mention degrees,
+ * credits and IELTS, so they used to pass as programs (about 450 were on the site on 16 Nov 2026).
+ * Careful with real degrees: "Event Management", "Curriculum and Instruction", "(with Thesis)" stay.
+ */
+const NOT_A_PROGRAM_TITLE = new RegExp(
+  [
+    "frequently asked", "\\bfaqs?\\b", "\\?\\s*$",
+    "^(why|what|how|when|which|who|is|are|can|should|do|does|thinking of)\\b",
+    "\\bceremony\\b", "anniversary", "\\brankings?\\b", "\\bjoins\\b", "celebrat", "record result", "newsletter", "press release",
+    "open day", "info(rmation)? session", "webinar", "welcome week", "timetable",
+    "^fees\\b", "\\bfees\\s+[–—-]\\s", "application and fees", "process and fees", "tuition\\s*(&|and)\\s", "financial aid", "^scholarships?\\b", "scholarships?\\s*(&|and)\\s", "fellowships? available",
+    "how to apply", "admissions? requirements?", "entry requirements", "language requirements", "access requirements", "requirements\\s*(&|and)\\s*deadlines", "admissions? process", "application process",
+    "\\svs\\.?\\s", "\\bversus\\b", "key points", "thesis examiner", "master'?s thesis in\\b", "course and thesis", "credited auditors", "\\bsalar(y|ies)\\b",
+  ].join("|"),
+  "i",
+);
+export function isNotAProgramTitle(title: string | null | undefined): boolean {
+  return !!title && NOT_A_PROGRAM_TITLE.test(title.trim());
+}
+
 /** Page addresses that are never a program's own page (sitemaps list them next to programs). */
-export const NOT_A_PROGRAM_URL = /(\/events?\/|\/news\/|\/blogs?\/|\/stories\/|\/press\/|\/podcasts?\/|\/theses\/|webinar|defen[cs]e-of-(the-)?(dissertation|thesis|doctoral)|dissertation-guidelines|thesis-and-dissertation|salary-expectations|testimonial)/i;
+export const NOT_A_PROGRAM_URL = /(\/events?\/|\/news\/|\/latest\/|\/articles?\/|\/faqs?(\/|$)|\/blogs?\/|\/stories\/|\/press\/|\/podcasts?\/|\/theses\/|webinar|defen[cs]e-of-(the-)?(dissertation|thesis|doctoral)|dissertation-guidelines|thesis-and-dissertation|salary-expectations|testimonial)/i;
