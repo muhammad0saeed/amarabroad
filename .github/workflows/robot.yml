@@ -217,6 +217,30 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
 
+  # The website reads one packed file (see catalog.yml). GitHub runs that workflow's 30-minute schedule only every
+  # few hours, so every robot shift also asks for it: once when the shift starts and once when the checks end.
+  site_file_start:
+    needs: plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      actions: write
+    steps:
+      - run: gh workflow run catalog.yml --repo ${{ github.repository }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+  site_file_end:
+    needs: [check, deadlines]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      actions: write
+    steps:
+      - run: gh workflow run catalog.yml --repo ${{ github.repository }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+
   # Small jobs, every shift: scholarship rounds (a few official pages), news headlines (a few feeds),
   # and tidying the change log. A few minutes in all.
   extras:

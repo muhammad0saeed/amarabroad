@@ -5,6 +5,8 @@ import { PageHeader } from "@/components/ui/primitives";
 import { getCountry, listCities, listPrograms, listScholarships } from "@/lib/data";
 import { monthlyLivingCost } from "@/lib/cost";
 import { getRates, initPage, type LocaleParams } from "@/lib/server";
+import { todayISO } from "@/lib/dates";
+import { nextDeadline } from "@/lib/summary";
 
 export async function generateMetadata({ params }: LocaleParams): Promise<Metadata> {
   const t = await getTranslations({ locale: (await params).locale, namespace: "tools" });
@@ -25,7 +27,16 @@ export default async function ToolsPage({ params }: LocaleParams) {
       }),
     )
   ).filter((c) => c !== null);
-  const programs = (await listPrograms()).map(({ slug, title, intakes }) => ({ slug, title, intakes }));
+  // The planner needs a deadline to plan from. All 34,000 programs in one dropdown made this page 9 MB, so it
+  // offers the 300 programs whose deadlines come next (each program page has its own "Add to calendar").
+  const today = todayISO();
+  const programs = (await listPrograms())
+    .flatMap(({ slug, title, intakes }) => {
+      const next = nextDeadline(intakes, today);
+      return next ? [{ slug, title, intakes: [{ month: next.month, year: next.year, deadline: next.deadline }] }] : [];
+    })
+    .sort((x, y) => (x.intakes[0]!.deadline < y.intakes[0]!.deadline ? -1 : 1))
+    .slice(0, 300);
   const scholarships = (await listScholarships()).flatMap(({ slug, name, deadline }) => (deadline ? [{ slug, name, deadline }] : []));
 
   return (

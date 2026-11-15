@@ -17,8 +17,12 @@ export type { Catalog };
  * once per half hour by the robot, never by visitors, so busy robots can't slow pages down or fail deploys.
  */
 const CATALOG_URL = process.env.CATALOG_URL ?? "https://github.com/muhammad0saeed/amarabroad/releases/download/catalog/catalog.json.gz";
-/** Older than this (the robot stopped publishing), read the database instead. */
-const CATALOG_MAX_AGE_MS = 3 * 60 * 60 * 1000;
+/**
+ * Older than this (the robot stopped publishing for days), read the database instead. It was 3 hours, but GitHub
+ * runs the "every 30 minutes" export only every 5-8 hours, so most server starts fell back to the database: a
+ * first visit took 18-60 seconds or failed. Facts a few hours old are far better than a page that doesn't load.
+ */
+const CATALOG_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 
 export async function loadCatalogFile(): Promise<Catalog | null> {
   try {
