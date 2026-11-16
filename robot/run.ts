@@ -43,9 +43,11 @@ const log = (...parts: unknown[]) => console.log(new Date().toISOString().slice(
 // v2 (2026-11-10): deadlines kept without a start month, real calendar days, US month-first dates, more wording.
 // v3 (2026-11-16): tuition never from scholarship/deposit lines, unlabelled durations, overseas deadlines first,
 // integrated master's as bachelor entry, pages about a program rejected by title.
-const RULES_VERSION = "rules-v3";
+// v4 (2026-11-16): fees in columns (home, then international), fee tables with the currency in the header,
+// IELTS score on the line after "IELTS (Academic)".
+const RULES_VERSION = "rules-v4";
 /** The same version as a number, saved on each page read (sources.read_rules). */
-const RULES_NUMBER = 3;
+const RULES_NUMBER = 4;
 
 async function newProgramSlug(title: string, university: string): Promise<string> {
   const base = slugify(`${title} ${university}`);
@@ -520,6 +522,15 @@ const commands: Record<string, () => Promise<void>> = {
     const r = await clearWrongTuition(rest.includes("--apply"));
     for (const w of r.wrong.slice(0, Number(flag("show", "25")))) log(`  ${w.amount}  ${w.quote}`);
     log(`${rest.includes("--apply") ? "Removed" : "Found"} ${r.wrong.length} tuition figures read from a line about something else (of ${r.checked} checked).`);
+  },
+  "fix-home-fees": async () => {
+    const { fixHomeFees } = await import("./repair.ts");
+    const apply = rest.includes("--apply");
+    const file = flag("slugs-file", "");
+    const given = file ? (await import("node:fs")).readFileSync(file, "utf8").split(/\s+/).filter(Boolean) : undefined;
+    const r = await fixHomeFees(apply, today(), given);
+    for (const w of r.fixed.slice(0, Number(flag("show", "25")))) log(`  ${w.from} -> ${w.to ?? "removed"}  ${w.quote}`);
+    log(`${apply ? "Corrected" : "Would correct"} ${r.fixed.length} of ${r.found} programs whose UK home fee was saved as everyone's fee.`);
   },
   "fill-english": async () => {
     const { fillEnglish } = await import("./repair.ts");

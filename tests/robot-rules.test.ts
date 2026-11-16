@@ -261,3 +261,29 @@ describe("tuition is never a scholarship, deposit or printing budget", () => {
     expect(d.map((i) => i.deadline)).toEqual(["2027-06-30"]);
   });
 });
+
+describe("rules v4: fees in columns and tables, IELTS under its heading", () => {
+  const read = (text: string) => readFacts([{ url: "https://www.example.ac.uk/study/undergraduate/courses/bsc-data/", text }], TODAY);
+
+  it("reads the international column, not the home fee, when labels come before amounts (York)", () => {
+    const t = read("BSc Data\n## Annual tuition fees\nUK (home)\nInternational and EU\n£10,050\n£28,600\n## UK (home) or international fees?").tuition;
+    expect(t).toMatchObject({ amount_per_year: 28600, currency: "GBP", applies_to: "non_eu" });
+  });
+
+  it("does not pair columns when the amounts are not on lines of their own", () => {
+    const t = read("BSc Data\n## Annual tuition fees\nUK (home)\nInternational and EU\nSee our fees page for £10,050 and more details here").tuition;
+    expect(t?.amount_per_year).not.toBe(28600);
+  });
+
+  it("reads fee tables with the currency in the header, skipping module fees (UWE)", () => {
+    const t = read("BSc Data\n## Fees\nFees | Amount (£)\nHome Fee | 10050\nHome Module Fee (15 Credit) | 1256\nInternational Fee | 17500\nInternational Module Fee (15 Credit) | 2188").tuition;
+    expect(t).toMatchObject({ amount_per_year: 17500, currency: "GBP", applies_to: "non_eu" });
+  });
+
+  it("reads the IELTS score on the line after 'IELTS (Academic)', but not from an unrelated next line", () => {
+    expect(read("BSc Data\nIELTS (Academic)\n6.5, with a minimum of 6.0 in each component").english_tests).toEqual([
+      expect.objectContaining({ test: "ielts", min_score: 6.5 }),
+    ]);
+    expect(read("BSc Data\nIELTS equivalences\nIn 2027 we will update this page").english_tests).toEqual([]);
+  });
+});

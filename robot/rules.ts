@@ -359,11 +359,74 @@ export function tuitionLineOk(line: string): boolean {
   return /(tuition( fees?)?|course fees?|programme fees?|program fees?)\s*(per year|a year|annual)?\s*[:–—-]?\s*(is|are|of)?\s*(?:[£$€]|eur|usd|gbp|aud|cad)?\s?\d/i.test(line);
 }
 
+/** Who a fee label is for: "International and EU", "Overseas" → non_eu; "UK (home)", "Home" → eu; anything else → null. */
+function labelApplies(label: string): Applies | null {
+  if (/\b(international|overseas|non[- ]?eu|non[- ]?eea)\b/i.test(label)) return "non_eu";
+  if (/\b(home|uk|domestic|in-state)\b/i.test(label) || HOME.test(label)) return "eu";
+  return null;
+}
+
+/**
+ * Fees laid out as columns, read top to bottom: the labels first, then the amounts in the same order.
+ *   "Annual tuition fees" / "UK (home)" / "International and EU" / "£10,050" / "£28,600"
+ * Without this, the first amount (the home fee) was taken as everyone's fee.
+ */
+function tuitionColumns(lines: string[], i: number): NonNullable<ProgramFacts["tuition"]>[] {
+  const labels: { applies: Applies; at: number }[] = [];
+  let k = i + 1;
+  for (; k < lines.length && k <= i + 4; k++) {
+    const l = lines[k]!;
+    if (amountsIn(l).length || l.length > 40) break;
+    const a = labelApplies(l);
+    if (!a) break;
+    labels.push({ applies: a, at: k });
+  }
+  if (labels.length < 2 || new Set(labels.map((l) => l.applies)).size < 2) return [];
+  const out: NonNullable<ProgramFacts["tuition"]>[] = [];
+  for (let n = 0; n < labels.length; n++) {
+    const l = lines[k + n];
+    // Each amount on a line of its own ("£28,600"), nothing else: otherwise the columns are not certain.
+    if (!l || l.length > 30) return [];
+    const a = amountsIn(l).filter((x) => x.amount >= 100);
+    if (a.length !== 1) return [];
+    out.push({ amount_per_year: a[0]!.amount, currency: a[0]!.currency, applies_to: labels[n]!.applies, quote: quoteOf(lines, i, k + n) });
+  }
+  return out;
+}
+
+/**
+ * Fee tables with the currency in the header: "Fees | Amount (£)" / "Home Fee | 10050" / "International Fee | 17500".
+ * Module, credit, placement and part-time rows are not the yearly tuition fee.
+ */
+function tuitionTable(lines: string[]): NonNullable<ProgramFacts["tuition"]>[] {
+  const out: NonNullable<ProgramFacts["tuition"]>[] = [];
+  for (let i = 0; i < lines.length; i++) {
+    const head = lines[i]!.match(/^(?:tuition )?fees?\s*\|\s*(?:amount|fee|cost)\s*\(\s*([£$€]|gbp|usd|eur)\s*\)\s*$/i);
+    if (!head) continue;
+    const currency = currencyOf(head[1]!);
+    for (let j = i + 1; j < lines.length && j <= i + 8; j++) {
+      const row = lines[j]!.match(/^([^|\d][^|]{1,44}?)\s*\|\s*(\d[\d.,]{2,8})\s*$/);
+      if (!row) break;
+      if (/module|credit|placement|part[- ]time|year abroad|sandwich|foundation|deposit/i.test(row[1]!)) continue;
+      const applies = labelApplies(row[1]!);
+      const amount = parseNumber(row[2]!);
+      if (!applies || !/\bfees?\b/i.test(row[1]!) || !(amount >= 100)) continue;
+      out.push({ amount_per_year: amount, currency, applies_to: applies, quote: `${lines[i]} ${lines[j]}`.slice(0, 220) });
+    }
+  }
+  return out;
+}
+
 function tuition(lines: string[]): ProgramFacts["tuition"] {
-  const found: NonNullable<ProgramFacts["tuition"]>[] = [];
+  const found: NonNullable<ProgramFacts["tuition"]>[] = [...tuitionTable(lines)];
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i]!;
     if (!TUITION_KEY.test(line) && !FREE.test(line)) continue;
+    const columns = tuitionColumns(lines, i);
+    if (columns.length) {
+      found.push(...columns);
+      continue;
+    }
     if (OTHER_FEE_KEY.test(line) && !TUITION_KEY.test(line)) continue;
     const context = lines.slice(Math.max(0, i - 1), i + 4).join(" ");
     const applies: Applies = NON_EU.test(context) ? "non_eu" : EU_ONLY.test(context) ? "eu" : "all";
@@ -519,9 +582,11 @@ function englishTests(lines: string[]): ProgramFacts["english_tests"] {
   const out: ProgramFacts["english_tests"] = [];
   for (const t of TESTS) {
     for (let i = 0; i < lines.length; i++) {
-      // Score on the same line, or on the next one (tables like "IELTS | 6.5" split across cells).
+      // Score on the same line, or on the next one when this line is just the test's name ("IELTS", "IELTS (Academic)")
+      // and the next line starts with the score ("6.5, with a minimum of 6.0 in each component").
       const line = lines[i]!;
-      const m = line.match(t.re) ?? (/\b(IELTS|TOEFL|PTE|Duolingo)\b\s*:?$/i.test(line) ? `${line} ${lines[i + 1] ?? ""}`.match(t.re) : null);
+      const heading = line.length <= 50 && /\b(IELTS|TOEFL|PTE|Duolingo)\b[^0-9]{0,30}:?$/i.test(line) && /^\d/.test(lines[i + 1] ?? "");
+      const m = line.match(t.re) ?? (heading ? `${line} ${lines[i + 1] ?? ""}`.match(t.re) : null);
       if (!m) continue;
       const v = Number(m[1]!.replace(",", "."));
       if (v >= t.min && v <= t.max) {
