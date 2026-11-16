@@ -1,16 +1,18 @@
 # The data robot, on GitHub's servers, not on your PC. No AI or paid service is used.
 # Needs two repository secrets (Settings → Secrets and variables → Actions): SUPABASE_URL, SUPABASE_SECRET_KEY.
 #
-# It works non-stop: a new shift starts every 6 hours and each job works for about 5½ hours.
-#   check     6 jobs × 25 websites at once  visit due program pages and update what changed
-#                                           (deadline within 45 days every 12 h, changed daily, normal every 3 days, quiet weekly; robot/schedule.ts)
-#   discover  4 jobs × 25 universities      search universities for program pages: new ones first (best ranked first),
+# A new shift starts every 12 hours and each job works for up to about 5½ hours. Slowed down on 16 Nov: the free
+# Supabase plan's daily disk allowance (Disk IO budget) was running out from the robot's writes.
+#   check     4 jobs × 25 websites at once  visit due program pages and update what changed
+#                                           (deadline within 45 days every 12 h, changed every 2 days, normal weekly, quiet every 2 weeks; robot/schedule.ts)
+#   discover  2 jobs × 25 universities      search universities for program pages: new ones first (best ranked first),
 #                                           then each again every 30 days; adds the next 500 by rank when few are left
 #   info      2 jobs: the gap-filler, universities' general pages (fees, deadlines, English, documents),
 #                                           then the cross-checker (program pages vs those general pages)
-#   deadlines 2 jobs × 15 websites: programs missing a deadline, length, fee, language or English score re-read once
-#                                           per rules version (sources.read_rules), best ranked first;
-#                                           university-wide deadlines (strict filter) as labelled fallbacks for programs whose page states none
+#   deadlines 1 job: university-wide deadlines (strict filter) as labelled fallbacks for programs whose page states none.
+#                                           The gap re-read (programs missing a deadline, length, fee, language or English score read again
+#                                           once per rules version) is paused; it runs only when the repository variable GAP_REREAD is "on"
+#                                           (set it after the rules improve, then remove it again).
 #   rates     every shift: exchange rates to taka for every currency (free public-domain dataset)
 #   extras    every shift: scholarship rounds (official pages), news links (official and education-news feeds;
 #                                           expired and dead links removed), tidying the change log
@@ -27,7 +29,7 @@ name: Data robot
 
 on:
   schedule:
-    - cron: "0 0,6,12,18 * * *" # every 6 hours (06:00, 12:00, 18:00, 00:00 Bangladesh time)
+    - cron: "0 0,12 * * *" # every 12 hours (06:00 and 18:00 Bangladesh time)
     - cron: "30 21 * * 0" # official course lists, weekly (Monday 03:30 Bangladesh time)
   workflow_dispatch:
     inputs:
@@ -60,8 +62,8 @@ jobs:
           if [ "$(gh api repos/${{ github.repository }} --jq .private)" = "false" ]; then
             echo "Public repository: full speed"
             echo 'full=true' >> "$GITHUB_OUTPUT"
-            echo 'check_shards=[0,1,2,3,4,5]' >> "$GITHUB_OUTPUT"
-            echo 'discover_shards=[0,1,2,3]' >> "$GITHUB_OUTPUT"
+            echo 'check_shards=[0,1,2,3]' >> "$GITHUB_OUTPUT"
+            echo 'discover_shards=[0,1]' >> "$GITHUB_OUTPUT"
             echo 'check_minutes=330' >> "$GITHUB_OUTPUT"
             echo 'discover_minutes=300' >> "$GITHUB_OUTPUT"
             echo 'uni_minutes=40' >> "$GITHUB_OUTPUT"
@@ -120,7 +122,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        shard: [0, 1]
+        shard: [0]
     concurrency:
       group: robot-deadlines-${{ matrix.shard }}
       cancel-in-progress: false
@@ -140,8 +142,9 @@ jobs:
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
-      - name: Re-read programs that have no deadline
-        run: npm run robot -- deadlines --parallel 15 --minutes 300 --shard ${{ matrix.shard }}/2
+      - name: Re-read programs with gaps (paused unless the repository variable GAP_REREAD is "on")
+        if: vars.GAP_REREAD == 'on'
+        run: npm run robot -- deadlines --parallel 15 --minutes 300 --shard ${{ matrix.shard }}/1
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}

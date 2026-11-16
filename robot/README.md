@@ -15,10 +15,10 @@ OpenAlex ─seed-top─► universities ─discover─► program pages ─check
 
 ## How it runs (non-stop, .github/workflows/robot.yml)
 
-A new shift starts every 6 hours; each job works about 5½ hours, so the robot is practically always working:
+A new shift starts every 12 hours; each job works up to about 5½ hours (slowed down on 16 Nov to stay inside the free database's daily disk allowance):
 
-- **check**: 6 jobs × 50 websites at once. Asks each site "changed since last time?" (ETag / Last-Modified) and skips unchanged pages without downloading. Hot pages (changed this week, or a deadline within 45 days) every 6 hours, normal pages daily, pages quiet for 90 days every 2 days (`schedule.ts`).
-- **discover**: 4 jobs × 40 universities at once. Never-searched universities first, best ranked first; then each university again every 30 days to catch new programs. Failed websites are retried after 3 days.
+- **check**: 4 jobs × 25 websites at once. Asks each site "changed since last time?" (ETag / Last-Modified) and skips unchanged pages without downloading. Pages with a deadline within 45 days every 12 hours, changed this week every 2 days, normal pages weekly, pages quiet for 90 days every 2 weeks (`schedule.ts`).
+- **discover**: 2 jobs × 25 universities at once. Never-searched universities first, best ranked first; then each university again every 30 days to catch new programs. Failed websites are retried after 3 days.
 - **grow**: when fewer than 500 universities wait for a first search, adds the next 500 by rank.
 - **Database brake**: above 430 MB (free plan: 500 MB) it only updates known programs and adds nothing new. Only program pages are stored, one latest copy each (`supabase/05_robot_storage.sql`).
 - **Private repository**: the plan job switches to a small version that fits GitHub's 2,000 free minutes. Public = full speed.

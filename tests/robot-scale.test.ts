@@ -74,13 +74,13 @@ describe("when to visit a page next", () => {
     expect(nextCheckHours({ changedNow: false, lastChangedAt: ago(30), deadlines: [ahead(120)], now })).toBe(HOURS.normal);
   });
 
-  it("visits pages that just changed or changed this week daily", () => {
+  it("visits pages that just changed or changed this week every 2 days", () => {
     expect(nextCheckHours({ changedNow: true, lastChangedAt: null, deadlines: [], now })).toBe(HOURS.changed);
     expect(nextCheckHours({ changedNow: false, lastChangedAt: ago(3), deadlines: [], now })).toBe(HOURS.changed);
   });
 
-  it("visits long-quiet pages weekly, the rest every 3 days", () => {
-    expect([HOURS.normal, HOURS.quiet]).toEqual([72, 168]);
+  it("visits long-quiet pages every 2 weeks, the rest weekly", () => {
+    expect([HOURS.changed, HOURS.normal, HOURS.quiet]).toEqual([48, 168, 336]);
     expect(nextCheckHours({ changedNow: false, lastChangedAt: ago(120), deadlines: [ahead(-30)], now })).toBe(HOURS.quiet);
     expect(nextCheckHours({ changedNow: false, lastChangedAt: ago(30), deadlines: [], now })).toBe(HOURS.normal);
     expect(nextCheckHours({ changedNow: false, lastChangedAt: null, deadlines: [], now })).toBe(HOURS.normal);
@@ -149,10 +149,10 @@ describe("university-wide fallback deadlines", () => {
 });
 
 describe("fewer database writes", () => {
-  it("saves 'still the same' at most every 3 days", async () => {
+  it("saves 'still the same' at most every 7 days", async () => {
     const { confirmDue } = await import("@/robot/schedule");
     expect(confirmDue(null, "2026-11-11")).toBe(true);
-    expect(confirmDue("2026-11-10", "2026-11-11")).toBe(false);
-    expect(confirmDue("2026-11-08", "2026-11-11")).toBe(true);
+    expect(confirmDue("2026-11-08", "2026-11-11")).toBe(false);
+    expect(confirmDue("2026-11-04", "2026-11-11")).toBe(true);
   });
 });
