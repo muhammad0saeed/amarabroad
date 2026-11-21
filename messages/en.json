@@ -624,9 +624,12 @@
     "rankingSource": "Ranking source",
     "website": "University website",
     "rankingNote": "We show the rank, year and source only. Rankings measure research more than teaching.",
-    "programsTitle": "Programs",
+    "programsTitle": "Master's programs",
     "scholarships": "Scholarships",
-    "noScholarships": "No scholarships linked to this university yet."
+    "noScholarships": "No scholarships linked to this university yet.",
+    "programsAll": "Missing a program? The university's own course list is always complete.",
+    "programsAllLink": "All programs on the official website",
+    "programsIncomplete": "This list is probably incomplete. {name}'s website doesn't let our robot read its course pages, so we list only what we could confirm. Check the university's own course list before deciding."
   },
   "city": {
     "title": "{city} city guide",

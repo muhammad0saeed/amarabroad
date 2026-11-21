@@ -289,3 +289,14 @@ describe("importing", () => {
     expect(uniqueCourses([c, { ...c, code: "b", title: "BACHELOR OF ARTS" }, { ...c, code: "c", level: "master" }]).map((x) => x.code)).toEqual(["a", "c"]);
   });
 });
+
+describe("official-list courses already on the university's own pages", () => {
+  it("skips a course whose subject a page program already has", async () => {
+    const { coveredByPage } = await import("@/robot/official-data");
+    expect(coveredByPage(["MS in Computer Science", "MBA"], { title: "Computer Science – Master's degree" })).toBe(true);
+    expect(coveredByPage(["Master of Data Science (Online)"], { title: "Master of Data Science" })).toBe(true);
+    expect(coveredByPage(["MS in Computer Science"], { title: "Mechanical Engineering – Master's degree" })).toBe(false);
+    // Too short to compare safely: kept.
+    expect(coveredByPage(["MA in Art"], { title: "Art – Master's degree" })).toBe(false);
+  });
+});

@@ -17,8 +17,21 @@ const DEGREE_SLUG = /(^|[-_/])(master|masters|bachelor|bachelors|msc|m-sc|bsc|b-
 /** Overview pages, not single programs. */
 const LISTING = /^(degree-?programs?|degree-?programmes?|programmes?|programs?|study-?programs?|studies|courses?|master|masters|bachelor|bachelors|studienangebot|studiengaenge|corsi(-di-laurea)?|overview|all|search)$/i;
 /** Links worth following first. */
-const PROMISING = /(stud(y|ies|ium|iare|ying)|program|degree|course|corsi|laurea|master|bachelor|msc|bsc|admission|apply|international|prospective|future-students|english-taught|taught-in-english|képzés|studiengang|studienangebot|\/en\/|\/en$|english)/i;
+const PROMISING = /(stud(y|ies|ium|iare|ying)|program|degree|course|corsi|laurea|master|graduate|postgraduate|taught|msc|admission|apply|international|prospective|future-students|english-taught|taught-in-english|képzés|studiengang|studienangebot|\/en\/|\/en$|english)/i;
 const UNPROMISING = /(research|forschung|ricerca|kutatás|about|ueber|chi-siamo|contact|kontakt|press|media|library|news|event|staff|jobs|career|alumni|donate|shop)/i;
+
+/** Bachelor's programs are outside the scope (robot/scope.ts): their pages are followed last. */
+const UNDERGRADUATE = /(undergrad|bachelor|\bbsc\b|\bba\b|first-year|freshm)/i;
+
+const GRADUATE_PATHS = ["/graduate/", "/graduate/programs/", "/graduate-programs/", "/postgraduate/", "/postgraduate/taught/", "/study/postgraduate/", "/study/postgraduate-taught/", "/study/masters/", "/masters/", "/admissions/graduate/", "/academics/graduate-programs/", "/en/study/master/"];
+const GRADUATE_HOSTS = ["grad", "graduate", "gradschool", "gradadmissions", "postgraduate", "gsas", "sgs"];
+
+/** Likely addresses of a university's list of graduate programs, on its main site and graduate sub-sites. */
+export function graduateSeeds(website: string): string[] {
+  const u = new URL(website);
+  const site = registrable(u.hostname);
+  return [...GRADUATE_PATHS.map((p) => new URL(p, u.origin).toString()), ...GRADUATE_HOSTS.map((h) => `https://${h}.${site}/`)];
+}
 
 async function body(url: string, accept?: string): Promise<{ html: string; finalUrl: string } | null> {
   try {
@@ -106,11 +119,14 @@ export async function crawlForPrograms(
     if (seen.has(key) || NOT_PROGRAM.test(u.pathname)) return;
     seen.add(key);
     const hay = `${u.hostname} ${u.pathname} ${text}`;
-    const score = bonus + (PROMISING.test(hay) ? 5 : 0) + (DEGREE_SLUG.test(u.pathname) ? 4 : 0) + (/\/en(\/|$)|english/i.test(hay) ? 2 : 0) - (UNPROMISING.test(hay) ? 6 : 0) - depth;
+    const score = bonus + (PROMISING.test(hay) ? 5 : 0) + (DEGREE_SLUG.test(u.pathname) ? 4 : 0) + (/\/en(\/|$)|english/i.test(hay) ? 2 : 0) - (UNPROMISING.test(hay) ? 6 : 0) - (UNDERGRADUATE.test(hay) ? 5 : 0) - depth;
     frontier.push({ url: u.toString(), score, depth });
   };
   push(website, "", 0, 10);
   push(new URL("/en/", website).toString(), "english", 0, 8);
+  // Graduate course lists first (master's only since 22 Nov 2026): Harvard, Yale, Chicago list programs on school
+  // and graduate sub-sites that a crawl from the homepage rarely reached.
+  for (const g of graduateSeeds(website)) push(g, "graduate programs", 0, 9);
   for (const s of seeds) push(s, "", 1, 6);
 
   const programs = new Map<string, FoundProgram>();

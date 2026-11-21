@@ -100,6 +100,18 @@ export default async function UniversityPage({ params }: Props) {
       </Card>
 
       <Section title={t("programsTitle")}>
+        {/* Some top universities block robots (Oxford, UCL) or hide their course lists behind scripts (Stanford):
+            say so plainly instead of letting a short list look complete. */}
+        {programs.length < 15 ? (
+          <Card className="mb-3 space-y-2 border border-warning/40">
+            <p className="text-meta">{t("programsIncomplete", { name: u.name })}</p>
+            <ExternalLink href={u.website}>{t("programsAllLink")}</ExternalLink>
+          </Card>
+        ) : (
+          <p className="mb-3 text-meta text-ink-muted">
+            {t("programsAll")} <ExternalLink href={u.website}>{t("programsAllLink")}</ExternalLink>
+          </p>
+        )}
         <ul className="grid grid-cols-1 gap-3 md:grid-cols-2">
           {programs.map((p) => (
             <li key={p.slug}>

@@ -515,6 +515,20 @@ export function parseDiscoverUni(files: { kiscourse: string; institution: string
 // ---------------------------------------------------------------- facts for the robot's usual checks
 
 /** One course as the robot's usual facts, each quoting the dataset, so checks.ts planChanges can judge them. */
+const norm = (t: string) => ` ${t.toLowerCase().replace(/&/g, " and ").replace(/[^a-z0-9]+/g, " ").trim()} `;
+const DEGREE_WORDS = /\b(master'?s?( degree)?|of|in|the|degree|msc|ma|ms|meng|mba|mphil|research|coursework|extended|advanced|professional)\b/gi;
+
+/**
+ * True when one of the university's own program pages already offers this official-list course, so it isn't
+ * listed twice: "Computer Science – Master's degree" (College Scorecard) is covered by "MS in Computer Science",
+ * "Master of Data Science" (CRICOS) by "Master of Data Science (Online)". Same degree level is assumed (master's only).
+ */
+export function coveredByPage(pageTitles: string[], c: Pick<OfficialCourse, "title">): boolean {
+  const subject = norm(c.title.split(/\s+[–—-]\s+/)[0]!.replace(DEGREE_WORDS, " "));
+  if (subject.trim().length < 4) return false;
+  return pageTitles.some((t) => norm(t).includes(subject));
+}
+
 export function courseFacts(c: OfficialCourse): ProgramFacts {
   const f: ProgramFacts = { ...EMPTY_FACTS, intakes: [], english_tests: [], required_documents: [], related_bachelor_fields: [], career_paths_en: [] };
   f.is_program_page = true;
@@ -714,11 +728,15 @@ export async function importOfficial(country: OfficialCountry, opts: ImportOptio
     }
   }
 
-  const targets = matches.filter((m) => {
+  // Since 22 Nov 2026 (robot/scope.ts) every matched university inside the scope takes the official list, not only
+  // the ones blocking the robot: the list is complete where a crawl is not (Harvard, Stanford, Oxford block or hide
+  // their course pages). A course the university's own page already gives is skipped (coveredByPage).
+  const targets = matches;
+  const blocked = matches.filter((m) => {
     const fromPages = (programs.get(m.university.slug) ?? []).filter((p) => !fromDataset(p.source_url)).length;
-    return opts.all || opts.university || isBlocked(m.university as UniRow, pages.get(m.university.slug) ?? { checked: 0, failing: 0 }, fromPages);
+    return isBlocked(m.university as UniRow, pages.get(m.university.slug) ?? { checked: 0, failing: 0 }, fromPages);
   });
-  log(`${targets.length} of them ${opts.all || opts.university ? "selected" : "block the robot"}: ${targets.map((t) => `${t.university.slug} (${byProvider.get(t.provider.id)?.length ?? 0})`).join(", ") || "none"}`);
+  log(`${targets.length} universities take the official list (${blocked.length} of them block the robot): ${targets.map((t) => `${t.university.slug} (${byProvider.get(t.provider.id)?.length ?? 0})`).join(", ") || "none"}`);
   if (opts.dry) {
     for (const m of matches) log(`  ${m.university.slug} ← ${m.provider.names[0]} [${m.by}], ${byProvider.get(m.provider.id)?.length ?? 0} courses`);
     return { matched: matches.length, targets: targets.length, created: 0, updated: 0, published: 0, sources: 0, universities: 0 };
@@ -739,9 +757,11 @@ export async function importOfficial(country: OfficialCountry, opts: ImportOptio
     try {
       let slug: string | null = null;
       if (targetSet.has(uni.slug)) {
-        const same = (programs.get(uni.slug) ?? []).find((p) => p.title.toLowerCase() === c.title.toLowerCase());
+        const mine = programs.get(uni.slug) ?? [];
+        const same = mine.find((p) => p.title.toLowerCase() === c.title.toLowerCase());
         // The robot (or a person) already has this program from the university's own page: that wins.
         if (same && !fromDataset(same.source_url)) return;
+        if (!same && coveredByPage(mine.filter((p) => !fromDataset(p.source_url)).map((p) => p.title), c)) return;
         const existing = same ? await store.loadProgram(same.slug) : null;
         if (existing || !full) {
           if (existing) slug = existing.slug;
