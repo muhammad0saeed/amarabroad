@@ -1,5 +1,6 @@
 // The robot's reads and writes in Supabase, with the secret key (server-only: never shipped to browsers).
 
+import { SCOPE_FILTER } from "./scope.ts";
 import { createHash } from "node:crypto";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { stable, type PlannedChange, type ProgramRow } from "./checks.ts";
@@ -354,6 +355,7 @@ const DAY = 86_400_000;
 
 /**
  * Universities due for a search: never searched first (best ranked first), then the longest ago.
+ * Only universities inside the scope (robot/scope.ts: world top 700 plus each country's top 3).
  * Rows that failed are dated so they come back after a few days (see markDiscoveryFailed).
  */
 export async function undiscoveredUniversities(limit: number, offset = 0): Promise<string[]> {
@@ -362,6 +364,7 @@ export async function undiscoveredUniversities(limit: number, offset = 0): Promi
     .from("universities")
     .select("slug")
     .or(`discovered_at.is.null,discovered_at.lt.${due}`)
+    .or(SCOPE_FILTER)
     .order("discovered_at", { ascending: true, nullsFirst: true })
     .order("ranking->rank", { ascending: true, nullsFirst: false })
     .range(offset, offset + limit - 1);

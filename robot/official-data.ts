@@ -14,6 +14,7 @@
 // Matching: a dataset's provider is our university when the names match or the website's main name matches
 // (www.monash.edu.au and www.monash.edu are both "monash").
 
+import { SCOPE_FILTER, levelInScope } from "./scope.ts";
 import { inflateRawSync } from "node:zlib";
 import { readFileSync, statSync, readdirSync } from "node:fs";
 import { join } from "node:path";
@@ -677,13 +678,15 @@ export async function importOfficial(country: OfficialCountry, opts: ImportOptio
         .from("universities")
         .select("slug, name, website, discovered_at, program_pages_found, cities!inner(country)")
         .eq("cities.country", COUNTRY_SLUG[country])
+        .or(SCOPE_FILTER) // only universities inside the scope (robot/scope.ts)
         .order("slug")
         .range(a, b),
     "universities",
   );
   const ours = rows.filter((u) => !opts.university || u.slug === opts.university);
   const byProvider = new Map<string, OfficialCourse[]>();
-  for (const c of uniqueCourses(data.courses)) byProvider.set(c.providerId, [...(byProvider.get(c.providerId) ?? []), c]);
+  // Master's courses only (robot/scope.ts).
+  for (const c of uniqueCourses(data.courses).filter((x) => levelInScope(x.level))) byProvider.set(c.providerId, [...(byProvider.get(c.providerId) ?? []), c]);
   // Only providers that teach bachelor's or master's courses (schools and colleges share names and websites).
   const teaching = data.providers.filter((p) => byProvider.has(p.id)).map((p) => ({ ...p, courses: byProvider.get(p.id)!.length }));
   const { matches, ambiguous } = matchProviders(teaching, ours);

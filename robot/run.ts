@@ -22,6 +22,7 @@ import { seedTop } from "./seed-top.ts";
 import { interleave, pool, shardOf } from "./pool.ts";
 import { confirmDue, nextCheckHours } from "./schedule.ts";
 import { ENGLISH_COUNTRY_NAMES } from "./repair.ts";
+import { SCOPE, levelInScope } from "./scope.ts";
 import { applyUniversityFallbacks, deadlineCoverage, deadlineTargets } from "./deadlines.ts";
 import { importOfficial } from "./official-data.ts";
 import { updateRates } from "./rates.ts";
@@ -158,7 +159,8 @@ async function checkOne(source: store.SourceRow, validFields: Set<string>, stats
   }
   const read = readPages([main, ...childPages.map((c) => c.page)], today());
   // Pages that aren't a program are not stored at all (saves database space).
-  if (!read.facts.is_program_page || !read.facts.title || (!existing && !read.facts.degree_level)) {
+  // Outside the scope (robot/scope.ts): a new bachelor's page is not stored, like a page that is not a program.
+  if (!read.facts.is_program_page || !read.facts.title || (!existing && !levelInScope(read.facts.degree_level?.value))) {
     // Never a program: forget the page (fingerprint only). A known program whose page stopped reading
     // as one keeps its entry and is tried again later.
     if (!source.entity_slug) await store.rejectSource(source);
@@ -352,6 +354,9 @@ async function discoverAll() {
  * adds the next --step universities by rank (OpenAlex), so discovery never runs out of work.
  */
 async function grow() {
+  // The list of universities is fixed (robot/scope.ts): the robot completes those instead of adding more.
+  log(`Scope is fixed at the world top ${SCOPE.worldRank} plus each country's top ${SCOPE.countryRank} (robot/scope.ts): no universities added.`);
+  if (SCOPE.worldRank > 0) return;
   const step = Number(flag("step", "500"));
   const below = Number(flag("when-below", "500"));
   if (await databaseFull()) return;
