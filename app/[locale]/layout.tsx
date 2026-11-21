@@ -23,9 +23,11 @@ export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }
 
-// Every public page is rebuilt from the database at most 10 minutes after the robot changes something
-// (home, match, compare, countries… were otherwise frozen at the last deploy).
-export const revalidate = 600;
+// Every public page is rebuilt from the database at most a day after the robot changes something
+// (home, match, compare, countries… were otherwise frozen at the last deploy). The shortest time on a page
+// and its layouts wins, so this stays long; pages that need it set a shorter one (home: 1 hour).
+// Vercel free plan: 200,000 page rebuilds (ISR writes) a month, used up on 22 Nov 2026 with 10-minute rebuilds.
+export const revalidate = 86400;
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;

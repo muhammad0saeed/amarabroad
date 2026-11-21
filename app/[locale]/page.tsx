@@ -20,6 +20,9 @@ import { getPublicRobotStats } from "@/lib/supabase/robotStats";
 /** Pages the robot saved as programs that are really FAQs, requirement or fee pages: kept out of the home showcase. */
 const NOT_A_PROGRAM_TITLE = /(frequently asked|\bfaqs?\b|requirements?|admissions?\b|how to apply|application process|tuition|\bfees?\b|scholarships?|fellowships?|funding|\bnews\b|events?\b|information session|contact us)/i;
 
+// Rebuilt at most every hour (deadlines closing soon); the layout keeps every other page for a day.
+export const revalidate = 3600;
+
 export default async function HomePage({ params }: LocaleParams) {
   const locale = await initPage(params);
   const t = await getTranslations("home");

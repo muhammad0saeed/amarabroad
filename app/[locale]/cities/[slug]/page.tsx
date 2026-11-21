@@ -14,9 +14,11 @@ import { formatBDT, formatIndianInteger, formatMoney, toBDT } from "@/lib/money"
 import { getRates, initPage } from "@/lib/server";
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
-// Live data: pages are made on first visit and kept for 10 minutes. Sample data: all made at build time.
+// Live data: pages are made on first visit and kept for a day (the robot updates data every 12 hours).
+// Vercel free plan: 200,000 page rebuilds (ISR writes) a month, used up on 22 Nov 2026 with 10-minute rebuilds.
+// Sample data: all made at build time.
 export const dynamicParams = true;
-export const revalidate = 600;
+export const revalidate = 86400;
 
 export async function generateStaticParams() {
   if (DATA_SOURCE === "supabase") return [];

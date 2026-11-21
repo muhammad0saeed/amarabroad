@@ -6,7 +6,7 @@ import { listCities, listCountries } from "@/lib/data";
 import { initPage, type LocaleParams } from "@/lib/server";
 
 // Photo credits: Creative Commons photos must name their photographer and licence wherever they're used.
-export const revalidate = 600;
+export const revalidate = 86400;
 
 export async function generateMetadata({ params }: LocaleParams): Promise<Metadata> {
   const t = await getTranslations({ locale: (await params).locale, namespace: "credits" });

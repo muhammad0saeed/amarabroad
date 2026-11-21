@@ -7,8 +7,8 @@ import { listCountries } from "@/lib/data";
 import { initPage, type LocaleParams } from "@/lib/server";
 import { listNews } from "@/lib/supabase/news";
 
-// The news robot runs every few hours; the page is rebuilt at most every 10 minutes.
-export const revalidate = 600;
+// The news robot runs every 12 hours; the page is rebuilt at most every hour.
+export const revalidate = 3600;
 
 export async function generateMetadata({ params }: LocaleParams): Promise<Metadata> {
   const t = await getTranslations({ locale: (await params).locale, namespace: "news" });
